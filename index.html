@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>FFLogs Report Analyzer</title>
+  <link rel="stylesheet" href="css/styles.css">
+  <script type="module" src="js/ui/app.js"></script>
+</head>
+
+<body>
+  <h1>FFLogs Report Analyzer</h1>
+  <div id="login-status"></div> <!-- add this -->
+
+  <div id="report-section">
+    <p>Paste a FFLogs report URL:</p>
+    <input type="text" id="reportUrl" placeholder="https://www.fflogs.com/reports/ABC123xyz" size="60" />
+    <button id="analyzeBtn">Login & Analyze</button>
+  </div>
+
+  <h2>Results</h2>
+  <div id="output">No report analyzed yet.</div>
+
+</body>
+
+</html>

@@ -51,9 +51,16 @@ export function renderReport(outputEl, report, fightsWithEvents) {
     const section = document.createElement("section");
     section.innerHTML = `<h4>Encounter ID: ${fight.encounterID} (Fight ID: ${fight.id})</h4>`;
 
-    const actors = Array.from(report.actorById.values());
-    const actorNames = [...new Set(actors.map((a) => a.name))].filter(
-      (name) => name !== "Multiple Players"
+    // Only include actors that were part of this fight
+    const actors = fight.friendlyPlayers
+      .map((id) => report.actorById.get(id))
+      .filter(
+        (a) => a && a.name !== "Multiple Players" && a.name !== "Limit Break"
+      );
+
+    // Get unique names, sorted alphanumerically
+    const actorNames = [...new Set(actors.map((a) => a.name))].sort((a, b) =>
+      a.localeCompare(b)
     );
 
     const eventsByTime = new Map();

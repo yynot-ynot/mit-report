@@ -9,11 +9,29 @@ const log = getLogger("App");
 
 document.addEventListener("DOMContentLoaded", async () => {
   let accessToken = null;
+  let loadingInterval;
 
   const statusEl = document.getElementById("login-status");
   const analyzeBtn = document.getElementById("analyzeBtn");
   const outputEl = document.getElementById("output");
   const urlInput = document.getElementById("reportUrl");
+
+  function startLoadingMessage() {
+    let dotCount = 0;
+    clearInterval(loadingInterval);
+
+    loadingInterval = setInterval(() => {
+      dotCount = (dotCount % 3) + 1;
+      outputEl.textContent = "Analyzing report" + ".".repeat(dotCount);
+    }, 500);
+  }
+
+  function stopLoadingMessage(message) {
+    clearInterval(loadingInterval);
+    if (message) {
+      outputEl.textContent = message;
+    }
+  }
 
   async function analyze(url) {
     const match = url.match(/reports\/([a-zA-Z0-9]+)/);
@@ -26,30 +44,38 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     if (!(await ensureLogin(accessToken, url))) return;
 
-    log.info("Analyzing report", reportCode);
-    const gqlData = await fetchReport(accessToken, reportCode);
-    const report = parseReport(gqlData);
+    startLoadingMessage();
 
-    if (!report) {
-      outputEl.textContent = "Failed to parse report.";
-      return;
+    try {
+      log.info("Analyzing report", reportCode);
+      const gqlData = await fetchReport(accessToken, reportCode);
+      const report = parseReport(gqlData);
+
+      if (!report) {
+        stopLoadingMessage("Failed to parse report.");
+        return;
+      }
+
+      const fightsWithEvents = [];
+      for (const f of report.fights) {
+        const castsData = await fetchFightCasts(accessToken, reportCode, f.id);
+        const events = castsData?.data?.reportData?.report?.events?.data || [];
+        const enrichedEvents = parseFightEvents(
+          events,
+          f,
+          report.actorById,
+          report.abilityById
+        );
+
+        fightsWithEvents.push({ ...f, events: enrichedEvents });
+      }
+
+      stopLoadingMessage("");
+      renderReport(outputEl, report, fightsWithEvents);
+    } catch (err) {
+      log.error("Error analyzing report", err);
+      stopLoadingMessage("Failed to analyze report.");
     }
-
-    const fightsWithEvents = [];
-    for (const f of report.fights) {
-      const castsData = await fetchFightCasts(accessToken, reportCode, f.id);
-      const events = castsData?.data?.reportData?.report?.events?.data || [];
-      const enrichedEvents = parseFightEvents(
-        events,
-        f,
-        report.actorById,
-        report.abilityById
-      );
-
-      fightsWithEvents.push({ ...f, events: enrichedEvents });
-    }
-
-    renderReport(outputEl, report, fightsWithEvents);
   }
 
   accessToken = await initializeAuth(

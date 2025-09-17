@@ -13,6 +13,7 @@ export async function fetchReport(accessToken, reportCode) {
         fights {
           id
           encounterID
+          name
           startTime
           endTime
           friendlyPlayers

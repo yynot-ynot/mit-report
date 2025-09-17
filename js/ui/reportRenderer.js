@@ -10,57 +10,84 @@ const log = getLogger("ReportRenderer");
  * Cells = abilities
  */
 export function renderReport(outputEl, report, fightsWithEvents) {
-  outputEl.innerHTML = `<h3>${report.title}</h3>`;
+  // reset output
+  outputEl.innerHTML = `<div class="report-category">${report.title}</div>`;
 
-  for (const f of fightsWithEvents) {
+  // group fights by encounterID
+  const fightsByBoss = new Map();
+  fightsWithEvents.forEach((f) => {
+    if (!fightsByBoss.has(f.encounterID)) {
+      fightsByBoss.set(f.encounterID, []);
+    }
+    fightsByBoss.get(f.encounterID).push(f);
+  });
+
+  // build main wrapper
+  const reportWrapper = document.createElement("div");
+  reportWrapper.classList.add("report-wrapper");
+
+  // --- Boss tabs ---
+  const bossTabs = document.createElement("div");
+  bossTabs.classList.add("boss-tabs");
+  reportWrapper.appendChild(bossTabs);
+
+  // --- Pull grid ---
+  const pullGrid = document.createElement("div");
+  pullGrid.classList.add("pull-grid");
+  reportWrapper.appendChild(pullGrid);
+
+  // --- Fight container ---
+  const fightContainer = document.createElement("div");
+  fightContainer.id = "fightContainer";
+  reportWrapper.appendChild(fightContainer);
+
+  // append wrapper to output
+  outputEl.appendChild(reportWrapper);
+
+  // render one fight table
+  function renderFight(fight) {
+    fightContainer.innerHTML = ""; // clear previous
+
     const section = document.createElement("section");
-    section.innerHTML = `<h4>Encounter ID: ${f.encounterID} (Fight ID: ${f.id})</h4>`;
+    section.innerHTML = `<h4>Encounter ID: ${fight.encounterID} (Fight ID: ${fight.id})</h4>`;
 
-    // collect all unique actors for column headers
     const actors = Array.from(report.actorById.values());
     const actorNames = [...new Set(actors.map((a) => a.name))].filter(
       (name) => name !== "Multiple Players"
     );
 
-    // group events by timestamp
     const eventsByTime = new Map();
-    f.events.forEach((ev) => {
+    fight.events.forEach((ev) => {
       if (!eventsByTime.has(ev.timestamp)) {
         eventsByTime.set(ev.timestamp, {});
       }
       eventsByTime.get(ev.timestamp)[ev.actor] = ev.ability;
     });
 
-    // sort timestamps numerically
     const sortedTimestamps = Array.from(eventsByTime.keys()).sort(
       (a, b) => parseFloat(a) - parseFloat(b)
     );
 
-    // build table
     const table = document.createElement("table");
     table.classList.add("time-table");
 
-    // header row
     const thead = document.createElement("thead");
     const headerRow = document.createElement("tr");
     headerRow.innerHTML =
-      "<th>Timestamp (s)</th>" +
+      "<th>Timestamp</th>" +
       actorNames.map((name) => `<th>${name}</th>`).join("");
     thead.appendChild(headerRow);
     table.appendChild(thead);
 
-    // body rows
     const tbody = document.createElement("tbody");
     sortedTimestamps.forEach((ts) => {
       const row = document.createElement("tr");
       const evs = eventsByTime.get(ts);
 
-      // timestamp cell
       const tdTime = document.createElement("td");
       tdTime.textContent = ts;
       row.appendChild(tdTime);
 
-      // one cell per actor
       actorNames.forEach((name) => {
         const td = document.createElement("td");
         td.textContent = evs[name] || "";
@@ -72,8 +99,60 @@ export function renderReport(outputEl, report, fightsWithEvents) {
     table.appendChild(tbody);
 
     section.appendChild(table);
-    outputEl.appendChild(section);
+    fightContainer.appendChild(section);
   }
 
-  log.debug("Rendered fights as time tables", fightsWithEvents);
+  // render pulls for a given boss
+  function renderPullGrid(encounterID) {
+    const pulls = fightsByBoss.get(parseInt(encounterID, 10)) || [];
+    pullGrid.innerHTML = "";
+
+    pulls.forEach((f, idx) => {
+      const box = document.createElement("div");
+      box.textContent = idx + 1; // just number
+      box.classList.add("pull-box");
+      box.dataset.fightId = f.id;
+
+      box.addEventListener("click", () => {
+        document
+          .querySelectorAll(".pull-box")
+          .forEach((b) => b.classList.remove("active"));
+        box.classList.add("active");
+        renderFight(f);
+      });
+
+      pullGrid.appendChild(box);
+    });
+
+    if (pulls.length > 0) {
+      pullGrid.firstChild.classList.add("active");
+      renderFight(pulls[0]);
+    }
+  }
+
+  // build boss tabs
+  fightsByBoss.forEach((pulls, encounterID) => {
+    const tab = document.createElement("div");
+    const bossName = pulls[0]?.name || `Encounter ${encounterID}`;
+    tab.textContent = bossName;
+    tab.classList.add("boss-tab");
+    tab.dataset.encounterId = encounterID;
+
+    tab.addEventListener("click", () => {
+      document
+        .querySelectorAll(".boss-tab")
+        .forEach((t) => t.classList.remove("active"));
+      tab.classList.add("active");
+      renderPullGrid(encounterID);
+    });
+
+    bossTabs.appendChild(tab);
+  });
+
+  // auto-select first boss if present
+  const firstTab = bossTabs.querySelector(".boss-tab");
+  if (firstTab) {
+    firstTab.classList.add("active");
+    renderPullGrid(firstTab.dataset.encounterId);
+  }
 }

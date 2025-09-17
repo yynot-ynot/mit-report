@@ -11,7 +11,9 @@ export async function initializeAuth(statusEl, analyzeBtn, urlInput, onLogin) {
   if (data?.access_token) {
     accessToken = data.access_token;
     analyzeBtn.textContent = "Analyze";
-    statusEl.textContent = "✅ Logged in to FFLogs";
+    statusEl.textContent = "✅ Logged into FFLogs";
+    statusEl.classList.add("logged-in");
+    statusEl.classList.remove("logged-out");
     log.info("Access token acquired");
 
     // Clean up ?code=... from URL
@@ -28,8 +30,9 @@ export async function initializeAuth(statusEl, analyzeBtn, urlInput, onLogin) {
       await onLogin(accessToken, savedUrl);
     }
   } else {
-    analyzeBtn.textContent = "Login & Analyze";
-    statusEl.textContent = "";
+    analyzeBtn.textContent = "Login to FFLogs & Analyze";
+    statusEl.classList.add("logged-out");
+    statusEl.classList.remove("logged-in");
     log.warn("No access token found, user must log in");
   }
 

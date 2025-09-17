@@ -62,6 +62,12 @@ document.addEventListener("DOMContentLoaded", async () => {
     statusEl.textContent = "✅ Logged in to FFLogs";
     log.info("Access token acquired");
 
+    // Clean up ?code=... from the URL after successful exchange
+    if (window.history.replaceState) {
+      const cleanUrl = window.location.origin + window.location.pathname;
+      window.history.replaceState({}, document.title, cleanUrl);
+    }
+
     const savedUrl = localStorage.getItem("pending_report_url");
     if (savedUrl) {
       urlInput.value = savedUrl;

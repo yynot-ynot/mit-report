@@ -1,6 +1,7 @@
 import { getLogger, setModuleLogLevel } from "../utility/logger.js";
+import { formatRelativeTime } from "../utility/dataUtils.js";
 
-setModuleLogLevel("ReportRenderer", "debug");
+setModuleLogLevel("ReportRenderer", "info");
 const log = getLogger("ReportRenderer");
 
 /**
@@ -64,15 +65,24 @@ export function renderReport(outputEl, report, fightsWithEvents) {
     );
 
     const eventsByTime = new Map();
+
     fight.events.forEach((ev) => {
-      if (!eventsByTime.has(ev.timestamp)) {
-        eventsByTime.set(ev.timestamp, {});
+      if (!eventsByTime.has(ev.relative)) {
+        eventsByTime.set(ev.relative, {});
       }
-      eventsByTime.get(ev.timestamp)[ev.actor] = ev.ability;
+      if (!eventsByTime.get(ev.relative)[ev.actor]) {
+        eventsByTime.get(ev.relative)[ev.actor] = [];
+      }
+      eventsByTime.get(ev.relative)[ev.actor].push(ev.ability);
     });
 
+    // Debug log: show how many events were mapped
+    log.debug(
+      `Fight ${fight.id}: collected ${fight.events.length} events across ${eventsByTime.size} unique timestamps`
+    );
+
     const sortedTimestamps = Array.from(eventsByTime.keys()).sort(
-      (a, b) => parseFloat(a) - parseFloat(b)
+      (a, b) => a - b
     );
 
     const table = document.createElement("table");
@@ -87,17 +97,22 @@ export function renderReport(outputEl, report, fightsWithEvents) {
     table.appendChild(thead);
 
     const tbody = document.createElement("tbody");
-    sortedTimestamps.forEach((ts) => {
+    sortedTimestamps.forEach((ms) => {
       const row = document.createElement("tr");
-      const evs = eventsByTime.get(ts);
+      const evs = eventsByTime.get(ms);
 
       const tdTime = document.createElement("td");
-      tdTime.textContent = ts;
+      tdTime.textContent = formatRelativeTime(ms, 0); // format at display time
       row.appendChild(tdTime);
 
       actorNames.forEach((name) => {
         const td = document.createElement("td");
-        td.textContent = evs[name] || "";
+        const abilities = evs[name];
+        if (abilities) {
+          td.textContent = abilities.join(", ");
+        } else {
+          td.textContent = "";
+        }
         row.appendChild(td);
       });
 
@@ -107,6 +122,38 @@ export function renderReport(outputEl, report, fightsWithEvents) {
 
     section.appendChild(table);
     fightContainer.appendChild(section);
+
+    if (fight.events.length > 0) {
+      const lastEvent = fight.events[fight.events.length - 1];
+      log.info(
+        `Fight ${fight.id}: last parsed event timestamp = ${
+          lastEvent.relative
+        } ms (~${(lastEvent.relative / 1000).toFixed(1)}s)`
+      );
+    }
+
+    // 🔹 Log the last displayed row time and check for ignored events
+    if (sortedTimestamps.length > 0) {
+      const lastTime = sortedTimestamps[sortedTimestamps.length - 1];
+      log.info(
+        `Fight ${fight.id}: displaying ${
+          sortedTimestamps.length
+        } rows, last displayed row at ${lastTime} ms (~${(
+          lastTime / 1000
+        ).toFixed(1)}s)`
+      );
+
+      // Look for events beyond the last displayed row
+      const ignored = fight.events.filter((ev) => ev.relative > lastTime);
+      if (ignored.length > 0) {
+        log.warn(
+          `Fight ${fight.id}: ${ignored.length} events occur AFTER last displayed row (showing 5)`,
+          ignored.slice(0, 5)
+        );
+      }
+    } else {
+      log.warn(`Fight ${fight.id}: no rows rendered`);
+    }
   }
 
   // render pulls for a given boss
@@ -116,7 +163,7 @@ export function renderReport(outputEl, report, fightsWithEvents) {
 
     pulls.forEach((f, idx) => {
       const box = document.createElement("div");
-      box.textContent = idx + 1; // just number
+      box.textContent = idx + 1;
       box.classList.add("pull-box");
       box.dataset.fightId = f.id;
 

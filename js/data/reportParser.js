@@ -1,7 +1,7 @@
 import { formatRelativeTime } from "../utility/dataUtils.js";
 import { getLogger, setModuleLogLevel } from "../utility/logger.js";
 
-setModuleLogLevel("ReportParser", "debug");
+setModuleLogLevel("ReportParser", "info");
 const log = getLogger("ReportParser");
 
 /**
@@ -32,17 +32,70 @@ export function parseReport(gqlData) {
 
 /**
  * Enrich events with human-readable actor + ability + relative time.
+ * Only keep casts from players in fight.friendlyPlayers.
  */
 export function parseFightEvents(events, fight, actorById, abilityById) {
-  return events.map((ev) => {
-    const actor = actorById.get(ev.sourceID);
-    const ability = abilityById.get(ev.abilityGameID);
-    const timestamp = formatRelativeTime(ev.timestamp, fight.startTime);
+  if (!events || events.length === 0) {
+    log.warn(`Fight ${fight.id}: no events returned`);
+    return [];
+  }
 
-    return {
-      timestamp,
-      actor: actor ? actor.name : "Unknown",
-      ability: ability ? ability.name : "Unknown Ability",
-    };
+  // --- Raw pre-filter stats
+  const actorCounts = new Map();
+  let lastRawTime = 0;
+
+  events.forEach((ev) => {
+    const actor = actorById.get(ev.sourceID);
+    const name = actor ? actor.name : `Unknown(${ev.sourceID})`;
+    actorCounts.set(name, (actorCounts.get(name) || 0) + 1);
+    if (ev.timestamp > lastRawTime) lastRawTime = ev.timestamp;
   });
+
+  // --- Filter to players
+  const enriched = events
+    .map((ev) => {
+      const actor = actorById.get(ev.sourceID);
+      if (!actor || !fight.friendlyPlayers.includes(ev.sourceID)) {
+        return null;
+      }
+      const ability = abilityById.get(ev.abilityGameID);
+      return {
+        rawTimestamp: ev.timestamp,
+        relative: ev.timestamp - fight.startTime,
+        actor: actor.name,
+        ability: ability ? ability.name : "Unknown Ability",
+      };
+    })
+    .filter(Boolean);
+
+  // --- Summarize at INFO level
+  const fightDuration = fight.endTime - fight.startTime;
+  const lastEventTime =
+    enriched.length > 0 ? enriched[enriched.length - 1].relative : 0;
+
+  const keptPct = ((enriched.length / events.length) * 100).toFixed(1);
+
+  if (keptPct < 50) {
+    log.warn(
+      `Fight ${fight.id}: ${events.length} raw events (${
+        actorCounts.size
+      } actors) → ${
+        enriched.length
+      } kept (${keptPct}%), last player event at ${(
+        lastEventTime / 1000
+      ).toFixed(1)}s / fight length ${(fightDuration / 1000).toFixed(1)}s`
+    );
+  } else {
+    log.info(
+      `Fight ${fight.id}: ${events.length} raw events (${
+        actorCounts.size
+      } actors), ${enriched.length} kept (${keptPct}%), last player event at ${(
+        lastEventTime / 1000
+      ).toFixed(1)}s / fight length ${(fightDuration / 1000).toFixed(1)}s`
+    );
+  }
+
+  log.debug("Actor breakdown", Object.fromEntries(actorCounts));
+
+  return enriched;
 }

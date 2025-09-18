@@ -4,7 +4,7 @@ import { parseReport, parseFightEvents } from "../data/reportParser.js";
 import { renderReport } from "./reportRenderer.js";
 import { initializeAuth, ensureLogin } from "./authManager.js";
 
-setModuleLogLevel("App", "debug");
+setModuleLogLevel("App", "info");
 const log = getLogger("App");
 
 document.addEventListener("DOMContentLoaded", async () => {
@@ -58,8 +58,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
       const fightsWithEvents = [];
       for (const f of report.fights) {
-        const castsData = await fetchFightCasts(accessToken, reportCode, f.id);
-        const events = castsData?.data?.reportData?.report?.events?.data || [];
+        const events = await fetchFightCasts(accessToken, reportCode, f);
         const enrichedEvents = parseFightEvents(
           events,
           f,

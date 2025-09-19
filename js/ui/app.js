@@ -1,6 +1,16 @@
 import { getLogger, setModuleLogLevel } from "../utility/logger.js";
-import { fetchReport, fetchFightCasts } from "../data/fflogsApi.js";
-import { parseReport, parseFightEvents } from "../data/reportParser.js";
+import {
+  fetchReport,
+  fetchFightDamageTaken,
+  fetchFightBuffs,
+  fetchFightDebuffs,
+} from "../data/fflogsApi.js";
+import {
+  parseReport,
+  parseFightDamageTaken,
+  parseBuffEvents,
+  normalizeFightTable,
+} from "../data/reportParser.js";
 import { renderReport } from "./reportRenderer.js";
 import { initializeAuth, ensureLogin } from "./authManager.js";
 
@@ -56,21 +66,54 @@ document.addEventListener("DOMContentLoaded", async () => {
         return;
       }
 
-      const fightsWithEvents = [];
+      const fightsWithTables = [];
       for (const f of report.fights) {
-        const events = await fetchFightCasts(accessToken, reportCode, f);
-        const enrichedEvents = parseFightEvents(
-          events,
+        // Buffs & Debuffs for logging (not yet tied into FightTable)
+        const buffs = await fetchFightBuffs(accessToken, reportCode, f);
+        log.info(`Fight ${f.id}: raw Buffs fetched`, buffs);
+        const debuffs = await fetchFightDebuffs(accessToken, reportCode, f);
+        log.info(`Fight ${f.id}: raw Debuffs fetched`, debuffs);
+        const parsedBuffs = parseBuffEvents(
+          buffs,
+          f,
+          report.actorById,
+          report.abilityById
+        );
+        const parsedDebuffs = parseBuffEvents(
+          debuffs,
+          f,
+          report.actorById,
+          report.abilityById
+        );
+        log.info(
+          `Fight ${f.id}: Buffs=${parsedBuffs.length}, Debuffs=${parsedDebuffs.length}`
+        );
+
+        // Damage Taken
+        const damageTaken = await fetchFightDamageTaken(
+          accessToken,
+          reportCode,
+          f
+        );
+        const enrichedDamage = parseFightDamageTaken(
+          damageTaken,
           f,
           report.actorById,
           report.abilityById
         );
 
-        fightsWithEvents.push({ ...f, events: enrichedEvents });
+        // Normalize into FightTable
+        const fightTable = normalizeFightTable(
+          enrichedDamage,
+          f,
+          report.actorById
+        );
+
+        fightsWithTables.push(fightTable);
       }
 
       stopLoadingMessage("");
-      renderReport(outputEl, report, fightsWithEvents);
+      renderReport(outputEl, report, fightsWithTables);
     } catch (err) {
       log.error("Error analyzing report", err);
       stopLoadingMessage("Failed to analyze report.");

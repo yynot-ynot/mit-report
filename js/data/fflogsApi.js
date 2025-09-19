@@ -17,9 +17,14 @@ export async function fetchReport(accessToken, reportCode) {
           startTime
           endTime
           friendlyPlayers
+          enemyNPCs{    id
+    gameID
+    instanceCount
+    groupCount
+    petOwner}
         }
         masterData {
-          actors(type: "Player") {
+          actors {
             id
             name
             type
@@ -142,4 +147,26 @@ async function fetchEventsPaginated(
 
 export async function fetchFightCasts(accessToken, reportCode, fight) {
   return await fetchEventsPaginated(accessToken, reportCode, fight, "Casts");
+}
+
+export async function fetchFightDamageTaken(accessToken, reportCode, fight) {
+  return await fetchEventsPaginated(
+    accessToken,
+    reportCode,
+    fight,
+    "DamageTaken"
+  );
+}
+
+export async function fetchFightBuffs(accessToken, reportCode, fight) {
+  return await fetchEventsPaginated(accessToken, reportCode, fight, "Buffs");
+}
+
+export async function fetchFightDebuffs(accessToken, reportCode, fight) {
+  return await fetchEventsPaginated(accessToken, reportCode, fight, "Debuffs");
+}
+
+// NEW: fetch all generic events (catch-all, may include Addle application/removal)
+export async function fetchFightAllEvents(accessToken, reportCode, fight) {
+  return await fetchEventsPaginated(accessToken, reportCode, fight, "Events");
 }

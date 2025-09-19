@@ -1,11 +1,11 @@
 import { getLogger, setModuleLogLevel } from "../utility/logger.js";
+import { buildStatusList } from "./buffTracker.js";
 
 setModuleLogLevel("ReportParser", "info");
 const log = getLogger("ReportParser");
 
 export function parseReport(gqlData) {
   const report = gqlData?.data?.reportData?.report;
-
   if (!report) {
     log.warn("No report found in gqlData", gqlData);
     return null;
@@ -22,39 +22,7 @@ export function parseReport(gqlData) {
     `Parsed report "${title}" with ${fights.length} fights, ${actors.length} actors, ${abilities.length} abilities`
   );
 
-  return {
-    title,
-    fights,
-    actorById,
-    abilityById,
-  };
-}
-
-export function parseFightEvents(events, fight, actorById, abilityById) {
-  if (!events || events.length === 0) {
-    log.warn(`Fight ${fight.id}: no cast events returned`);
-    return [];
-  }
-
-  const parsed = events
-    .map((ev) => {
-      const actor = actorById.get(ev.sourceID);
-      if (!actor) return null;
-      const ability = abilityById.get(ev.abilityGameID);
-      return {
-        rawTimestamp: ev.timestamp,
-        relative: ev.timestamp - fight.startTime,
-        actor: actor.name,
-        ability: ability ? ability.name : "Unknown Ability",
-      };
-    })
-    .filter(Boolean);
-
-  log.debug(
-    `Fight ${fight.id}: parsed ${parsed.length} cast events into player actions`
-  );
-
-  return parsed;
+  return { title, fights, actorById, abilityById };
 }
 
 export function parseBuffEvents(events, fight, actorById, abilityById) {
@@ -68,7 +36,6 @@ export function parseBuffEvents(events, fight, actorById, abilityById) {
       const source = actorById.get(ev.sourceID);
       const target = actorById.get(ev.targetID);
       const ability = abilityById.get(ev.abilityGameID);
-
       return {
         rawTimestamp: ev.timestamp,
         relative: ev.timestamp - fight.startTime,
@@ -98,7 +65,6 @@ export function parseFightDamageTaken(events, fight, actorById, abilityById) {
       const actor = actorById.get(ev.targetID); // target hit
       const source = actorById.get(ev.sourceID); // attacker
       const ability = abilityById.get(ev.abilityGameID);
-
       return {
         rawTimestamp: ev.timestamp,
         relative: ev.timestamp - fight.startTime,
@@ -112,14 +78,55 @@ export function parseFightDamageTaken(events, fight, actorById, abilityById) {
     .filter(Boolean);
 
   log.debug(`Fight ${fight.id}: parsed ${parsed.length} damage taken events`);
-
   return parsed;
 }
 
 /**
- * Normalize parsed events into a FightTable structure
+ * Apply buffs to damage events in the FightTable based on status ranges.
  */
-export function normalizeFightTable(damageEvents, fight, actorById) {
+function applyBuffsToAttacks(statusList, damageEvents, fightTable, fight) {
+  statusList.forEach((status) => {
+    let applied = false;
+
+    damageEvents.forEach((ev) => {
+      if (ev.relative >= status.start && ev.relative <= status.end) {
+        applied = true;
+
+        if (!fightTable.rows[ev.relative]) {
+          fightTable.rows[ev.relative] = {
+            source: ev.source,
+            ability: ev.ability,
+            targets: {},
+          };
+        }
+
+        if (!fightTable.rows[ev.relative].targets[status.source]) {
+          fightTable.rows[ev.relative].targets[status.source] = [];
+        }
+        fightTable.rows[ev.relative].targets[status.source].push(status.buff);
+      }
+    });
+
+    if (!applied) {
+      log.warn(
+        `Buff ${status.buff} from ${status.source} had no matching attacks in Fight ${fight.id} (${status.start}-${status.end})`
+      );
+    }
+  });
+}
+
+/**
+ * Build the final FightTable with buffs integrated
+ */
+export function buildFightTable(
+  damageEvents,
+  buffs,
+  fight,
+  actorById,
+  abilityById
+) {
+  const statusList = buildStatusList(buffs, fight, actorById, abilityById);
+
   const table = {
     fightId: fight.id,
     encounterId: fight.encounterID,
@@ -128,7 +135,7 @@ export function normalizeFightTable(damageEvents, fight, actorById) {
     actors: {},
   };
 
-  // Deduplicate and filter actors: only real players, exclude “Multiple Players” and “Limit Break”
+  // Deduplicate and filter actors
   for (const actor of actorById.values()) {
     if (
       actor.type === "Player" &&
@@ -144,13 +151,8 @@ export function normalizeFightTable(damageEvents, fight, actorById) {
     }
   }
 
-  log.debug(
-    `Fight ${fight.id}: normalizing into FightTable with ${
-      Object.keys(table.actors).length
-    } player columns`
-  );
-
-  damageEvents.forEach((ev, idx) => {
+  // Populate damage events
+  damageEvents.forEach((ev) => {
     const ts = ev.relative;
 
     if (!table.rows[ts]) {
@@ -164,24 +166,15 @@ export function normalizeFightTable(damageEvents, fight, actorById) {
     if (!table.rows[ts].targets[ev.actor]) {
       table.rows[ts].targets[ev.actor] = [];
     }
-
-    // Test injection: add Rampart for the very first attack event, first player
-    if (idx === 0) {
-      table.rows[ts].targets[ev.actor].push("Rampart");
-      log.debug(
-        `Injected test buff 'Rampart' for ${ev.actor} at ${ts}ms (first event)`
-      );
-    }
-
-    log.debug(
-      `Fight ${fight.id} @${ts}ms: ${ev.source} used ${ev.ability} on ${ev.actor}`
-    );
   });
 
-  log.debug(
-    `Fight ${fight.id}: FightTable complete with ${
+  // Apply buffs across ranges
+  applyBuffsToAttacks(statusList, damageEvents, table, fight);
+
+  log.info(
+    `Fight ${fight.id}: FightTable built with ${
       Object.keys(table.rows).length
-    } rows`
+    } rows and ${Object.keys(table.actors).length} players`
   );
 
   return table;

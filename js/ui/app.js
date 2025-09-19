@@ -3,13 +3,12 @@ import {
   fetchReport,
   fetchFightDamageTaken,
   fetchFightBuffs,
-  fetchFightDebuffs,
 } from "../data/fflogsApi.js";
 import {
   parseReport,
   parseFightDamageTaken,
   parseBuffEvents,
-  normalizeFightTable,
+  buildFightTable,
 } from "../data/reportParser.js";
 import { renderReport } from "./reportRenderer.js";
 import { initializeAuth, ensureLogin } from "./authManager.js";
@@ -29,7 +28,6 @@ document.addEventListener("DOMContentLoaded", async () => {
   function startLoadingMessage() {
     let dotCount = 0;
     clearInterval(loadingInterval);
-
     loadingInterval = setInterval(() => {
       dotCount = (dotCount % 3) + 1;
       outputEl.textContent = "Analyzing report" + ".".repeat(dotCount);
@@ -68,28 +66,17 @@ document.addEventListener("DOMContentLoaded", async () => {
 
       const fightsWithTables = [];
       for (const f of report.fights) {
-        // Buffs & Debuffs for logging (not yet tied into FightTable)
         const buffs = await fetchFightBuffs(accessToken, reportCode, f);
         log.info(`Fight ${f.id}: raw Buffs fetched`, buffs);
-        const debuffs = await fetchFightDebuffs(accessToken, reportCode, f);
-        log.info(`Fight ${f.id}: raw Debuffs fetched`, debuffs);
+
         const parsedBuffs = parseBuffEvents(
           buffs,
           f,
           report.actorById,
           report.abilityById
         );
-        const parsedDebuffs = parseBuffEvents(
-          debuffs,
-          f,
-          report.actorById,
-          report.abilityById
-        );
-        log.info(
-          `Fight ${f.id}: Buffs=${parsedBuffs.length}, Debuffs=${parsedDebuffs.length}`
-        );
+        log.info(`Fight ${f.id}: parsed ${parsedBuffs.length} buff events`);
 
-        // Damage Taken
         const damageTaken = await fetchFightDamageTaken(
           accessToken,
           reportCode,
@@ -102,11 +89,12 @@ document.addEventListener("DOMContentLoaded", async () => {
           report.abilityById
         );
 
-        // Normalize into FightTable
-        const fightTable = normalizeFightTable(
+        const fightTable = buildFightTable(
           enrichedDamage,
+          buffs,
           f,
-          report.actorById
+          report.actorById,
+          report.abilityById
         );
 
         fightsWithTables.push(fightTable);

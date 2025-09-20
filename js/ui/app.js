@@ -91,9 +91,7 @@ document.addEventListener("DOMContentLoaded", async () => {
           report.actorById,
           report.abilityById
         );
-        log.info(
-          `Fight ${f.id}: parsed ${parsedBuffs.length} buff/debuff events`
-        );
+        log.info(`Fight ${f.id}: parsed Buffs/Debuffs`, parsedBuffs);
 
         const damageTaken = await fetchFightDamageTaken(
           accessToken,

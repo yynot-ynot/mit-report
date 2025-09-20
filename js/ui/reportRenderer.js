@@ -49,6 +49,9 @@ export function renderReport(outputEl, report, fightsWithTables) {
     );
 
     if (timestamps.length > 0) {
+      const container = document.createElement("div");
+      container.classList.add("time-table-container");
+
       const table = document.createElement("table");
       table.classList.add("time-table");
 
@@ -94,7 +97,8 @@ export function renderReport(outputEl, report, fightsWithTables) {
       });
       table.appendChild(tbody);
 
-      section.appendChild(table);
+      container.appendChild(table);
+      section.appendChild(container);
     }
 
     fightContainer.appendChild(section);

@@ -109,6 +109,24 @@ button:hover {
     background: #374151;
 }
 
+/* Make table scrollable while keeping header visible */
+.time-table-container {
+    max-height: 500px;
+    /* adjust as needed */
+    overflow-y: auto;
+    display: block;
+    /* ensure scrolling works on tbody */
+}
+
+.time-table thead th {
+    position: sticky;
+    top: 0;
+    z-index: 2;
+    /* keeps header above rows */
+    background: #2a2b2f;
+    /* same as your header row */
+}
+
 #report-section {
     display: flex;
     align-items: center;

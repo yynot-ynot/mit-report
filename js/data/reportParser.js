@@ -1,7 +1,7 @@
 import { getLogger, setModuleLogLevel } from "../utility/logger.js";
 import { buildStatusList } from "./buffTracker.js";
 
-setModuleLogLevel("ReportParser", "info");
+setModuleLogLevel("ReportParser", "debug");
 const log = getLogger("ReportParser");
 
 export function parseReport(gqlData) {
@@ -25,6 +25,26 @@ export function parseReport(gqlData) {
   return { title, fights, actorById, abilityById };
 }
 
+/**
+ * Parse raw buff/debuff events into normalized objects for easier processing.
+ *
+ * Each event is enriched with source/target names and ability names
+ * using the actorById and abilityById maps.
+ *
+ * Returned objects include:
+ *   - rawTimestamp: original event timestamp
+ *   - relative: timestamp offset from fight start
+ *   - source: actor name applying the buff/debuff
+ *   - target: actor name receiving the buff/debuff
+ *   - ability: buff/debuff name
+ *   - type: event type (applybuff, removebuff, applydebuff, etc.)
+ *
+ * @param {Array} events - Raw buff/debuff events from FFLogs
+ * @param {Object} fight - Fight object containing startTime/id
+ * @param {Map} actorById - Map of actorID → actor metadata
+ * @param {Map} abilityById - Map of abilityGameID → ability metadata
+ * @returns {Array} parsed - Array of normalized buff/debuff events
+ */
 export function parseBuffEvents(events, fight, actorById, abilityById) {
   if (!events || events.length === 0) {
     log.warn(`Fight ${fight.id}: no buff/debuff events returned`);
@@ -54,6 +74,34 @@ export function parseBuffEvents(events, fight, actorById, abilityById) {
   return parsed;
 }
 
+/**
+ * Parse raw damage-taken events into normalized objects for the FightTable.
+ *
+ * Each event is enriched with actor/source names, ability names,
+ * and any buffs present in the raw event (via `ev.buffs`).
+ *
+ * Buff parsing:
+ *   - Some "calculateddamage" events include a `buffs` field, e.g. "1001203.1001174.1002675."
+ *   - This field is split into individual ability IDs, then translated into buff names
+ *     using the `abilityById` map (falling back to `Unknown(<id>)` if not found).
+ *   - Parsed buff names are returned in a `buffs` array attached to each event.
+ *
+ * Returned objects include:
+ *   - rawTimestamp: original event timestamp
+ *   - relative: timestamp offset from fight start
+ *   - actor: name of the target taking damage
+ *   - source: name of the attacker
+ *   - ability: attack name (resolved from abilityGameID)
+ *   - amount: raw damage value (default 0)
+ *   - mitigated: absorbed/mitigated value (default 0)
+ *   - buffs: array of buff names active on the target during this event
+ *
+ * @param {Array} events - Raw damage events from FFLogs
+ * @param {Object} fight - Fight object containing startTime/id
+ * @param {Map} actorById - Map of actorID → actor metadata
+ * @param {Map} abilityById - Map of abilityGameID → ability metadata
+ * @returns {Array} parsed - Array of normalized damage-taken events
+ */
 export function parseFightDamageTaken(events, fight, actorById, abilityById) {
   if (!events || events.length === 0) {
     log.warn(`Fight ${fight.id}: no damage taken events returned`);
@@ -65,6 +113,19 @@ export function parseFightDamageTaken(events, fight, actorById, abilityById) {
       const actor = actorById.get(ev.targetID); // target hit
       const source = actorById.get(ev.sourceID); // attacker
       const ability = abilityById.get(ev.abilityGameID);
+
+      // 🔍 Parse buffs if present (string of ability IDs separated by ".")
+      let buffNames = [];
+      if (ev.buffs) {
+        buffNames = ev.buffs
+          .split(".")
+          .filter((id) => id.length > 0)
+          .map((id) => {
+            const buffAbility = abilityById.get(Number(id));
+            return buffAbility ? buffAbility.name : `Unknown(${id})`;
+          });
+      }
+
       return {
         rawTimestamp: ev.timestamp,
         relative: ev.timestamp - fight.startTime,
@@ -73,6 +134,7 @@ export function parseFightDamageTaken(events, fight, actorById, abilityById) {
         ability: ability ? ability.name : "Unknown Damage",
         amount: ev.amount ?? 0,
         mitigated: ev.absorbed ?? 0,
+        buffs: buffNames, // ✅ include parsed buffs
       };
     })
     .filter(Boolean);
@@ -82,41 +144,76 @@ export function parseFightDamageTaken(events, fight, actorById, abilityById) {
 }
 
 /**
- * Apply buffs to damage events in the FightTable based on status ranges.
+ * Apply buff/debuff sources to damage events in the FightTable.
+ *
+ * Matching logic:
+ *   - Each damage event already lists the buff *names* active (`ev.buffs`).
+ *   - Each status entry from `buildStatusList` describes a buff's timeline
+ *     with { source, buff, start, end }.
+ *   - We only credit a buff to an event if:
+ *       1. The event lists that buff name.
+ *       2. The event timestamp falls between the buff’s start and end.
+ *
+ * Result:
+ *   rows[timestamp].buffs = {
+ *     "Addle": ["PlayerA"],        // PlayerA applied Addle
+ *     "Intervention": ["PlayerB"], // PlayerB applied Intervention
+ *   }
+ *
+ * @param {Array} statusList - Buff/debuff timelines ({ source, buff, start, end })
+ * @param {Array} damageEvents - Parsed damage-taken events (with ev.buffs)
+ * @param {Object} fightTable - FightTable being constructed
+ * @param {Object} fight - Fight metadata for logging context
  */
 function applyBuffsToAttacks(statusList, damageEvents, fightTable, fight) {
-  statusList.forEach((status) => {
-    let applied = false;
+  damageEvents.forEach((ev) => {
+    const row = fightTable.rows[ev.relative];
+    if (!row) return;
 
-    damageEvents.forEach((ev) => {
-      if (ev.relative >= status.start && ev.relative <= status.end) {
-        applied = true;
+    ev.buffs.forEach((buffName) => {
+      // Find any matching status windows for this buff
+      const matches = statusList.filter(
+        (s) =>
+          s.buff === buffName && ev.relative >= s.start && ev.relative <= s.end
+      );
 
-        if (!fightTable.rows[ev.relative]) {
-          fightTable.rows[ev.relative] = {
-            source: ev.source,
-            ability: ev.ability,
-            targets: {},
-          };
-        }
-
-        if (!fightTable.rows[ev.relative].targets[status.source]) {
-          fightTable.rows[ev.relative].targets[status.source] = [];
-        }
-        fightTable.rows[ev.relative].targets[status.source].push(status.buff);
+      if (matches.length > 0) {
+        matches.forEach((m) => {
+          if (!row.buffs[buffName]) row.buffs[buffName] = [];
+          row.buffs[buffName].push(m.source);
+        });
+      } else {
+        // Buff was present in event.buffs but no source found in statusList
+        log.warn(
+          `Buff ${buffName} on damage event @${ev.relative} (Fight ${fight.id}) had no matching active status`
+        );
       }
     });
-
-    if (!applied) {
-      log.warn(
-        `Buff ${status.buff} from ${status.source} had no matching attacks in Fight ${fight.id} (${status.start}-${status.end})`
-      );
-    }
   });
 }
 
 /**
- * Build the final FightTable with buffs integrated
+ * Build the final FightTable for a given fight.
+ *
+ * Rows are keyed by relative timestamp:
+ *   {
+ *     fightId, encounterId, name,
+ *     actors: { playerName: { id, name, type } },
+ *     rows: {
+ *       [timestamp]: {
+ *         source: attacker name,
+ *         ability: attack name,
+ *         buffs: { buffName: [applierNames] }
+ *       }
+ *     }
+ *   }
+ *
+ * @param {Array} damageEvents - Parsed damage taken events
+ * @param {Array} buffs - Raw buff/debuff events
+ * @param {Object} fight - Fight metadata (id, encounterID, name, startTime)
+ * @param {Map} actorById - Map of actorID → actor metadata
+ * @param {Map} abilityById - Map of abilityGameID → ability metadata
+ * @returns {Object} FightTable
  */
 export function buildFightTable(
   damageEvents,
@@ -135,13 +232,14 @@ export function buildFightTable(
     actors: {},
   };
 
-  // Deduplicate and filter actors
-  for (const actor of actorById.values()) {
+  // Deduplicate actors (players only)
+  for (const playerId of fight.friendlyPlayers) {
+    const actor = actorById.get(playerId);
     if (
+      actor &&
       actor.type === "Player" &&
       actor.name !== "Multiple Players" &&
-      actor.name !== "Limit Break" &&
-      !table.actors[actor.name]
+      actor.name !== "Limit Break"
     ) {
       table.actors[actor.name] = {
         id: actor.id,
@@ -151,25 +249,42 @@ export function buildFightTable(
     }
   }
 
-  // Populate damage events
+  // Populate rows from damage events
   damageEvents.forEach((ev) => {
     const ts = ev.relative;
-
     if (!table.rows[ts]) {
       table.rows[ts] = {
         source: ev.source,
         ability: ev.ability,
-        targets: {},
+        buffs: {},
       };
     }
 
-    if (!table.rows[ts].targets[ev.actor]) {
-      table.rows[ts].targets[ev.actor] = [];
-    }
+    ev.buffs.forEach((buffName) => {
+      if (!table.rows[ts].buffs[buffName]) {
+        table.rows[ts].buffs[buffName] = [];
+      }
+    });
   });
 
-  // Apply buffs across ranges
+  // Fill in applier names based on buff timelines
   applyBuffsToAttacks(statusList, damageEvents, table, fight);
+
+  // ✅ Final pass: replace null/unknown appliers with all players
+  for (const [ts, row] of Object.entries(table.rows)) {
+    for (const [buffName, appliers] of Object.entries(row.buffs)) {
+      if (
+        appliers.length === 0 ||
+        appliers.some((a) => !a || a.startsWith("Unknown"))
+      ) {
+        log.warn(
+          `Fight ${fight.id}, ts=${ts}: Buff ${buffName} has no valid source, crediting all players`
+        );
+        // Replace with all player names from table.actors
+        row.buffs[buffName] = Object.keys(table.actors);
+      }
+    }
+  }
 
   log.info(
     `Fight ${fight.id}: FightTable built with ${

@@ -3,6 +3,8 @@ import {
   fetchReport,
   fetchFightDamageTaken,
   fetchFightBuffs,
+  fetchFightDebuffs,
+  fetchFightDamageDone,
 } from "../data/fflogsApi.js";
 import {
   parseReport,
@@ -69,29 +71,48 @@ document.addEventListener("DOMContentLoaded", async () => {
         const buffs = await fetchFightBuffs(accessToken, reportCode, f);
         log.info(`Fight ${f.id}: raw Buffs fetched`, buffs);
 
+        const debuffsEnemies = await fetchFightDebuffs(
+          accessToken,
+          reportCode,
+          f,
+          1
+        );
+        log.info(
+          `Fight ${f.id}: raw Debuffs (enemies) fetched`,
+          debuffsEnemies
+        );
+
+        // ✅ Merge buffs + debuffs for tracking
+        const allStatusEvents = [...buffs, ...debuffsEnemies];
+
         const parsedBuffs = parseBuffEvents(
-          buffs,
+          allStatusEvents,
           f,
           report.actorById,
           report.abilityById
         );
-        log.info(`Fight ${f.id}: parsed ${parsedBuffs.length} buff events`);
+        log.info(
+          `Fight ${f.id}: parsed ${parsedBuffs.length} buff/debuff events`
+        );
 
         const damageTaken = await fetchFightDamageTaken(
           accessToken,
           reportCode,
           f
         );
-        const enrichedDamage = parseFightDamageTaken(
+        log.info(`Fight ${f.id}: raw DamageTaken fetched`, damageTaken);
+
+        const parsedDamageTaken = parseFightDamageTaken(
           damageTaken,
           f,
           report.actorById,
           report.abilityById
         );
+        log.info(`Fight ${f.id}: parsed DamageTaken`, parsedDamageTaken);
 
         const fightTable = buildFightTable(
-          enrichedDamage,
-          buffs,
+          parsedDamageTaken,
+          allStatusEvents,
           f,
           report.actorById,
           report.abilityById

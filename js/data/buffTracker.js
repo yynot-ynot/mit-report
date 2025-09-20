@@ -1,14 +1,22 @@
 import { getLogger, setModuleLogLevel } from "../utility/logger.js";
 
-setModuleLogLevel("BuffTracker", "debug");
+setModuleLogLevel("BuffTracker", "info");
 const log = getLogger("BuffTracker");
 
 /**
  * Build a complete list of buff/debuff statuses with start and end times.
- * - Each "apply" creates a new incomplete status.
- * - Each "remove" tries to match an incomplete one, completes it, and moves it to the completed list.
- * - "refresh" events are ignored but logged as INFO.
- * - Leftover incomplete statuses are closed with MAX_SAFE_INTEGER and logged.
+ *
+ * This tracker handles both BUFF and DEBUFF events from FFLogs.
+ *
+ * Event types supported:
+ *   - Buffs:   applybuff, applybuffstack, removebuff, removebuffstack, refreshbuff
+ *   - Debuffs: applydebuff, applydebuffstack, removedebuff, removedebuffstack, refreshdebuff
+ *
+ * Behavior:
+ *   - Each "apply*" creates a new incomplete status (if none active).
+ *   - Each "remove*" completes an active status (if one exists).
+ *   - Each "refresh*" is logged but does not change the timeline.
+ *   - Leftover incomplete statuses are closed at MAX_SAFE_INTEGER and logged.
  *
  * @param {Array} buffs - Raw buff/debuff events from FFLogs
  * @param {Object} fight - Fight object with startTime
@@ -17,8 +25,8 @@ const log = getLogger("BuffTracker");
  * @returns {Array} completeStatuses - Array of { source, buff, start, end }
  */
 export function buildStatusList(buffs, fight, actorById, abilityById) {
-  const incompleteStatuses = [];
-  const completeStatuses = [];
+  const incompleteStatuses = []; // stores currently active buffs/debuffs
+  const completeStatuses = []; // stores finalized buff/debuff timelines
 
   buffs.forEach((ev) => {
     const source = actorById.get(ev.sourceID);
@@ -29,13 +37,19 @@ export function buildStatusList(buffs, fight, actorById, abilityById) {
     const buffName = ability.name;
     const relTs = ev.timestamp - fight.startTime;
 
-    // 🔍 DEBUG logging for triage
+    // 🔍 DEBUG logging to see what we're parsing
     log.debug(
-      `Buff event: type=${ev.type}, ability=${buffName}, ts=${relTs}, sourceID=${ev.sourceID}, source=${source?.name}, targetID=${ev.targetID}, target=${target?.name}`
+      `Buff/Debuff event: type=${ev.type}, ability=${buffName}, ts=${relTs}, sourceID=${ev.sourceID}, source=${source?.name}, targetID=${ev.targetID}, target=${target?.name}`
     );
 
-    if (ev.type === "applybuff" || ev.type === "applybuffstack") {
-      // 1️⃣ Check if an incomplete status already exists for this source+buff
+    // 1️⃣ Handle APPLY events (buffs or debuffs)
+    if (
+      ev.type === "applybuff" ||
+      ev.type === "applybuffstack" ||
+      ev.type === "applydebuff" ||
+      ev.type === "applydebuffstack"
+    ) {
+      // Check if this buff/debuff is already active (duplicate apply)
       const exists = incompleteStatuses.find(
         (s) =>
           s.source === source?.name && s.buff === buffName && s.end === null
@@ -48,39 +62,55 @@ export function buildStatusList(buffs, fight, actorById, abilityById) {
         return;
       }
 
-      // a) new incomplete status
+      // Create a new incomplete status entry
       incompleteStatuses.push({
         source: source ? source.name : `Unknown(${ev.sourceID})`,
         buff: buffName,
         start: relTs,
-        end: null,
+        end: null, // stays null until removed
       });
-    } else if (ev.type === "removebuff" || ev.type === "removebuffstack") {
-      // c) find matching incomplete status
+
+      // 2️⃣ Handle REMOVE events (buffs or debuffs)
+    } else if (
+      ev.type === "removebuff" ||
+      ev.type === "removebuffstack" ||
+      ev.type === "removedebuff" ||
+      ev.type === "removedebuffstack"
+    ) {
+      // Find the corresponding active status
       const idx = incompleteStatuses.findIndex(
         (s) =>
           s.source === source?.name && s.buff === buffName && s.end === null
       );
+
       if (idx !== -1) {
+        // Close it and move to complete list
         const status = incompleteStatuses.splice(idx, 1)[0];
         status.end = relTs;
         completeStatuses.push(status);
       } else {
+        // Removal with no matching apply (e.g., log missing)
         log.error(
           `No matching apply found for ${buffName} removed by ${source?.name} @${relTs}`
         );
       }
-    } else if (ev.type === "refreshbuff") {
+
+      // 3️⃣ Handle REFRESH events (buffs or debuffs)
+    } else if (ev.type === "refreshbuff" || ev.type === "refreshdebuff") {
+      // Does not change start/end timeline, just log it
       log.info(`Refresh event ignored for ${buffName} on ${source?.name}`);
     }
   });
 
-  // f) leftover incomplete statuses
+  // 4️⃣ Close leftover statuses (never had a remove event)
   incompleteStatuses.forEach((s) => {
-    log.info(`Incomplete buff ${s.buff} from ${s.source}, no removal found`);
-    s.end = Number.MAX_SAFE_INTEGER;
+    log.info(
+      `Incomplete buff/debuff ${s.buff} from ${s.source}, no removal found`
+    );
+    s.end = Number.MAX_SAFE_INTEGER; // stays active until end of fight
     completeStatuses.push(s);
   });
 
+  // Sort all completed statuses by start time for consistent output
   return completeStatuses.sort((a, b) => a.start - b.start);
 }

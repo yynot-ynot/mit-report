@@ -77,8 +77,16 @@ export function renderReport(outputEl, report, fightsWithTables) {
 
         Object.values(fightTable.actors).forEach((actor) => {
           const td = document.createElement("td");
-          const abilities = event.targets[actor.name];
-          td.textContent = abilities ? abilities.join(", ") : "";
+
+          // Look up buffs applied to this actor at this timestamp
+          const playerBuffs = [];
+          for (const [buffName, appliers] of Object.entries(event.buffs)) {
+            if (appliers.includes(actor.name)) {
+              playerBuffs.push(buffName);
+            }
+          }
+
+          td.textContent = playerBuffs.length > 0 ? playerBuffs.join(", ") : "";
           row.appendChild(td);
         });
 

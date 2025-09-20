@@ -1,6 +1,6 @@
 import { getLogger, setModuleLogLevel } from "../utility/logger.js";
 
-setModuleLogLevel("FFLogsApi", "info");
+setModuleLogLevel("FFLogsApi", "debug");
 const log = getLogger("FFLogsApi");
 
 export async function fetchReport(accessToken, reportCode) {
@@ -17,11 +17,13 @@ export async function fetchReport(accessToken, reportCode) {
           startTime
           endTime
           friendlyPlayers
-          enemyNPCs{    id
-    gameID
-    instanceCount
-    groupCount
-    petOwner}
+          enemyNPCs {
+            id
+            gameID
+            instanceCount
+            groupCount
+            petOwner
+          }
         }
         masterData {
           actors {
@@ -60,26 +62,47 @@ export async function fetchReport(accessToken, reportCode) {
 }
 
 /**
+ * Format GraphQL option values
+ */
+function formatOption(key, value) {
+  if (key === "hostilityType") {
+    return `hostilityType: ${value === 1 ? "Enemies" : "Friendlies"}`;
+  }
+  return `${key}: ${value}`;
+}
+
+/**
  * Generic event fetcher with pagination
  */
 async function fetchEventsPaginated(
   accessToken,
   reportCode,
   fight,
-  dataType = "Casts"
+  dataType = "Casts",
+  extraOptions = {}
 ) {
   let allEvents = [];
   let nextPageTimestamp = fight.startTime;
   let page = 1;
 
   log.info(
-    `Fight ${fight.id}: fetching ${dataType} events (time ${fight.startTime} → ${fight.endTime})`
+    `Fight ${fight.id}: fetching ${dataType} events (time ${
+      fight.startTime
+    } → ${fight.endTime}, options=${JSON.stringify(extraOptions)})`
   );
 
   while (true) {
     log.debug(
-      `Fight ${fight.id} ${dataType} page ${page} (time ${nextPageTimestamp} → ${fight.endTime})`
+      `Fight ${
+        fight.id
+      } ${dataType} page ${page} (time ${nextPageTimestamp} → ${
+        fight.endTime
+      }, options=${JSON.stringify(extraOptions)})`
     );
+
+    const optionsStr = Object.entries(extraOptions)
+      .map(([k, v]) => formatOption(k, v))
+      .join(", ");
 
     const query = `{
       reportData {
@@ -90,6 +113,7 @@ async function fetchEventsPaginated(
             startTime: ${nextPageTimestamp},
             endTime: ${fight.endTime},
             limit: 1000
+            ${optionsStr}
           ) {
             data
             nextPageTimestamp
@@ -162,11 +186,39 @@ export async function fetchFightBuffs(accessToken, reportCode, fight) {
   return await fetchEventsPaginated(accessToken, reportCode, fight, "Buffs");
 }
 
-export async function fetchFightDebuffs(accessToken, reportCode, fight) {
-  return await fetchEventsPaginated(accessToken, reportCode, fight, "Debuffs");
+export async function fetchFightDebuffs(
+  accessToken,
+  reportCode,
+  fight,
+  hostilityType = null // optional, FFLogs may ignore this for Debuffs
+) {
+  const extraOptions = {};
+  if (hostilityType !== null) {
+    extraOptions.hostilityType = hostilityType; // Friendlies (0) or Enemies (1)
+  }
+
+  return await fetchEventsPaginated(
+    accessToken,
+    reportCode,
+    fight,
+    "Debuffs",
+    extraOptions
+  );
 }
 
-// NEW: fetch all generic events (catch-all, may include Addle application/removal)
-export async function fetchFightAllEvents(accessToken, reportCode, fight) {
-  return await fetchEventsPaginated(accessToken, reportCode, fight, "Events");
+export async function fetchFightDamageDone(
+  accessToken,
+  reportCode,
+  fight,
+  hostilityType = 0 // 0 = Friendlies, 1 = Enemies
+) {
+  return await fetchEventsPaginated(
+    accessToken,
+    reportCode,
+    fight,
+    "DamageDone",
+    {
+      hostilityType,
+    }
+  );
 }

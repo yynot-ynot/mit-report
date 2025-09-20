@@ -1,5 +1,5 @@
 const clientId = "9fe1d266-b67e-4b27-bc68-8f34a536456f";
-const redirectUri = "http://localhost:8000/";
+const redirectUri = window.location.origin + window.location.pathname;
 
 function generateCodeVerifier(length = 128) {
   const charset =

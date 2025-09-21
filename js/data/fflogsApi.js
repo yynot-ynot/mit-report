@@ -175,12 +175,13 @@ export async function fetchFightCasts(accessToken, reportCode, fight) {
 }
 
 export async function fetchFightDamageTaken(accessToken, reportCode, fight) {
-  return await fetchEventsPaginated(
+  const events = await fetchEventsPaginated(
     accessToken,
     reportCode,
     fight,
     "DamageTaken"
   );
+  return events.filter((ev) => ev.type === "damage");
 }
 
 export async function fetchFightBuffs(accessToken, reportCode, fight) {

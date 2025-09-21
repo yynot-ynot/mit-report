@@ -4,7 +4,6 @@ import {
   fetchFightDamageTaken,
   fetchFightBuffs,
   fetchFightDebuffs,
-  fetchFightDamageDone,
 } from "../data/fflogsApi.js";
 import {
   parseReport,
@@ -59,68 +58,80 @@ document.addEventListener("DOMContentLoaded", async () => {
     try {
       log.info("Analyzing report", reportCode);
       const gqlData = await fetchReport(accessToken, reportCode);
-      const report = parseReport(gqlData);
+      log.info("GraphQL raw report response", gqlData);
 
+      const report = parseReport(gqlData);
       if (!report) {
         stopLoadingMessage("Failed to parse report.");
         return;
       }
 
-      const fightsWithTables = [];
-      for (const f of report.fights) {
-        const buffs = await fetchFightBuffs(accessToken, reportCode, f);
-        log.info(`Fight ${f.id}: raw Buffs fetched`, buffs);
+      // Cache fight tables so we only fetch once per fight
+      const fightTableCache = new Map();
+
+      async function loadFightTable(pull) {
+        if (fightTableCache.has(pull.id)) {
+          return fightTableCache.get(pull.id);
+        }
+
+        log.info(`Loading fight table for Fight ${pull.id} (${pull.name})`);
+
+        // Fetch buffs/debuffs
+        const buffs = await fetchFightBuffs(accessToken, reportCode, pull);
+        log.info(`Pull ${pull.id}: raw Buffs fetched`, buffs);
 
         const debuffsEnemies = await fetchFightDebuffs(
           accessToken,
           reportCode,
-          f,
-          1
+          pull
         );
         log.info(
-          `Fight ${f.id}: raw Debuffs (enemies) fetched`,
+          `Pull ${pull.id}: raw Debuffs (enemies) fetched`,
           debuffsEnemies
         );
 
-        // ✅ Merge buffs + debuffs for tracking
         const allStatusEvents = [...buffs, ...debuffsEnemies];
-
         const parsedBuffs = parseBuffEvents(
           allStatusEvents,
-          f,
+          pull,
           report.actorById,
           report.abilityById
         );
-        log.info(`Fight ${f.id}: parsed Buffs/Debuffs`, parsedBuffs);
+        log.info(`Pull ${pull.id}: parsed Buffs/Debuffs`, parsedBuffs);
 
+        // Fetch damage taken
         const damageTaken = await fetchFightDamageTaken(
           accessToken,
           reportCode,
-          f
+          pull
         );
-        log.info(`Fight ${f.id}: raw DamageTaken fetched`, damageTaken);
+        log.info(`Pull ${pull.id}: raw DamageTaken fetched`, damageTaken);
 
         const parsedDamageTaken = parseFightDamageTaken(
           damageTaken,
-          f,
+          pull,
           report.actorById,
           report.abilityById
         );
-        log.info(`Fight ${f.id}: parsed DamageTaken`, parsedDamageTaken);
+        log.info(`Pull ${pull.id}: parsed DamageTaken`, parsedDamageTaken);
 
+        // Build fight table
         const fightTable = buildFightTable(
           parsedDamageTaken,
           allStatusEvents,
-          f,
+          pull,
           report.actorById,
           report.abilityById
         );
 
-        fightsWithTables.push(fightTable);
+        fightTableCache.set(pull.id, fightTable);
+        return fightTable;
       }
 
       stopLoadingMessage("");
-      renderReport(outputEl, report, fightsWithTables);
+
+      // Render UI with fights metadata; loadFightTable called on user click
+      renderReport(outputEl, report, loadFightTable);
     } catch (err) {
       log.error("Error analyzing report", err);
       stopLoadingMessage("Failed to analyze report.");

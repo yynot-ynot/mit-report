@@ -4,15 +4,15 @@ import { formatRelativeTime } from "../utility/dataUtils.js";
 setModuleLogLevel("ReportRenderer", "info");
 const log = getLogger("ReportRenderer");
 
-export function renderReport(outputEl, report, fightsWithTables) {
+export function renderReport(outputEl, report, loadFightTable) {
   outputEl.innerHTML = `<div class="report-category">${report.title}</div>`;
 
   const fightsByBoss = new Map();
-  fightsWithTables.forEach((f) => {
-    if (!fightsByBoss.has(f.encounterId)) {
-      fightsByBoss.set(f.encounterId, []);
+  report.fights.forEach((f) => {
+    if (!fightsByBoss.has(f.encounterID)) {
+      fightsByBoss.set(f.encounterID, []);
     }
-    fightsByBoss.get(f.encounterId).push(f);
+    fightsByBoss.get(f.encounterID).push(f);
   });
 
   const reportWrapper = document.createElement("div");
@@ -32,7 +32,7 @@ export function renderReport(outputEl, report, fightsWithTables) {
 
   outputEl.appendChild(reportWrapper);
 
-  function renderFight(fightTable) {
+  async function renderFight(fightTable) {
     fightContainer.innerHTML = "";
 
     const section = document.createElement("section");
@@ -114,14 +114,17 @@ export function renderReport(outputEl, report, fightsWithTables) {
       const box = document.createElement("div");
       box.textContent = idx + 1;
       box.classList.add("pull-box");
-      box.dataset.fightId = f.fightId;
+      box.dataset.fightId = f.id;
 
-      box.addEventListener("click", () => {
+      box.addEventListener("click", async () => {
         document
           .querySelectorAll(".pull-box")
           .forEach((b) => b.classList.remove("active"));
         box.classList.add("active");
-        renderFight(f);
+
+        fightContainer.innerHTML = "Loading fight data...";
+        const fightTable = await loadFightTable(f);
+        renderFight(fightTable);
       });
 
       pullGrid.appendChild(box);
@@ -129,7 +132,7 @@ export function renderReport(outputEl, report, fightsWithTables) {
 
     if (pulls.length > 0) {
       pullGrid.firstChild.classList.add("active");
-      renderFight(pulls[0]);
+      pullGrid.firstChild.click();
     }
   }
 

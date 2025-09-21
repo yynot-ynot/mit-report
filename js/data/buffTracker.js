@@ -53,7 +53,7 @@ export function buildStatusList(events, fight, actorById, abilityById) {
           s.source === source?.name && s.buff === buffName && s.end === null
       );
       if (exists) {
-        log.info(
+        log.debug(
           `Duplicate apply detected for ${buffName} on ${source?.name} @${relTs}, ignoring`
         );
         return;
@@ -128,7 +128,7 @@ export function buildStatusList(events, fight, actorById, abilityById) {
 
     // ---- REFRESH ----
     else if (ev.type === "refreshbuff" || ev.type === "refreshdebuff") {
-      log.info(`Refresh event ignored for ${buffName} on ${source?.name}`);
+      log.debug(`Refresh event ignored for ${buffName} on ${source?.name}`);
     }
   });
 

@@ -4,6 +4,7 @@ import {
   fetchFightDamageTaken,
   fetchFightBuffs,
   fetchFightDebuffs,
+  HostilityType,
 } from "../data/fflogsApi.js";
 import {
   parseReport,
@@ -83,7 +84,8 @@ document.addEventListener("DOMContentLoaded", async () => {
         const debuffsEnemies = await fetchFightDebuffs(
           accessToken,
           reportCode,
-          pull
+          pull,
+          HostilityType.ENEMIES
         );
         log.info(
           `Pull ${pull.id}: raw Debuffs (enemies) fetched`,

@@ -3,6 +3,15 @@ import { getLogger, setModuleLogLevel } from "../utility/logger.js";
 setModuleLogLevel("FFLogsApi", "debug");
 const log = getLogger("FFLogsApi");
 
+/**
+ * FFLogs GraphQL ENUM for hostilityType.
+ * ⚠️ Important: Must use ENUM values, NOT integers.
+ */
+export const HostilityType = Object.freeze({
+  FRIENDLIES: "Friendlies",
+  ENEMIES: "Enemies",
+});
+
 export async function fetchReport(accessToken, reportCode) {
   log.info("Fetching report metadata", reportCode);
 
@@ -63,13 +72,22 @@ export async function fetchReport(accessToken, reportCode) {
 }
 
 /**
- * Format GraphQL option values
+ * Format GraphQL option values.
+ *
+ * ⚠️ Important: hostilityType must use ENUM values, not integers or quoted strings.
+ * Valid values: Friendlies, Enemies.
  */
 function formatOption(key, value) {
   if (key === "hostilityType") {
-    return `hostilityType: ${value === 1 ? "Enemies" : "Friendlies"}`;
+    if (value !== "Friendlies" && value !== "Enemies") {
+      throw new Error(
+        `Invalid hostilityType: ${value}. Must be 'Friendlies' or 'Enemies'.`
+      );
+    }
+    return `hostilityType: ${value}`; // enum, no quotes
   }
-  return `${key}: ${value}`;
+
+  return `${key}: ${JSON.stringify(value)}`; // ensure proper quoting for strings
 }
 
 /**
@@ -188,15 +206,24 @@ export async function fetchFightBuffs(accessToken, reportCode, fight) {
   return await fetchEventsPaginated(accessToken, reportCode, fight, "Buffs");
 }
 
+/**
+ * Fetch debuff events for a fight.
+ *
+ * @param {string} accessToken - OAuth token
+ * @param {string} reportCode - Report code
+ * @param {Object} fight - Fight metadata
+ * @param {string} hostilityType - (ENUM) Friendlies or Enemies. Defaults to Enemies.
+ * ⚠️ Important: Do NOT use integers (0/1). Must be the ENUM values.
+ */
 export async function fetchFightDebuffs(
   accessToken,
   reportCode,
   fight,
-  hostilityType = null // optional, FFLogs may ignore this for Debuffs
+  hostilityType = HostilityType.ENEMIES // Default: Enemies
 ) {
   const extraOptions = {};
-  if (hostilityType !== null) {
-    extraOptions.hostilityType = hostilityType; // Friendlies (0) or Enemies (1)
+  if (hostilityType) {
+    extraOptions.hostilityType = hostilityType; // ENUM only
   }
 
   return await fetchEventsPaginated(

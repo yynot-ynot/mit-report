@@ -198,7 +198,7 @@ function applyBuffsToAttacks(statusList, damageEvents, fightTable, fight) {
  * Rows are keyed by relative timestamp:
  *   {
  *     fightId, encounterId, name,
- *     actors: { playerName: { id, name, type } },
+ *     friendlyPlayerIds: [id1, id2, ...],  // only references player IDs
  *     rows: {
  *       [timestamp]: {
  *         source: attacker name,
@@ -229,25 +229,9 @@ export function buildFightTable(
     encounterId: fight.encounterID,
     name: fight.name,
     rows: {},
-    actors: {},
+    // ✅ Instead of duplicating actor metadata, only keep friendly player IDs
+    friendlyPlayerIds: fight.friendlyPlayers || [],
   };
-
-  // Deduplicate actors (players only)
-  for (const playerId of fight.friendlyPlayers) {
-    const actor = actorById.get(playerId);
-    if (
-      actor &&
-      actor.type === "Player" &&
-      actor.name !== "Multiple Players" &&
-      actor.name !== "Limit Break"
-    ) {
-      table.actors[actor.name] = {
-        id: actor.id,
-        name: actor.name,
-        type: actor.type,
-      };
-    }
-  }
 
   // Populate rows from damage events
   damageEvents.forEach((ev) => {
@@ -270,7 +254,7 @@ export function buildFightTable(
   // Fill in applier names based on buff timelines
   applyBuffsToAttacks(statusList, damageEvents, table, fight);
 
-  // ✅ Final pass: replace null/unknown appliers with all players
+  // ✅ Final pass: replace null/unknown appliers with all players in this fight
   for (const [ts, row] of Object.entries(table.rows)) {
     for (const [buffName, appliers] of Object.entries(row.buffs)) {
       if (
@@ -280,8 +264,10 @@ export function buildFightTable(
         log.warn(
           `Fight ${fight.id}, ts=${ts}: Buff ${buffName} has no valid source, crediting all players`
         );
-        // Replace with all player names from table.actors
-        row.buffs[buffName] = Object.keys(table.actors);
+        // Replace with all player names from global actorById
+        row.buffs[buffName] = table.friendlyPlayerIds
+          .map((id) => actorById.get(id)?.name)
+          .filter(Boolean);
       }
     }
   }
@@ -289,7 +275,7 @@ export function buildFightTable(
   log.info(
     `Fight ${fight.id}: FightTable built with ${
       Object.keys(table.rows).length
-    } rows and ${Object.keys(table.actors).length} players`
+    } rows and ${table.friendlyPlayerIds.length} players`
   );
 
   return table;

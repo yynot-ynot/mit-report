@@ -30,6 +30,7 @@ export async function fetchReport(accessToken, reportCode) {
             id
             name
             type
+            subType
             server
           }
           abilities {

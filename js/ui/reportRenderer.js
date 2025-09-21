@@ -1,5 +1,6 @@
 import { getLogger, setModuleLogLevel } from "../utility/logger.js";
 import { formatRelativeTime } from "../utility/dataUtils.js";
+import { sortActorsByJob } from "../config/AppConfig.js";
 
 setModuleLogLevel("ReportRenderer", "info");
 const log = getLogger("ReportRenderer");
@@ -42,10 +43,22 @@ export function renderReport(outputEl, report, loadFightTable) {
       .map((n) => parseInt(n, 10))
       .sort((a, b) => a - b);
 
+    // 🔑 Resolve player metadata from IDs using global actorById
+    const allActors = fightTable.friendlyPlayerIds
+      .map((id) => report.actorById.get(id))
+      .filter(
+        (a) =>
+          a &&
+          a.type === "Player" &&
+          a.name !== "Multiple Players" &&
+          a.name !== "Limit Break"
+      );
+
+    // 🔑 Sort actors according to AppConfig (Tank → Healer → DPS order)
+    const sortedActors = sortActorsByJob(allActors);
+
     log.debug(
-      `Rendering fight ${fightTable.fightId} with ${
-        timestamps.length
-      } rows and ${Object.keys(fightTable.actors).length} player columns`
+      `Rendering pull ${fightTable.fightId} with ${timestamps.length} rows and ${sortedActors.length} player columns`
     );
 
     if (timestamps.length > 0) {
@@ -59,9 +72,7 @@ export function renderReport(outputEl, report, loadFightTable) {
       const headerRow = document.createElement("tr");
       headerRow.innerHTML =
         "<th>Timestamp</th><th>Attack Name</th>" +
-        Object.values(fightTable.actors)
-          .map((actor) => `<th>${actor.name}</th>`)
-          .join("");
+        sortedActors.map((actor) => `<th>${actor.name}</th>`).join("");
       thead.appendChild(headerRow);
       table.appendChild(thead);
 
@@ -78,7 +89,7 @@ export function renderReport(outputEl, report, loadFightTable) {
         tdAbility.textContent = event.ability || "";
         row.appendChild(tdAbility);
 
-        Object.values(fightTable.actors).forEach((actor) => {
+        sortedActors.forEach((actor) => {
           const td = document.createElement("td");
 
           // Look up buffs applied to this actor at this timestamp

@@ -123,7 +123,9 @@ export function parseFightDamageTaken(events, fight, actorById, abilityById) {
           .map((id) => {
             const buffAbility = abilityById.get(Number(id));
             return buffAbility ? buffAbility.name : `Unknown(${id})`;
-          });
+          })
+          // 🚫 Drop Well Fed globally here
+          .filter((name) => name !== "Well Fed");
       }
 
       return {

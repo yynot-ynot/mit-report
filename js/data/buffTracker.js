@@ -4,7 +4,7 @@ setModuleLogLevel("BuffTracker", "info");
 const log = getLogger("BuffTracker");
 
 /**
- * Build a complete list of buff/debuff statuses with start, end, and stack counts.
+ * Build a complete list of buff/debuff statuses with start, end, stacks, and targets.
  *
  * This tracker handles both BUFF and DEBUFF events from FFLogs.
  *
@@ -16,25 +16,32 @@ const log = getLogger("BuffTracker");
  *   - refreshbuff / refreshdebuff
  *
  * Behavior:
- *   - "apply*" creates a new incomplete status if not already active.
+ *   - "apply*" creates or extends a status with the given target.
  *   - "apply*stack" increases stack count on an active status (or creates if missing).
- *   - "remove*stack" decreases stack count but does NOT close the status until a plain remove occurs.
- *   - "remove*" closes the status completely.
+ *   - "remove*stack" decreases stack count but does NOT close the status until all targets are removed.
+ *   - "remove*" removes a single target from the status. If no targets remain, the status closes.
  *   - "refresh*" is logged but does not change the timeline.
  *   - Leftover incomplete statuses are closed at MAX_SAFE_INTEGER and logged.
+ *
+ * ⚠️ New behavior:
+ *   - A single status is kept per (source, buff), containing a Set of targets.
+ *   - This fixes AoE/raid buffs (e.g., Shake It Off, Embolden) that previously created duplicate overlapping statuses.
+ *   - When the buff applies to one target, this behaves like before.
+ *   - When it applies to multiple targets, each remove only clears that one target until all are gone.
  *
  * @param {Array} events - Raw buff/debuff events from FFLogs
  * @param {Object} fight - Fight object with startTime
  * @param {Map} actorById - Map of actorID -> actor metadata
  * @param {Map} abilityById - Map of abilityGameID -> ability metadata
- * @returns {Array} completeStatuses - Array of { source, buff, start, end, stacks }
+ * @returns {Array} completeStatuses - Array of { source, buff, start, end, stacks, targets }
  */
 export function buildStatusList(events, fight, actorById, abilityById) {
-  const incompleteStatuses = []; // currently active
-  const completeStatuses = []; // finalized
+  const incompleteStatuses = []; // currently active (open)
+  const completeStatuses = []; // finalized (closed)
 
   events.forEach((ev) => {
     const source = actorById.get(ev.sourceID);
+    const target = actorById.get(ev.targetID);
     const ability = abilityById.get(ev.abilityGameID);
     if (!ability) return;
 
@@ -43,28 +50,27 @@ export function buildStatusList(events, fight, actorById, abilityById) {
 
     log.debug(
       `Buff/Debuff event: type=${ev.type}, ability=${buffName}, ts=${relTs}, ` +
-        `sourceID=${ev.sourceID}, source=${source?.name}, targetID=${ev.targetID}`
+        `sourceID=${ev.sourceID}, source=${source?.name}, targetID=${ev.targetID}, target=${target?.name}`
     );
 
     // ---- APPLY ----
     if (ev.type === "applybuff" || ev.type === "applydebuff") {
-      const exists = incompleteStatuses.find(
+      let status = incompleteStatuses.find(
         (s) =>
           s.source === source?.name && s.buff === buffName && s.end === null
       );
-      if (exists) {
-        log.debug(
-          `Duplicate apply detected for ${buffName} on ${source?.name} @${relTs}, ignoring`
-        );
-        return;
+      if (!status) {
+        status = {
+          source: source ? source.name : `Unknown(${ev.sourceID})`,
+          buff: buffName,
+          start: relTs,
+          end: null,
+          stacks: ev.stack ?? 1,
+          targets: new Set(),
+        };
+        incompleteStatuses.push(status);
       }
-      incompleteStatuses.push({
-        source: source ? source.name : `Unknown(${ev.sourceID})`,
-        buff: buffName,
-        start: relTs,
-        end: null,
-        stacks: ev.stack ?? 1,
-      });
+      status.targets.add(target ? target.name : `Unknown(${ev.targetID})`);
     }
 
     // ---- APPLY STACK ----
@@ -74,13 +80,13 @@ export function buildStatusList(events, fight, actorById, abilityById) {
           s.source === source?.name && s.buff === buffName && s.end === null
       );
       if (!status) {
-        // create a new status if missing
         status = {
           source: source ? source.name : `Unknown(${ev.sourceID})`,
           buff: buffName,
           start: relTs,
           end: null,
           stacks: ev.stack ?? 1,
+          targets: new Set([target ? target.name : `Unknown(${ev.targetID})`]),
         };
         incompleteStatuses.push(status);
       } else {
@@ -109,19 +115,38 @@ export function buildStatusList(events, fight, actorById, abilityById) {
       }
     }
 
-    // ---- REMOVE (close status) ----
+    // ---- REMOVE (close status if all targets gone) ----
     else if (ev.type === "removebuff" || ev.type === "removedebuff") {
-      const idx = incompleteStatuses.findIndex(
+      const status = incompleteStatuses.find(
         (s) =>
           s.source === source?.name && s.buff === buffName && s.end === null
       );
-      if (idx !== -1) {
-        const status = incompleteStatuses.splice(idx, 1)[0];
-        status.end = relTs;
-        completeStatuses.push(status);
+      if (status) {
+        status.targets.delete(target ? target.name : `Unknown(${ev.targetID})`);
+        if (status.targets.size === 0) {
+          status.end = relTs;
+          completeStatuses.push(status);
+          incompleteStatuses.splice(incompleteStatuses.indexOf(status), 1);
+        }
+      } else if (relTs <= 30000) {
+        // 🟢 Case: Removed early in fight (<30s), assume buff active from pull start
+        const syntheticStatus = {
+          source: source ? source.name : `Unknown(${ev.sourceID})`,
+          buff: buffName,
+          start: 0,
+          end: relTs,
+          stacks: ev.stack ?? 1,
+          targets: new Set([target ? target.name : `Unknown(${ev.targetID})`]),
+        };
+        completeStatuses.push(syntheticStatus);
+        log.debug(
+          `No matching apply found for ${buffName} removed by ${source?.name} @${relTs}. ` +
+            `Assuming it was active from pull start.`
+        );
       } else {
+        // 🟠 TODO: Handle mid-fight removes without apply
         log.error(
-          `No matching apply found for ${buffName} removed by ${source?.name} @${relTs}`
+          `No matching apply found for ${buffName} removed by ${source?.name} @${relTs}. TODO: infer start time.`
         );
       }
     }

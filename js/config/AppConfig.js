@@ -68,3 +68,45 @@ export function sortActorsByJob(actors) {
     return safeA - safeB;
   });
 }
+
+/**
+ * Get CSS role class for a given job.
+ *
+ * Normalizes job names (e.g. "DarkKnight" → "Dark Knight") and maps them
+ * to a role class used for column coloring in tables.
+ *
+ * @param {string} job - The job/subType string from FFLogs actor
+ * @returns {string} - One of "tank-col", "healer-col", "dps-col", "unknown-col"
+ */
+export function getRoleClass(job) {
+  if (!job) return "unknown-col";
+  const normalized = job.replace(/([a-z])([A-Z])/g, "$1 $2").trim();
+  if (
+    ["Paladin", "Warrior", "Dark Knight", "Gunbreaker"].includes(normalized)
+  ) {
+    return "tank-col";
+  }
+  if (["White Mage", "Scholar", "Astrologian", "Sage"].includes(normalized)) {
+    return "healer-col";
+  }
+  if (
+    [
+      "Monk",
+      "Dragoon",
+      "Ninja",
+      "Samurai",
+      "Reaper",
+      "Viper",
+      "Bard",
+      "Machinist",
+      "Dancer",
+      "Black Mage",
+      "Summoner",
+      "Red Mage",
+      "Pictomancer",
+    ].includes(normalized)
+  ) {
+    return "dps-col";
+  }
+  return "unknown-col";
+}

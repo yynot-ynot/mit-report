@@ -43,6 +43,12 @@
     padding: 1rem;
     margin-top: 0;
     margin-bottom: 1.5rem;
+
+    /* ⬇️ Ensure it extends down the page */
+    min-height: 70vh;
+    /* 70% of viewport height */
+    display: flex;
+    flex-direction: column;
 }
 
 #fightContainer {

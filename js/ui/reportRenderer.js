@@ -1,6 +1,6 @@
 import { getLogger, setModuleLogLevel } from "../utility/logger.js";
 import { formatRelativeTime } from "../utility/dataUtils.js";
-import { sortActorsByJob } from "../config/AppConfig.js";
+import { getRoleClass, sortActorsByJob } from "../config/AppConfig.js";
 
 setModuleLogLevel("ReportRenderer", "info");
 const log = getLogger("ReportRenderer");
@@ -78,7 +78,12 @@ export function renderReport(outputEl, report, loadFightTable) {
       const headerRow = document.createElement("tr");
       headerRow.innerHTML =
         "<th>Timestamp</th><th>Attack Name</th>" +
-        sortedActors.map((actor) => `<th>${actor.name}</th>`).join("");
+        sortedActors
+          .map((actor) => {
+            const roleClass = getRoleClass(actor.subType);
+            return `<th class="${roleClass}">${actor.name}</th>`;
+          })
+          .join("");
       thead.appendChild(headerRow);
       table.appendChild(thead);
 
@@ -97,6 +102,7 @@ export function renderReport(outputEl, report, loadFightTable) {
 
         sortedActors.forEach((actor) => {
           const td = document.createElement("td");
+          td.classList.add(getRoleClass(actor.subType));
 
           // Look up buffs applied to this actor at this timestamp
           const playerBuffs = [];
@@ -114,8 +120,14 @@ export function renderReport(outputEl, report, loadFightTable) {
       });
       table.appendChild(tbody);
 
-      container.appendChild(table);
+      const wrapper = document.createElement("div");
+      wrapper.classList.add("time-table-wrapper");
+      wrapper.appendChild(table);
+      container.appendChild(wrapper);
       section.appendChild(container);
+
+      // Activate frozen header
+      makeFrozenHeader(table, section);
     }
 
     fightContainer.appendChild(section);
@@ -176,4 +188,101 @@ export function renderReport(outputEl, report, loadFightTable) {
     firstTab.classList.add("active");
     renderPullGrid(firstTab.dataset.encounterId);
   }
+}
+
+function makeFrozenHeader(table) {
+  const thead = table.querySelector("thead");
+  if (!thead) return;
+
+  const wrapper = table.closest(".time-table-wrapper");
+  if (!wrapper) return;
+
+  const frozen = document.createElement("table");
+  frozen.className = table.className + " frozen-header";
+  frozen.style.position = "fixed";
+  frozen.style.top = "0";
+  frozen.style.zIndex = "1000";
+  frozen.style.display = "none";
+  frozen.style.background = "#fff";
+  frozen.style.tableLayout = "fixed";
+
+  const clonedThead = thead.cloneNode(true);
+  frozen.appendChild(clonedThead);
+
+  wrapper.parentNode.insertBefore(frozen, wrapper.nextSibling);
+
+  let initialized = false;
+
+  function syncWidths(forceRetry = true) {
+    const rect = table.getBoundingClientRect();
+    frozen.style.width = `${rect.width}px`;
+    frozen.style.left = `${rect.left}px`;
+    frozen.style.tableLayout = "fixed";
+
+    const origCells = thead.querySelectorAll("th");
+    const frozenCells = frozen.querySelectorAll("th");
+
+    let totalFrozenWidth = 0;
+
+    origCells.forEach((cell, i) => {
+      if (frozenCells[i]) {
+        const width = cell.offsetWidth; // ✅ more stable than getBoundingClientRect()
+        const height = cell.offsetHeight;
+        frozenCells[i].style.width = `${width}px`;
+        frozenCells[i].style.minWidth = `${width}px`;
+        frozenCells[i].style.maxWidth = `${width}px`;
+
+        frozenCells[i].style.height = `${height}px`;
+        frozenCells[i].style.minHeight = `${height}px`;
+        frozenCells[i].style.maxHeight = `${height}px`;
+
+        frozenCells[i].style.overflow = "hidden"; // still prevent overflow bleed
+        frozenCells[i].style.whiteSpace = "normal"; // allow wrapping like original
+        frozenCells[i].style.wordBreak = "break-word"; // break long words if needed
+
+        const frozenWidth = frozenCells[i].offsetWidth;
+        totalFrozenWidth += frozenWidth;
+
+        log.debug(
+          `[FrozenHeader] [Sync] Col ${i}: table cell=${width}px, frozen cell=${frozenWidth}px`
+        );
+      }
+    });
+
+    log.debug(
+      `[FrozenHeader] [Sync] table width=${rect.width}px, frozen total=${totalFrozenWidth}px`
+    );
+
+    // 🔁 If mismatch, try forcing again once
+    if (forceRetry && Math.abs(rect.width - totalFrozenWidth) > 1) {
+      log.warn("[FrozenHeader] [Retry] width mismatch, retrying sync...");
+      requestAnimationFrame(() => syncWidths(false));
+      return;
+    }
+
+    initialized = true;
+  }
+
+  function updatePosition() {
+    const rect = table.getBoundingClientRect();
+
+    if (rect.top < 0 && rect.bottom > 0) {
+      frozen.style.display = "table";
+
+      if (!initialized) {
+        requestAnimationFrame(() => syncWidths(true)); // ✅ delay sync to next paint
+      }
+
+      frozen.style.left = `${rect.left}px`;
+    } else {
+      frozen.style.display = "none";
+      initialized = false;
+    }
+  }
+
+  window.addEventListener("scroll", updatePosition);
+  window.addEventListener("resize", () => {
+    initialized = false;
+    updatePosition();
+  });
 }

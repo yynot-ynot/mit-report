@@ -7,5 +7,7 @@
 export const IGNORED_BUFFS = new Set([
   "Well Fed",
   "Physical Vulnerability Up",
+  "Magic Vulnerability Up",
+  "Vulnerability Up",
   // add more here as needed
 ]);

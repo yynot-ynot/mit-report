@@ -1,0 +1,53 @@
+/* layout.css */
+#report-section {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+}
+
+#reportUrl {
+    flex: 1;
+    padding: 0.5rem;
+    font-size: 1rem;
+}
+
+#analyzeBtn {
+    padding: 0.5rem 1rem;
+    font-size: 1rem;
+    cursor: pointer;
+}
+
+/* spacing between report title and boss tabs */
+.report-category {
+    margin-bottom: 0.75rem;
+    /* space between title and tabs */
+    font-size: 1.25rem;
+    font-weight: 600;
+}
+
+/* report-wrapper = tab bar only */
+.report-wrapper {
+    border: none;
+    background: none;
+    margin-bottom: 0;
+    padding-bottom: 0;
+}
+
+/* new fight-wrapper = bordered container for pulls + table */
+.fight-wrapper {
+    border: 1px solid #ddd;
+    border-top: none;
+    border-radius: 0 6px 6px 6px;
+    background: #fafafa;
+    padding: 1rem;
+    margin-top: 0;
+    margin-bottom: 1.5rem;
+}
+
+#fightContainer {
+    padding: 1rem;
+    border-top: 1px solid #e0e0e0;
+    background: #fafafa;
+    /* soft contrast section */
+}

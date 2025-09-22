@@ -23,21 +23,27 @@ export function renderReport(outputEl, report, loadFightTable) {
   bossTabs.classList.add("boss-tabs");
   reportWrapper.appendChild(bossTabs);
 
+  outputEl.appendChild(reportWrapper);
+
+  // 🔑 New container for pulls + fight table
+  const fightWrapper = document.createElement("div");
+  fightWrapper.classList.add("fight-wrapper");
+
   const pullGrid = document.createElement("div");
   pullGrid.classList.add("pull-grid");
-  reportWrapper.appendChild(pullGrid);
+  fightWrapper.appendChild(pullGrid);
 
   const fightContainer = document.createElement("div");
   fightContainer.id = "fightContainer";
-  reportWrapper.appendChild(fightContainer);
+  fightWrapper.appendChild(fightContainer);
 
-  outputEl.appendChild(reportWrapper);
+  outputEl.appendChild(fightWrapper);
 
   async function renderFight(fightTable) {
     fightContainer.innerHTML = "";
 
     const section = document.createElement("section");
-    section.innerHTML = `<h4>${fightTable.name} (Fight ID: ${fightTable.fightId})</h4>`;
+    section.innerHTML = `<h4>${fightTable.name} (Pull: ${fightTable.fightId})</h4>`;
 
     const timestamps = Object.keys(fightTable.rows)
       .map((n) => parseInt(n, 10))

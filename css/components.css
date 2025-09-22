@@ -1,0 +1,69 @@
+/* components.css - Light Mode */
+.status-badge {
+    font-size: 0.9rem;
+    padding: 0.3rem 0.6rem;
+    border-radius: 0.5rem;
+    background-color: #eee;
+    color: #444;
+}
+
+.status-badge.logged-in {
+    background-color: #4caf50;
+    color: white;
+}
+
+.status-badge.logged-out {
+    display: none;
+}
+
+/* Boss tabs */
+.boss-tabs {
+    display: flex;
+    border-bottom: 1px solid #ccc;
+    background: transparent;
+}
+
+.boss-tab {
+    padding: 0.5rem 1rem;
+    background: #f9f9f9;
+    border: 1px solid #ccc;
+    border-bottom: none;
+    border-radius: 6px 6px 0 0;
+    cursor: pointer;
+    color: #555;
+}
+
+.boss-tab.active {
+    background: #ffffff;
+    color: #222;
+    border: 1px solid #3b82f6;
+    border-bottom: 1px solid #fff;
+    z-index: 2;
+}
+
+/* Pull grid */
+.pull-grid {
+    display: grid;
+    grid-template-columns: repeat(10, 60px);
+    gap: 0;
+    margin: 0.5rem;
+    justify-content: start;
+}
+
+.pull-box {
+    height: 40px;
+    line-height: 40px;
+    text-align: center;
+    background: #f9f9f9;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    cursor: pointer;
+    color: #444;
+    font-weight: 500;
+}
+
+.pull-box.active {
+    background: #3b82f6;
+    color: white;
+    border-color: #2563eb;
+}

@@ -1,0 +1,59 @@
+/* base.css */
+body {
+    font-family: "Segoe UI", Roboto, sans-serif;
+    padding: 2rem;
+    max-width: 1200px;
+    margin: auto;
+    background: #ffffff;        /* light background */
+    color: #222222;        /* dark text */
+}
+
+h1,
+h2,
+h3,
+h4 {
+    font-weight: 600;
+}
+
+h1 {
+    color: #1f2937;
+    /* darker gray for main title */
+}
+
+h2 {
+    color: #374151;
+    /* medium-dark gray */
+}
+
+h4 {
+    color: #4b5563;
+    /* softer gray for subheaders */
+}
+
+input,
+button {
+    padding: 0.5rem 0.75rem;
+    font-size: 1rem;
+    border-radius: 4px;
+    border: none;
+}
+
+input {
+    background: #f9f9f9;
+    color: #222;
+    border: 1px solid #ccc;
+}
+
+button {
+    background: #3b82f6;
+    /* keep brand color */
+    color: white;
+}
+
+button:hover {
+    background: #2563eb;
+}
+
+#output {
+    margin-top: 2rem;
+}

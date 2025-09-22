@@ -1,6 +1,7 @@
 import { getLogger, setModuleLogLevel } from "../utility/logger.js";
 import { buildStatusList } from "./buffTracker.js";
 import { formatRelativeTime } from "../utility/dataUtils.js";
+import { IGNORED_BUFFS } from "../config/ignoredBuffs.js";
 
 setModuleLogLevel("ReportParser", "debug");
 const log = getLogger("ReportParser");
@@ -132,8 +133,8 @@ export function parseFightDamageTaken(events, fight, actorById, abilityById) {
             const buffAbility = abilityById.get(Number(id));
             return buffAbility ? buffAbility.name : `Unknown(${id})`;
           })
-          // 🚫 Drop Well Fed globally here
-          .filter((name) => name !== "Well Fed");
+          // 🚫 Drop globally ignored buffs
+          .filter((name) => !IGNORED_BUFFS.has(name));
       }
 
       return {

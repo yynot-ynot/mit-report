@@ -1,4 +1,5 @@
 import { getLogger, setModuleLogLevel } from "../utility/logger.js";
+import { formatRelativeTime } from "../utility/dataUtils.js";
 
 setModuleLogLevel("BuffTracker", "info");
 const log = getLogger("BuffTracker");
@@ -6,7 +7,8 @@ const log = getLogger("BuffTracker");
 /**
  * Build a complete list of buff/debuff statuses with start, end, stacks, and targets.
  *
- * This tracker handles both BUFF and DEBUFF events from FFLogs.
+ * This tracker handles both BUFF and DEBUFF events from FFLogs, but now consumes
+ * already-parsed buff/debuff events (from parseBuffEvents).
  *
  * Supported event types:
  *   - applybuff / applydebuff
@@ -29,39 +31,33 @@ const log = getLogger("BuffTracker");
  *   - When the buff applies to one target, this behaves like before.
  *   - When it applies to multiple targets, each remove only clears that one target until all are gone.
  *
- * @param {Array} events - Raw buff/debuff events from FFLogs
+ * @param {Array} parsedEvents - Parsed buff/debuff events from parseBuffEvents
  * @param {Object} fight - Fight object with startTime
- * @param {Map} actorById - Map of actorID -> actor metadata
- * @param {Map} abilityById - Map of abilityGameID -> ability metadata
  * @returns {Array} completeStatuses - Array of { source, buff, start, end, stacks, targets }
  */
-export function buildStatusList(events, fight, actorById, abilityById) {
+export function buildStatusList(parsedEvents, fight) {
   const incompleteStatuses = []; // currently active (open)
   const completeStatuses = []; // finalized (closed)
 
-  events.forEach((ev) => {
-    const source = actorById.get(ev.sourceID);
-    const target = actorById.get(ev.targetID);
-    const ability = abilityById.get(ev.abilityGameID);
-    if (!ability) return;
-
-    const buffName = ability.name;
-    const relTs = ev.timestamp - fight.startTime;
+  parsedEvents.forEach((ev) => {
+    const buffName = ev.ability;
+    const relTs = ev.relative;
+    const source = ev.source;
+    const target = ev.target;
 
     log.debug(
       `Buff/Debuff event: type=${ev.type}, ability=${buffName}, ts=${relTs}, ` +
-        `sourceID=${ev.sourceID}, source=${source?.name}, targetID=${ev.targetID}, target=${target?.name}`
+        `source=${source}, target=${target}`
     );
 
     // ---- APPLY ----
     if (ev.type === "applybuff" || ev.type === "applydebuff") {
       let status = incompleteStatuses.find(
-        (s) =>
-          s.source === source?.name && s.buff === buffName && s.end === null
+        (s) => s.source === source && s.buff === buffName && s.end === null
       );
       if (!status) {
         status = {
-          source: source ? source.name : `Unknown(${ev.sourceID})`,
+          source,
           buff: buffName,
           start: relTs,
           end: null,
@@ -70,23 +66,22 @@ export function buildStatusList(events, fight, actorById, abilityById) {
         };
         incompleteStatuses.push(status);
       }
-      status.targets.add(target ? target.name : `Unknown(${ev.targetID})`);
+      status.targets.add(target);
     }
 
     // ---- APPLY STACK ----
     else if (ev.type === "applybuffstack" || ev.type === "applydebuffstack") {
       let status = incompleteStatuses.find(
-        (s) =>
-          s.source === source?.name && s.buff === buffName && s.end === null
+        (s) => s.source === source && s.buff === buffName && s.end === null
       );
       if (!status) {
         status = {
-          source: source ? source.name : `Unknown(${ev.sourceID})`,
+          source,
           buff: buffName,
           start: relTs,
           end: null,
           stacks: ev.stack ?? 1,
-          targets: new Set([target ? target.name : `Unknown(${ev.targetID})`]),
+          targets: new Set([target]),
         };
         incompleteStatuses.push(status);
       } else {
@@ -100,8 +95,7 @@ export function buildStatusList(events, fight, actorById, abilityById) {
     // ---- REMOVE STACK ----
     else if (ev.type === "removebuffstack" || ev.type === "removedebuffstack") {
       const status = incompleteStatuses.find(
-        (s) =>
-          s.source === source?.name && s.buff === buffName && s.end === null
+        (s) => s.source === source && s.buff === buffName && s.end === null
       );
       if (status) {
         status.stacks = ev.stack ?? Math.max(0, (status.stacks ?? 1) - 1);
@@ -118,11 +112,10 @@ export function buildStatusList(events, fight, actorById, abilityById) {
     // ---- REMOVE (close status if all targets gone) ----
     else if (ev.type === "removebuff" || ev.type === "removedebuff") {
       const status = incompleteStatuses.find(
-        (s) =>
-          s.source === source?.name && s.buff === buffName && s.end === null
+        (s) => s.source === source && s.buff === buffName && s.end === null
       );
       if (status) {
-        status.targets.delete(target ? target.name : `Unknown(${ev.targetID})`);
+        status.targets.delete(target);
         if (status.targets.size === 0) {
           status.end = relTs;
           completeStatuses.push(status);
@@ -131,29 +124,34 @@ export function buildStatusList(events, fight, actorById, abilityById) {
       } else if (relTs <= 30000) {
         // 🟢 Case: Removed early in fight (<30s), assume buff active from pull start
         const syntheticStatus = {
-          source: source ? source.name : `Unknown(${ev.sourceID})`,
+          source,
           buff: buffName,
           start: 0,
           end: relTs,
           stacks: ev.stack ?? 1,
-          targets: new Set([target ? target.name : `Unknown(${ev.targetID})`]),
+          targets: new Set([target]),
         };
         completeStatuses.push(syntheticStatus);
         log.debug(
-          `No matching apply found for ${buffName} removed by ${source?.name} @${relTs}. ` +
+          `No matching apply found for ${buffName} removed by ${source} @${relTs}. ` +
             `Assuming it was active from pull start.`
         );
       } else {
         // 🟠 TODO: Handle mid-fight removes without apply
         log.error(
-          `No matching apply found for ${buffName} removed by ${source?.name} @${relTs}. TODO: infer start time.`
+          `Unmatched REMOVE event @${relTs}ms (${formatRelativeTime(
+            ev.rawTimestamp,
+            fight.startTime
+          )}) ` +
+            `in Fight ${fight.id}: type=${ev.type}, buff=${buffName}, source=${source}, target=${target}, ` +
+            `stack=${ev.stack ?? "n/a"}, abilityGameID=${ev.abilityGameID}`
         );
       }
     }
 
     // ---- REFRESH ----
     else if (ev.type === "refreshbuff" || ev.type === "refreshdebuff") {
-      log.debug(`Refresh event ignored for ${buffName} on ${source?.name}`);
+      log.debug(`Refresh event ignored for ${buffName} on ${source}`);
     }
   });
 

@@ -1,5 +1,6 @@
 import { getLogger, setModuleLogLevel } from "../utility/logger.js";
 import { buildStatusList } from "./buffTracker.js";
+import { formatRelativeTime } from "../utility/dataUtils.js";
 
 setModuleLogLevel("ReportParser", "debug");
 const log = getLogger("ReportParser");
@@ -38,6 +39,11 @@ export function parseReport(gqlData) {
  *   - target: actor name receiving the buff/debuff
  *   - ability: buff/debuff name
  *   - type: event type (applybuff, removebuff, applydebuff, etc.)
+ *   - stack: stack count if provided (nullable)
+ *   - abilityGameID: raw FFLogs ability ID
+ *
+ * ⚠️ Enhancement: Keeping stack and raw IDs ensures downstream consumers
+ * (like buildStatusList) don’t need to re-lookup or lose information.
  *
  * @param {Array} events - Raw buff/debuff events from FFLogs
  * @param {Object} fight - Fight object containing startTime/id
@@ -63,6 +69,8 @@ export function parseBuffEvents(events, fight, actorById, abilityById) {
         target: target ? target.name : `Unknown(${ev.targetID})`,
         ability: ability ? ability.name : "Unknown Buff/Debuff",
         type: ev.type,
+        stack: ev.stack ?? null,
+        abilityGameID: ev.abilityGameID,
       };
     })
     .filter(Boolean);
@@ -185,6 +193,49 @@ function applyBuffsToAttacks(statusList, damageEvents, fightTable, fight) {
           row.buffs[buffName].push(m.source);
         });
       } else {
+        if (matches.length === 0) {
+          // 🛡️ Failsafe: look back within 30s for most recent status of this buff
+          const lookbackWindow = 30000;
+          const recent = statusList
+            .filter(
+              (s) =>
+                s.buff === buffName &&
+                ev.relative >= s.start &&
+                ev.relative - s.end <= lookbackWindow
+            )
+            .sort((a, b) => b.end - a.end)[0];
+
+          if (recent) {
+            if (!row.buffs[buffName]) row.buffs[buffName] = [];
+            row.buffs[buffName].push(recent.source);
+            log.info(
+              `Failsafe applied: credited ${recent.source} for buff=${buffName} at ts=${ev.relative} ` +
+                `(last seen active ${formatRelativeTime(
+                  recent.end + fight.startTime,
+                  fight.startTime
+                )})`
+            );
+            return;
+          }
+
+          // If failsafe also fails, warn
+          log.warn(
+            `No active status for buff=${buffName} at ts=${ev.relative}. ` +
+              `Known statuses: ${statusList
+                .filter((s) => s.buff === buffName)
+                .map(
+                  (s) =>
+                    `[${formatRelativeTime(
+                      s.start + fight.startTime,
+                      fight.startTime
+                    )} - ${formatRelativeTime(
+                      s.end + fight.startTime,
+                      fight.startTime
+                    )}]`
+                )
+                .join(", ")}`
+          );
+        }
         // Buff was present in event.buffs but no source found in statusList
         log.warn(
           `Buff ${buffName} on damage event @${ev.relative} (Fight ${fight.id}) had no matching active status`
@@ -210,21 +261,17 @@ function applyBuffsToAttacks(statusList, damageEvents, fightTable, fight) {
  *     }
  *   }
  *
+ * ⚠️ Enhancement: Now consumes parsedBuffEvents instead of raw FFLogs buff/debuff events.
+ * This makes it consistent with parsedDamageTaken events.
+ *
  * @param {Array} damageEvents - Parsed damage taken events
- * @param {Array} buffs - Raw buff/debuff events
+ * @param {Array} parsedBuffs - Parsed buff/debuff events (from parseBuffEvents)
  * @param {Object} fight - Fight metadata (id, encounterID, name, startTime)
  * @param {Map} actorById - Map of actorID → actor metadata
- * @param {Map} abilityById - Map of abilityGameID → ability metadata
  * @returns {Object} FightTable
  */
-export function buildFightTable(
-  damageEvents,
-  buffs,
-  fight,
-  actorById,
-  abilityById
-) {
-  const statusList = buildStatusList(buffs, fight, actorById, abilityById);
+export function buildFightTable(damageEvents, parsedBuffs, fight, actorById) {
+  const statusList = buildStatusList(parsedBuffs, fight);
 
   const table = {
     fightId: fight.id,

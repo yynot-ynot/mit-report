@@ -120,7 +120,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         // Build fight table
         const fightTable = buildFightTable(
           parsedDamageTaken,
-          allStatusEvents,
+          parsedBuffs,
           pull,
           report.actorById,
           report.abilityById

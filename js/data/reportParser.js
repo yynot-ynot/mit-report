@@ -87,7 +87,7 @@ export function parseBuffEvents(events, fight, actorById, abilityById) {
  * Parse raw damage-taken events into normalized objects for the FightTable.
  *
  * Each event is enriched with actor/source names, ability names,
- * and any buffs present in the raw event (via `ev.buffs`).
+ * mitigation calculations, and any buffs present in the raw event (via `ev.buffs`).
  *
  * Buff parsing:
  *   - Some "calculateddamage" events include a `buffs` field, e.g. "1001203.1001174.1002675."
@@ -95,14 +95,23 @@ export function parseBuffEvents(events, fight, actorById, abilityById) {
  *     using the `abilityById` map (falling back to `Unknown(<id>)` if not found).
  *   - Parsed buff names are returned in a `buffs` array attached to each event.
  *
+ * Mitigation calculation:
+ *   - `amount`: the actual damage taken after mitigation.
+ *   - `unmitigatedAmount`: the damage that would have been taken without mitigation.
+ *   - `mitigated`: the raw difference (`unmitigatedAmount - amount`).
+ *   - `mitigationPct`: percentage of damage prevented,
+ *       calculated as `(1 - amount / unmitigatedAmount) * 100`, rounded.
+ *
  * Returned objects include:
  *   - rawTimestamp: original event timestamp
  *   - relative: timestamp offset from fight start
  *   - actor: name of the target taking damage
  *   - source: name of the attacker
  *   - ability: attack name (resolved from abilityGameID)
- *   - amount: raw damage value (default 0)
- *   - mitigated: absorbed/mitigated value (default 0)
+ *   - amount: actual damage taken
+ *   - unmitigatedAmount: raw unmitigated damage
+ *   - mitigated: raw absorbed/mitigated value
+ *   - mitigationPct: percentage mitigated (0–100)
  *   - buffs: array of buff names active on the target during this event
  *
  * @param {Array} events - Raw damage events from FFLogs
@@ -137,14 +146,22 @@ export function parseFightDamageTaken(events, fight, actorById, abilityById) {
           .filter((name) => !IGNORED_BUFFS.has(name));
       }
 
+      const amount = ev.amount ?? 0;
+      const unmitigated = ev.unmitigatedAmount ?? amount;
+      const mitigated = unmitigated - amount;
+      const mitigationPct =
+        unmitigated > 0 ? Math.round((1 - amount / unmitigated) * 100) : 0;
+
       return {
         rawTimestamp: ev.timestamp,
         relative: ev.timestamp - fight.startTime,
         actor: actor ? actor.name : `Unknown(${ev.targetID})`,
         source: source ? source.name : `Unknown(${ev.sourceID})`,
         ability: ability ? ability.name : "Unknown Damage",
-        amount: ev.amount ?? 0,
-        mitigated: ev.absorbed ?? 0,
+        amount,
+        unmitigatedAmount: unmitigated,
+        mitigated,
+        mitigationPct,
         buffs: buffNames, // ✅ include parsed buffs
       };
     })
@@ -257,13 +274,20 @@ function applyBuffsToAttacks(statusList, damageEvents, fightTable, fight) {
  *       [timestamp]: {
  *         source: attacker name,
  *         ability: attack name,
+ *         amount: actual damage taken,
+ *         unmitigatedAmount: raw unmitigated damage,
+ *         mitigated: raw absorbed/mitigated value,
+ *         mitigationPct: percentage mitigated (0–100),
  *         buffs: { buffName: [applierNames] }
  *       }
  *     }
  *   }
  *
- * ⚠️ Enhancement: Now consumes parsedBuffEvents instead of raw FFLogs buff/debuff events.
- * This makes it consistent with parsedDamageTaken events.
+ * ⚠️ Enhancement:
+ *   - Now consumes parsedBuffEvents instead of raw FFLogs buff/debuff events,
+ *     making it consistent with parsedDamageTaken events.
+ *   - Rows now include mitigation data (amount, unmitigatedAmount, mitigated, mitigationPct)
+ *     directly from parsed damage events so the renderer does not need to recompute.
  *
  * @param {Array} damageEvents - Parsed damage taken events
  * @param {Array} parsedBuffs - Parsed buff/debuff events (from parseBuffEvents)
@@ -290,6 +314,10 @@ export function buildFightTable(damageEvents, parsedBuffs, fight, actorById) {
       table.rows[ts] = {
         source: ev.source,
         ability: ev.ability,
+        amount: ev.amount,
+        unmitigatedAmount: ev.unmitigatedAmount,
+        mitigated: ev.mitigated,
+        mitigationPct: ev.mitigationPct,
         buffs: {},
       };
     }

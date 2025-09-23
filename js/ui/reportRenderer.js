@@ -39,6 +39,22 @@ export function renderReport(outputEl, report, loadFightTable) {
 
   outputEl.appendChild(fightWrapper);
 
+  /**
+   * Render a single fight's table into the UI.
+   *
+   * Columns:
+   *   - Timestamp: relative time of the event
+   *   - Attack Name: ability name
+   *   - Damage: compact arrow format "unmitigated → amount (-mitigationPct%)"
+   *   - Player columns: show buffs active on each player at that timestamp
+   *
+   * Enhancement:
+   *   - Damage values now come directly from parser (`amount`, `unmitigatedAmount`, `mitigationPct`)
+   *     instead of recalculating in the renderer.
+   *   - Keeps renderer focused on formatting and display only.
+   *
+   * @param {Object} fightTable - parsed FightTable object
+   */
   async function renderFight(fightTable) {
     fightContainer.innerHTML = "";
 
@@ -77,7 +93,7 @@ export function renderReport(outputEl, report, loadFightTable) {
       const thead = document.createElement("thead");
       const headerRow = document.createElement("tr");
       headerRow.innerHTML =
-        "<th>Timestamp</th><th>Attack Name</th>" +
+        "<th>Timestamp</th><th>Attack Name</th><th class='damage-col'>Damage</th>" +
         sortedActors
           .map((actor) => {
             const roleClass = getRoleClass(actor.subType);
@@ -100,6 +116,21 @@ export function renderReport(outputEl, report, loadFightTable) {
         tdAbility.textContent = event.ability || "";
         row.appendChild(tdAbility);
 
+        // Damage Info cell (arrow style, uses precomputed fields)
+        const tdDamage = document.createElement("td");
+        tdDamage.classList.add("damage-col");
+        if (
+          event.amount != null &&
+          event.unmitigatedAmount != null &&
+          event.mitigationPct != null
+        ) {
+          tdDamage.innerHTML = `${event.unmitigatedAmount} → ${event.amount}<br>(${event.mitigationPct}% mit)`;
+        } else {
+          tdDamage.textContent = "-";
+        }
+        row.appendChild(tdDamage);
+
+        // Buff columns per player
         sortedActors.forEach((actor) => {
           const td = document.createElement("td");
           td.classList.add(getRoleClass(actor.subType));

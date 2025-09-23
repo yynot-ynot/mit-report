@@ -144,3 +144,15 @@
     /* force fixed layout */
     background: #fff;
 }
+
+/* Wider column for Damage */
+.time-table th.damage-col,
+.frozen-header th.damage-col,
+.time-table td.damage-col,
+.frozen-header td.damage-col {
+    width: 140px;
+    /* adjust until it looks right */
+    white-space: normal;
+    /* allow wrapping */
+    word-break: break-word;
+}

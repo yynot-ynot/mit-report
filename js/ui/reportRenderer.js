@@ -5,6 +5,9 @@ import { getRoleClass, sortActorsByJob } from "../config/AppConfig.js";
 setModuleLogLevel("ReportRenderer", "info");
 const log = getLogger("ReportRenderer");
 
+// Toggle for highlighting full target column
+let ENABLE_COLUMN_HIGHLIGHT = true;
+
 export function renderReport(outputEl, report, loadFightTable) {
   outputEl.innerHTML = `<div class="report-category">${report.title}</div>`;
 
@@ -61,7 +64,37 @@ export function renderReport(outputEl, report, loadFightTable) {
     fightContainer.innerHTML = "";
 
     const section = document.createElement("section");
-    section.innerHTML = `<h4>${fightTable.name} (Pull: ${fightTable.fightId})</h4>`;
+
+    // Header row container (flexbox)
+    const headerRow = document.createElement("div");
+    headerRow.style.display = "flex";
+    headerRow.style.alignItems = "center";
+    headerRow.style.justifyContent = "space-between";
+
+    // Fight title
+    const titleEl = document.createElement("h4");
+    titleEl.textContent = `${fightTable.name} (Pull: ${fightTable.fightId})`;
+
+    // Toggle button
+    const toggleBtn = document.createElement("button");
+    function updateToggleStyle() {
+      toggleBtn.textContent = ENABLE_COLUMN_HIGHLIGHT
+        ? "Disable Target Column Highlight"
+        : "Enable Target Column Highlight";
+      toggleBtn.className = ENABLE_COLUMN_HIGHLIGHT
+        ? "toggle-btn disable"
+        : "toggle-btn enable";
+    }
+    toggleBtn.addEventListener("click", () => {
+      ENABLE_COLUMN_HIGHLIGHT = !ENABLE_COLUMN_HIGHLIGHT;
+      updateToggleStyle();
+    });
+    updateToggleStyle();
+
+    // Assemble header row
+    headerRow.appendChild(titleEl);
+    headerRow.appendChild(toggleBtn);
+    section.appendChild(headerRow);
 
     const timestamps = Object.keys(fightTable.rows)
       .map((n) => parseInt(n, 10))
@@ -342,6 +375,7 @@ function makeFrozenHeader(table) {
  */
 function enableColumnHighlight(table, row) {
   row.addEventListener("mouseenter", () => {
+    if (!ENABLE_COLUMN_HIGHLIGHT) return; // 🚫 skip if disabled
     const targetCell = row.querySelector(".target-cell");
     if (!targetCell) return;
 
@@ -356,6 +390,7 @@ function enableColumnHighlight(table, row) {
   });
 
   row.addEventListener("mouseleave", () => {
+    if (!ENABLE_COLUMN_HIGHLIGHT) return; // 🚫 skip if disabled
     table
       .querySelectorAll(".highlight-col")
       .forEach((cell) => cell.classList.remove("highlight-col"));

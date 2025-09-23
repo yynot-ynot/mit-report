@@ -173,3 +173,27 @@
     background-color: #fff8dc !important;
         /* light yellow/orange column */
 }
+
+/* Toggle button base styling */
+.toggle-btn {
+    padding: 0.3rem 0.8rem;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 0.85rem;
+    font-weight: 600;
+}
+
+/* Enable state (light yellow/orange) */
+.toggle-btn.enable {
+    background-color: #fff8dc;
+    border: 1px solid #ffd580;
+    color: #a06000;
+}
+
+/* Disable state (greyed out) */
+.toggle-btn.disable {
+    background-color: #e0e0e0;
+    border: 1px solid #bbb;
+    color: #666;
+}

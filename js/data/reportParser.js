@@ -313,6 +313,8 @@ export function buildFightTable(damageEvents, parsedBuffs, fight, actorById) {
     if (!table.rows[ts]) {
       table.rows[ts] = {
         source: ev.source,
+        actor: ev.actor, // target actor name
+        targetID: ev.targetID ?? null, // optional: add ID for safer matching
         ability: ev.ability,
         amount: ev.amount,
         unmitigatedAmount: ev.unmitigatedAmount,

@@ -56,6 +56,8 @@ export function renderReport(outputEl, report, loadFightTable) {
    * @param {Object} fightTable - parsed FightTable object
    */
   async function renderFight(fightTable) {
+    // log the fightTable object
+    log.debug("[RenderFight] fightTable object:", fightTable);
     fightContainer.innerHTML = "";
 
     const section = document.createElement("section");
@@ -144,10 +146,20 @@ export function renderReport(outputEl, report, loadFightTable) {
           }
 
           td.textContent = playerBuffs.length > 0 ? playerBuffs.join(", ") : "";
+
+          // Highlight target cell (compare event.actor to this actor’s name)
+          if (event.actor && actor.name === event.actor) {
+            td.classList.add("target-cell");
+            log.debug(
+              `[RenderFight] Marked target column for actor="${actor.name}" at ts=${ms}`
+            );
+          }
+
           row.appendChild(td);
         });
 
         tbody.appendChild(row);
+        enableColumnHighlight(table, row);
       });
       table.appendChild(tbody);
 
@@ -315,5 +327,37 @@ function makeFrozenHeader(table) {
   window.addEventListener("resize", () => {
     initialized = false;
     updatePosition();
+  });
+}
+
+/**
+ * Enable column highlight on row hover.
+ *
+ * When a row is hovered, the `.target-cell` in that row is located,
+ * its column index is determined, and the entire column (header + all rows)
+ * is highlighted. Highlight is removed on mouse leave.
+ *
+ * @param {HTMLTableElement} table - The table element to apply highlighting in
+ * @param {HTMLTableRowElement} row - The row element being configured
+ */
+function enableColumnHighlight(table, row) {
+  row.addEventListener("mouseenter", () => {
+    const targetCell = row.querySelector(".target-cell");
+    if (!targetCell) return;
+
+    const cellIndex = Array.from(row.children).indexOf(targetCell);
+
+    // Highlight same column across table (header + body)
+    table
+      .querySelectorAll(
+        `tr td:nth-child(${cellIndex + 1}), tr th:nth-child(${cellIndex + 1})`
+      )
+      .forEach((cell) => cell.classList.add("highlight-col"));
+  });
+
+  row.addEventListener("mouseleave", () => {
+    table
+      .querySelectorAll(".highlight-col")
+      .forEach((cell) => cell.classList.remove("highlight-col"));
   });
 }

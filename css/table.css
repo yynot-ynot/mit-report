@@ -90,10 +90,18 @@
     /* red */
 }
 
-/* Hover effect (only live table) */
+/* Row hover effect (only live table) */
 .time-table tbody tr:hover {
-    background: #e6f0ff;
-    /* light blue highlight */
+    background: #fff8dc;
+    /* light yellow/orange highlight */
+}
+
+/* On row hover, highlight target cell */
+.time-table tbody tr:hover td.target-cell {
+    border: 2px solid #ffd580;
+    /* light yellow/orange border */
+    background-color: #fff8dc;
+    /* light yellow/orange fill */
 }
 
 /* Column role-based coloring (applies to both table + frozen header) */
@@ -155,4 +163,13 @@
     white-space: normal;
     /* allow wrapping */
     word-break: break-word;
+}
+
+/* Highlight entire column */
+.time-table td.highlight-col,
+.time-table th.highlight-col,
+.frozen-header td.highlight-col,
+.frozen-header th.highlight-col {
+    background-color: #fff8dc !important;
+        /* light yellow/orange column */
 }

@@ -971,6 +971,154 @@ export const WhitemageConfig = {
     source_url: "FFXIV_Job_Guide_Raw_whitemage_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
     language: "en"
+  },
+  Repose: {
+    id: "healer_action__01",
+    icon_url: "https://lds-img.finalfantasyxiv.com/d/9bd731d47094c2c11b5cd9fb0d1d277bf9c6c89d.png",
+    job: "Healer",
+    job_icon_url: "https://lds-img.finalfantasyxiv.com/promo/h/e/V5xx3kfnREBO-2xWbTUW2Csy_Q.png",
+    level: 8,
+    type: "Spell",
+    cast: 2.5,
+    recast: 2.5,
+    cost: {
+      mp: 600
+    },
+    range: 30,
+    radius: 0,
+    tooltip: "Afflicts target with Sleep.\nDuration: 30s\nCancels auto-attack upon execution.",
+    potency: [],
+    effects: [],
+    conditions: [],
+    duration: {
+      seconds: 30
+    },
+    max_charges: null,
+    source_url: "FFXIV_Job_Guide_Raw_whitemage_2025-09.html",
+    last_seen: "2025-09-12T00:00:00+00:00",
+    language: "en"
+  },
+  Esuna: {
+    id: "healer_action__02",
+    icon_url: "https://lds-img.finalfantasyxiv.com/d/2a6603bc786d73eb3829141482b3d5be5d484199.png",
+    job: "Healer",
+    job_icon_url: "https://lds-img.finalfantasyxiv.com/promo/h/e/V5xx3kfnREBO-2xWbTUW2Csy_Q.png",
+    level: 10,
+    type: "Spell",
+    cast: 0.0,
+    recast: 2.5,
+    cost: {
+      mp: 400
+    },
+    range: 30,
+    radius: 0,
+    tooltip: "Removes a single detrimental effect from target.",
+    potency: [],
+    effects: [],
+    conditions: [],
+    duration: null,
+    max_charges: null,
+    source_url: "FFXIV_Job_Guide_Raw_whitemage_2025-09.html",
+    last_seen: "2025-09-12T00:00:00+00:00",
+    language: "en"
+  },
+  "Lucid Dreaming": {
+    id: "healer_action__03",
+    icon_url: "https://lds-img.finalfantasyxiv.com/d/3629c6854aa559656623925e2489b60c2fa91e18.png",
+    job: "Healer",
+    job_icon_url: "https://lds-img.finalfantasyxiv.com/promo/h/e/V5xx3kfnREBO-2xWbTUW2Csy_Q.png",
+    level: 14,
+    type: "Ability",
+    cast: 0.0,
+    recast: 60.0,
+    cost: {},
+    range: 0,
+    radius: 0,
+    tooltip: "Gradually restores own MP.\nPotency: 55\nDuration: 21s",
+    potency: [
+      "Potency: 55"
+    ],
+    effects: [],
+    conditions: [],
+    duration: {
+      seconds: 21
+    },
+    max_charges: null,
+    source_url: "FFXIV_Job_Guide_Raw_whitemage_2025-09.html",
+    last_seen: "2025-09-12T00:00:00+00:00",
+    language: "en"
+  },
+  Swiftcast: {
+    id: "healer_action__04",
+    icon_url: "https://lds-img.finalfantasyxiv.com/d/27d401b3cfbf90c846ffeaa9f661afb4bd77ce98.png",
+    job: "Healer",
+    job_icon_url: "https://lds-img.finalfantasyxiv.com/promo/h/e/V5xx3kfnREBO-2xWbTUW2Csy_Q.png",
+    level: 18,
+    type: "Ability",
+    cast: 0.0,
+    recast: 40.0,
+    cost: {},
+    range: 0,
+    radius: 0,
+    tooltip: "Next spell is cast immediately.\nDuration: 10s",
+    potency: [],
+    effects: [],
+    conditions: [],
+    duration: {
+      seconds: 10
+    },
+    max_charges: null,
+    source_url: "FFXIV_Job_Guide_Raw_whitemage_2025-09.html",
+    last_seen: "2025-09-12T00:00:00+00:00",
+    language: "en"
+  },
+  Surecast: {
+    id: "healer_action__05",
+    icon_url: "https://lds-img.finalfantasyxiv.com/d/477d1e7f7115db19c344c0f5cadfcfa2ac0cdcc0.png",
+    job: "Healer",
+    job_icon_url: "https://lds-img.finalfantasyxiv.com/promo/h/e/V5xx3kfnREBO-2xWbTUW2Csy_Q.png",
+    level: 44,
+    type: "Ability",
+    cast: 0.0,
+    recast: 120.0,
+    cost: {},
+    range: 0,
+    radius: 0,
+    tooltip: "Spells can be cast without interruption.\nAdditional Effect: Nullifies most knockback and draw-in effects\nDuration: 6s",
+    potency: [],
+    effects: [
+      "Additional Effect: Nullifies most knockback and draw-in effects"
+    ],
+    conditions: [],
+    duration: {
+      seconds: 6
+    },
+    max_charges: null,
+    source_url: "FFXIV_Job_Guide_Raw_whitemage_2025-09.html",
+    last_seen: "2025-09-12T00:00:00+00:00",
+    language: "en"
+  },
+  Rescue: {
+    id: "healer_action__06",
+    icon_url: "https://lds-img.finalfantasyxiv.com/d/23f8a26b9a0107b6076f5f2e715e14d9be0edc25.png",
+    job: "Healer",
+    job_icon_url: "https://lds-img.finalfantasyxiv.com/promo/h/e/V5xx3kfnREBO-2xWbTUW2Csy_Q.png",
+    level: 48,
+    type: "Ability",
+    cast: 0.0,
+    recast: 120.0,
+    cost: {},
+    range: 30,
+    radius: 0,
+    tooltip: "Instantly draws target party member to your side. Cannot be used outside of combat or when target is suffering from certain enfeeblements.",
+    potency: [],
+    effects: [],
+    conditions: [],
+    duration: null,
+    max_charges: null,
+    source_url: "FFXIV_Job_Guide_Raw_whitemage_2025-09.html",
+    last_seen: "2025-09-12T00:00:00+00:00",
+    language: "en"
   }
 },
   rotations: []

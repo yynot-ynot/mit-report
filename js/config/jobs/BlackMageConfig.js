@@ -1052,6 +1052,132 @@ export const BlackMageConfig = {
     source_url: "FFXIV_Job_Guide_Raw_blackmage_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
     language: "en"
+  },
+  Addle: {
+    id: "mrange_action__01",
+    icon_url: "https://lds-img.finalfantasyxiv.com/d/b45e688d81b5607246600f904aac008364db0d1e.png",
+    job: "Magical Ranged DPS",
+    job_icon_url: "https://lds-img.finalfantasyxiv.com/promo/h/X/8Dnf8Wy9IyxIt21y6lrE5atKt0.png",
+    level: 8,
+    type: "Ability",
+    cast: 0.0,
+    recast: 90.0,
+    cost: {},
+    range: 25,
+    radius: 0,
+    tooltip: "Lowers target's physical damage dealt by 5% and magic damage dealt by 10%.\nDuration: 15s",
+    potency: [],
+    effects: [],
+    conditions: [],
+    duration: {
+      seconds: 15
+    },
+    max_charges: null,
+    source_url: "FFXIV_Job_Guide_Raw_blackmage_2025-09.html",
+    last_seen: "2025-09-12T00:00:00+00:00",
+    language: "en"
+  },
+  Sleep: {
+    id: "mrange_action__02",
+    icon_url: "https://lds-img.finalfantasyxiv.com/d/10e9fb5302668c923b8237ffbd4841ccc6c2edb4.png",
+    job: "Magical Ranged DPS",
+    job_icon_url: "https://lds-img.finalfantasyxiv.com/promo/h/X/8Dnf8Wy9IyxIt21y6lrE5atKt0.png",
+    level: 10,
+    type: "Spell",
+    cast: 2.5,
+    recast: 2.5,
+    cost: {
+      mp: 800
+    },
+    range: 30,
+    radius: 5,
+    tooltip: "Puts target and all nearby enemies to sleep.\nDuration: 30s\nCancels auto-attack upon execution.",
+    potency: [],
+    effects: [],
+    conditions: [],
+    duration: {
+      seconds: 30
+    },
+    max_charges: null,
+    source_url: "FFXIV_Job_Guide_Raw_blackmage_2025-09.html",
+    last_seen: "2025-09-12T00:00:00+00:00",
+    language: "en"
+  },
+  "Lucid Dreaming": {
+    id: "mrange_action__03",
+    icon_url: "https://lds-img.finalfantasyxiv.com/d/3629c6854aa559656623925e2489b60c2fa91e18.png",
+    job: "Healer",
+    job_icon_url: "https://lds-img.finalfantasyxiv.com/promo/h/e/V5xx3kfnREBO-2xWbTUW2Csy_Q.png",
+    level: 14,
+    type: "Ability",
+    cast: 0.0,
+    recast: 60.0,
+    cost: {},
+    range: 0,
+    radius: 0,
+    tooltip: "Gradually restores own MP.\nPotency: 55\nDuration: 21s",
+    potency: [
+      "Potency: 55"
+    ],
+    effects: [],
+    conditions: [],
+    duration: {
+      seconds: 21
+    },
+    max_charges: null,
+    source_url: "FFXIV_Job_Guide_Raw_blackmage_2025-09.html",
+    last_seen: "2025-09-12T00:00:00+00:00",
+    language: "en"
+  },
+  Swiftcast: {
+    id: "mrange_action__04",
+    icon_url: "https://lds-img.finalfantasyxiv.com/d/27d401b3cfbf90c846ffeaa9f661afb4bd77ce98.png",
+    job: "Healer",
+    job_icon_url: "https://lds-img.finalfantasyxiv.com/promo/h/e/V5xx3kfnREBO-2xWbTUW2Csy_Q.png",
+    level: 18,
+    type: "Ability",
+    cast: 0.0,
+    recast: 40.0,
+    cost: {},
+    range: 0,
+    radius: 0,
+    tooltip: "Next spell is cast immediately.\nDuration: 10s",
+    potency: [],
+    effects: [],
+    conditions: [],
+    duration: {
+      seconds: 10
+    },
+    max_charges: null,
+    source_url: "FFXIV_Job_Guide_Raw_blackmage_2025-09.html",
+    last_seen: "2025-09-12T00:00:00+00:00",
+    language: "en"
+  },
+  Surecast: {
+    id: "mrange_action__05",
+    icon_url: "https://lds-img.finalfantasyxiv.com/d/477d1e7f7115db19c344c0f5cadfcfa2ac0cdcc0.png",
+    job: "Healer",
+    job_icon_url: "https://lds-img.finalfantasyxiv.com/promo/h/e/V5xx3kfnREBO-2xWbTUW2Csy_Q.png",
+    level: 44,
+    type: "Ability",
+    cast: 0.0,
+    recast: 120.0,
+    cost: {},
+    range: 0,
+    radius: 0,
+    tooltip: "Spells can be cast without interruption.\nAdditional Effect: Nullifies most knockback and draw-in effects\nDuration: 6s",
+    potency: [],
+    effects: [
+      "Additional Effect: Nullifies most knockback and draw-in effects"
+    ],
+    conditions: [],
+    duration: {
+      seconds: 6
+    },
+    max_charges: null,
+    source_url: "FFXIV_Job_Guide_Raw_blackmage_2025-09.html",
+    last_seen: "2025-09-12T00:00:00+00:00",
+    language: "en"
   }
 },
   rotations: [

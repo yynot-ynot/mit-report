@@ -1181,6 +1181,152 @@ export const MonkConfig = {
     source_url: "FFXIV_Job_Guide_Raw_monk_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
     language: "en"
+  },
+  "Second Wind": {
+    id: "melee_action__01",
+    icon_url: "https://lds-img.finalfantasyxiv.com/d/2b79d78f1ed471ace5708898e3388062fbd555fb.png",
+    job: "Melee DPS",
+    job_icon_url: "https://lds-img.finalfantasyxiv.com/promo/h/7/9muqitiUXEK0W3qnM33Nb7sATk.png",
+    level: 8,
+    type: "Ability",
+    cast: 0.0,
+    recast: 120.0,
+    cost: {},
+    range: 0,
+    radius: 0,
+    tooltip: "Instantly restores own HP.\nCure Potency: 800",
+    potency: [
+      "Cure Potency: 800"
+    ],
+    effects: [],
+    conditions: [],
+    duration: null,
+    max_charges: null,
+    source_url: "FFXIV_Job_Guide_Raw_monk_2025-09.html",
+    last_seen: "2025-09-12T00:00:00+00:00",
+    language: "en"
+  },
+  "Leg Sweep": {
+    id: "melee_action__02",
+    icon_url: "https://lds-img.finalfantasyxiv.com/d/8c9674aba5fe48e73cc80ceb4a49782c1539b942.png",
+    job: "Melee DPS",
+    job_icon_url: "https://lds-img.finalfantasyxiv.com/promo/h/7/9muqitiUXEK0W3qnM33Nb7sATk.png",
+    level: 10,
+    type: "Ability",
+    cast: 0.0,
+    recast: 40.0,
+    cost: {},
+    range: 3,
+    radius: 0,
+    tooltip: "Stuns target.\nDuration: 3s",
+    potency: [],
+    effects: [],
+    conditions: [],
+    duration: {
+      seconds: 3
+    },
+    max_charges: null,
+    source_url: "FFXIV_Job_Guide_Raw_monk_2025-09.html",
+    last_seen: "2025-09-12T00:00:00+00:00",
+    language: "en"
+  },
+  Bloodbath: {
+    id: "melee_action__03",
+    icon_url: "https://lds-img.finalfantasyxiv.com/d/f76d6999b80178e51cfedf68f3af69ce6ed5016f.png",
+    job: "Melee DPS",
+    job_icon_url: "https://lds-img.finalfantasyxiv.com/promo/h/7/9muqitiUXEK0W3qnM33Nb7sATk.png",
+    level: 12,
+    type: "Ability",
+    cast: 0.0,
+    recast: 90.0,
+    cost: {},
+    range: 0,
+    radius: 0,
+    tooltip: "Converts a portion of physical damage dealt into HP.\nDuration: 20s",
+    potency: [],
+    effects: [],
+    conditions: [],
+    duration: {
+      seconds: 20
+    },
+    max_charges: null,
+    source_url: "FFXIV_Job_Guide_Raw_monk_2025-09.html",
+    last_seen: "2025-09-12T00:00:00+00:00",
+    language: "en"
+  },
+  Feint: {
+    id: "melee_action__04",
+    icon_url: "https://lds-img.finalfantasyxiv.com/d/84c26a86cbbb8a599e5a2441cebcd33b0064bf07.png",
+    job: "Melee DPS",
+    job_icon_url: "https://lds-img.finalfantasyxiv.com/promo/h/7/9muqitiUXEK0W3qnM33Nb7sATk.png",
+    level: 22,
+    type: "Ability",
+    cast: 0.0,
+    recast: 90.0,
+    cost: {},
+    range: 10,
+    radius: 0,
+    tooltip: "Lowers target's physical damage dealt by 10% and magic damage dealt by 5%.\nDuration: 15s",
+    potency: [],
+    effects: [],
+    conditions: [],
+    duration: {
+      seconds: 15
+    },
+    max_charges: null,
+    source_url: "FFXIV_Job_Guide_Raw_monk_2025-09.html",
+    last_seen: "2025-09-12T00:00:00+00:00",
+    language: "en"
+  },
+  "Arm's Length": {
+    id: "melee_action__05",
+    icon_url: "https://lds-img.finalfantasyxiv.com/d/00ff21ad3e1fb26d7b292a9d912931e7ea64daa4.png",
+    job: "Tank",
+    job_icon_url: "https://lds-img.finalfantasyxiv.com/promo/h/d/rFrCBcRe9YrmPvb4fZkuFksSLw.png",
+    level: 32,
+    type: "Ability",
+    cast: 0.0,
+    recast: 120.0,
+    cost: {},
+    range: 0,
+    radius: 0,
+    tooltip: "Nullifies most knockback and draw-in effects.\nDuration: 6s\nAdditional Effect: When you are struck by a physical attack, the striker will be afflicted with Slow +20%\nDuration: 15s",
+    potency: [],
+    effects: [
+      "Additional Effect: When you are struck by a physical attack, the striker will be afflicted with Slow +20%"
+    ],
+    conditions: [],
+    duration: {
+      seconds: 15
+    },
+    max_charges: null,
+    source_url: "FFXIV_Job_Guide_Raw_monk_2025-09.html",
+    last_seen: "2025-09-12T00:00:00+00:00",
+    language: "en"
+  },
+  "True North": {
+    id: "melee_action__06",
+    icon_url: "https://lds-img.finalfantasyxiv.com/d/2d62e72f5da6d52e189c1ed10dfbd602625fc536.png",
+    job: "Melee DPS",
+    job_icon_url: "https://lds-img.finalfantasyxiv.com/promo/h/7/9muqitiUXEK0W3qnM33Nb7sATk.png",
+    level: 50,
+    type: "Ability",
+    cast: 0.0,
+    recast: 45.0,
+    cost: {},
+    range: 0,
+    radius: 0,
+    tooltip: "Nullifies all action direction requirements.\nDuration: 10s\nMaximum Charges: 2",
+    potency: [],
+    effects: [],
+    conditions: [],
+    duration: {
+      seconds: 10
+    },
+    max_charges: 2,
+    source_url: "FFXIV_Job_Guide_Raw_monk_2025-09.html",
+    last_seen: "2025-09-12T00:00:00+00:00",
+    language: "en"
   }
 },
   rotations: []

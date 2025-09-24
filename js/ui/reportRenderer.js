@@ -79,8 +79,8 @@ export function renderReport(outputEl, report, loadFightTable) {
     const toggleBtn = document.createElement("button");
     function updateToggleStyle() {
       toggleBtn.textContent = ENABLE_COLUMN_HIGHLIGHT
-        ? "Disable Target Column Highlight"
-        : "Enable Target Column Highlight";
+        ? "Disable Target Player Highlight"
+        : "Enable Target Player Highlight";
       toggleBtn.className = ENABLE_COLUMN_HIGHLIGHT
         ? "toggle-btn disable"
         : "toggle-btn enable";
@@ -192,7 +192,7 @@ export function renderReport(outputEl, report, loadFightTable) {
         });
 
         tbody.appendChild(row);
-        enableColumnHighlight(table, row);
+        enableHeaderHighlight(table, row);
       });
       table.appendChild(tbody);
 
@@ -364,35 +364,83 @@ function makeFrozenHeader(table) {
 }
 
 /**
- * Enable column highlight on row hover.
+ * Enable header highlight on row hover.
  *
  * When a row is hovered, the `.target-cell` in that row is located,
- * its column index is determined, and the entire column (header + all rows)
- * is highlighted. Highlight is removed on mouse leave.
+ * its column index is determined, and the corresponding header cell
+ * (in both live and frozen headers) is highlighted.
  *
- * @param {HTMLTableElement} table - The table element to apply highlighting in
+ * Enhancement:
+ *   - Adds a small "Target" badge (styled via .target-label) to the header cell.
+ *   - The label is positioned slightly above the cell, overlapping the top border,
+ *     to give it a "stamp" effect and clearly indicate the target player.
+ *
+ * @param {HTMLTableElement} table - The table element
  * @param {HTMLTableRowElement} row - The row element being configured
  */
-function enableColumnHighlight(table, row) {
+function enableHeaderHighlight(table, row) {
   row.addEventListener("mouseenter", () => {
-    if (!ENABLE_COLUMN_HIGHLIGHT) return; // 🚫 skip if disabled
+    if (!ENABLE_COLUMN_HIGHLIGHT) return;
+
     const targetCell = row.querySelector(".target-cell");
     if (!targetCell) return;
 
     const cellIndex = Array.from(row.children).indexOf(targetCell);
 
-    // Highlight same column across table (header + body)
-    table
-      .querySelectorAll(
-        `tr td:nth-child(${cellIndex + 1}), tr th:nth-child(${cellIndex + 1})`
-      )
-      .forEach((cell) => cell.classList.add("highlight-col"));
+    // Highlight live header cell
+    const headerCell = table.querySelector(
+      `thead th:nth-child(${cellIndex + 1})`
+    );
+    if (headerCell) {
+      headerCell.classList.add("highlight-header");
+
+      // 🏷️ Add "Target" badge if not already present
+      if (!headerCell.querySelector(".target-label")) {
+        const label = document.createElement("span");
+        label.className = "target-label";
+        label.textContent = "Target";
+        headerCell.appendChild(label);
+      }
+    }
+
+    // Highlight frozen header cell
+    const frozen = table.parentNode.parentNode.querySelector(".frozen-header");
+    if (frozen) {
+      const frozenHeaderCell = frozen.querySelector(
+        `th:nth-child(${cellIndex + 1})`
+      );
+      if (frozenHeaderCell) {
+        frozenHeaderCell.classList.add("highlight-header");
+
+        // 🏷️ Add "Target" badge for frozen header if not already present
+        if (!frozenHeaderCell.querySelector(".target-label")) {
+          const label = document.createElement("span");
+          label.className = "target-label";
+          label.textContent = "Target";
+          frozenHeaderCell.appendChild(label);
+        }
+      }
+    }
   });
 
   row.addEventListener("mouseleave", () => {
-    if (!ENABLE_COLUMN_HIGHLIGHT) return; // 🚫 skip if disabled
-    table
-      .querySelectorAll(".highlight-col")
-      .forEach((cell) => cell.classList.remove("highlight-col"));
+    if (!ENABLE_COLUMN_HIGHLIGHT) return;
+
+    // Remove from live header
+    table.querySelectorAll("thead th.highlight-header").forEach((th) => {
+      th.classList.remove("highlight-header");
+      const label = th.querySelector(".target-label");
+      if (label) label.remove(); // remove badge on exit
+    });
+
+    // Remove from frozen header
+    const frozen = table.parentNode.parentNode.querySelector(".frozen-header");
+    if (frozen) {
+      frozen.querySelectorAll("th.highlight-header").forEach((th) => {
+        th.classList.remove("highlight-header");
+        const label = th.querySelector(".target-label");
+        if (label) label.remove(); // remove badge on exit
+      });
+    }
   });
 }

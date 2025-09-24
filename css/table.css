@@ -96,14 +96,6 @@
     /* light yellow/orange highlight */
 }
 
-/* On row hover, highlight target cell */
-.time-table tbody tr:hover td.target-cell {
-    border: 2px solid #ffd580;
-    /* light yellow/orange border */
-    background-color: #fff8dc;
-    /* light yellow/orange fill */
-}
-
 /* Column role-based coloring (applies to both table + frozen header) */
 .time-table th.tank-col,
 .frozen-header th.tank-col {
@@ -150,7 +142,16 @@
     border-collapse: collapse;
     table-layout: fixed;
     /* force fixed layout */
-    background: #fff;
+    background: transparent;
+}
+
+/* Highlight target player header (live and frozen) */
+.time-table th.highlight-header,
+.frozen-header th.highlight-header {
+    border: 2px solid #ffd580;
+    /* light yellow/orange border */
+    background-color: #fff8dc;
+    /* light yellow/orange fill */
 }
 
 /* Wider column for Damage */
@@ -163,15 +164,6 @@
     white-space: normal;
     /* allow wrapping */
     word-break: break-word;
-}
-
-/* Highlight entire column */
-.time-table td.highlight-col,
-.time-table th.highlight-col,
-.frozen-header td.highlight-col,
-.frozen-header th.highlight-col {
-    background-color: #fff8dc !important;
-        /* light yellow/orange column */
 }
 
 /* Toggle button base styling */
@@ -196,4 +188,37 @@
     background-color: #e0e0e0;
     border: 1px solid #bbb;
     color: #666;
+}
+
+/* "Target" label styled as a badge/stamp above header cell */
+.target-label {
+    position: absolute;
+    top: -1.1rem;
+    /* move slightly above the cell */
+    left: 50%;
+    transform: translateX(-50%);
+    padding: 2px 6px;
+    font-size: 0.65rem;
+    font-weight: 700;
+    color: #a06000;
+    background-color: #fff8dc;
+    border: 1px solid #ffd580;
+    border-radius: 4px;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+    pointer-events: none;
+    z-index: 2000;
+}
+
+/* Ensure the header cell can position the label */
+.time-table th,
+.frozen-header th {
+    position: relative;
+    /* needed for absolute positioning inside */
+}
+
+.frozen-header th {
+    position: relative;
+    /* already present */
+    overflow: visible !important;
+    /* 🔑 allow the label to spill outside */
 }

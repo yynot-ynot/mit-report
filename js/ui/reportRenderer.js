@@ -178,7 +178,7 @@ export function renderReport(outputEl, report, loadFightTable) {
               const matched = isJobAbility(buffName, actor.subType);
               playerBuffs.push(
                 `<span style="color:${
-                  matched ? "#000" : "#888"
+                  matched ? "#000" : "#b45309"
                 }">${buffName}</span>`
               );
             }

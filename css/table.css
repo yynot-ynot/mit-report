@@ -96,6 +96,14 @@
     /* light yellow/orange highlight */
 }
 
+/* On row hover, highlight target cell */
+.time-table tbody tr:hover td.target-cell {
+    border: 3px solid #ffd580;
+    /* light yellow/orange border */
+    background-color: #fff8dc;
+    /* light yellow/orange fill */
+}
+
 /* Column role-based coloring (applies to both table + frozen header) */
 .time-table th.tank-col,
 .frozen-header th.tank-col {

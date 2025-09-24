@@ -2,6 +2,57 @@
 // Configuration for job ordering in fight tables
 // Jobs are grouped by role: Tanks, Healers, Melee DPS, Ranged Physical, Ranged Magical
 
+import { SageConfig } from "./jobs/SageConfig.js";
+import { AstrologianConfig } from "./jobs/AstrologianConfig.js";
+import { BardConfig } from "./jobs/BardConfig.js";
+import { BlackMageConfig } from "./jobs/BlackMageConfig.js";
+import { DancerConfig } from "./jobs/DancerConfig.js";
+import { DarkKnightConfig } from "./jobs/DarkKnightConfig.js";
+import { DragoonConfig } from "./jobs/DragoonConfig.js";
+import { GunbreakerConfig } from "./jobs/GunbreakerConfig.js";
+import { MachinistConfig } from "./jobs/MachinistConfig.js";
+import { MonkConfig } from "./jobs/MonkConfig.js";
+import { NinjaConfig } from "./jobs/NinjaConfig.js";
+import { PaladinConfig } from "./jobs/PaladinConfig.js";
+import { PictomancerConfig } from "./jobs/PictomancerConfig.js";
+import { ReaperConfig } from "./jobs/ReaperConfig.js";
+import { RedMageConfig } from "./jobs/RedMageConfig.js";
+import { SamuraiConfig } from "./jobs/SamuraiConfig.js";
+import { ScholarConfig } from "./jobs/ScholarConfig.js";
+import { SummonerConfig } from "./jobs/SummonerConfig.js";
+import { ViperConfig } from "./jobs/ViperConfig.js";
+import { WarriorConfig } from "./jobs/WarriorConfig.js";
+import { WhitemageConfig } from "./jobs/WhitemageConfig.js";
+
+// 🔗 Map job names to config objects
+const JOB_CONFIGS = {
+  sage: SageConfig,
+  astrologian: AstrologianConfig,
+  bard: BardConfig,
+  blackmage: BlackMageConfig,
+  dancer: DancerConfig,
+  darkknight: DarkKnightConfig,
+  dragoon: DragoonConfig,
+  gunbreaker: GunbreakerConfig,
+  machinist: MachinistConfig,
+  monk: MonkConfig,
+  ninja: NinjaConfig,
+  paladin: PaladinConfig,
+  pictomancer: PictomancerConfig,
+  reaper: ReaperConfig,
+  redmage: RedMageConfig,
+  samurai: SamuraiConfig,
+  scholar: ScholarConfig,
+  summoner: SummonerConfig,
+  viper: ViperConfig,
+  warrior: WarriorConfig,
+  whitemage: WhitemageConfig,
+  "white mage": WhitemageConfig, // allow spaced version
+  "black mage": BlackMageConfig,
+  "red mage": RedMageConfig,
+  "dark knight": DarkKnightConfig,
+};
+
 export const JOB_ORDER = [
   // ---- Tanks ----
   "Paladin",
@@ -109,4 +160,25 @@ export function getRoleClass(job) {
     return "dps-col";
   }
   return "unknown-col";
+}
+
+// 🔍 Normalizer helper
+function normalizeJobName(name) {
+  return name?.toLowerCase().replace(/[_\-\s]/g, ""); // strip spaces, underscores, dashes
+}
+
+/**
+ * Load the job config object for a given job name.
+ *
+ * - Case insensitive
+ * - Ignores spaces, underscores, and dashes
+ * - Accepts either `JOB_ORDER` style names or config-style names
+ *
+ * @param {string} jobName - e.g. "Dark Knight", "darkknight", "Dark_Knight"
+ * @returns {object|null} - The job config object, or null if not found
+ */
+export function loadJobConfig(jobName) {
+  if (!jobName) return null;
+  const key = normalizeJobName(jobName);
+  return JOB_CONFIGS[key] || null;
 }

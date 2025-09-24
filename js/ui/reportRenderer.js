@@ -1,6 +1,7 @@
 import { getLogger, setModuleLogLevel } from "../utility/logger.js";
 import { formatRelativeTime } from "../utility/dataUtils.js";
 import { getRoleClass, sortActorsByJob } from "../config/AppConfig.js";
+import { isJobAbility } from "../analysis/buffAnalysis.js";
 
 setModuleLogLevel("ReportRenderer", "info");
 const log = getLogger("ReportRenderer");
@@ -174,11 +175,16 @@ export function renderReport(outputEl, report, loadFightTable) {
           const playerBuffs = [];
           for (const [buffName, appliers] of Object.entries(event.buffs)) {
             if (appliers.includes(actor.name)) {
-              playerBuffs.push(buffName);
+              const matched = isJobAbility(buffName, actor.subType);
+              playerBuffs.push(
+                `<span style="color:${
+                  matched ? "#000" : "#888"
+                }">${buffName}</span>`
+              );
             }
           }
 
-          td.textContent = playerBuffs.length > 0 ? playerBuffs.join(", ") : "";
+          td.innerHTML = playerBuffs.length > 0 ? playerBuffs.join(", ") : "";
 
           // Highlight target cell (compare event.actor to this actor’s name)
           if (event.actor && actor.name === event.actor) {

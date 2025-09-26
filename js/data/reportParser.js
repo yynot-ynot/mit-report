@@ -2,6 +2,10 @@ import { getLogger, setModuleLogLevel } from "../utility/logger.js";
 import { buildStatusList } from "./buffTracker.js";
 import { formatRelativeTime } from "../utility/dataUtils.js";
 import { IGNORED_BUFFS } from "../config/ignoredBuffs.js";
+import {
+  assignLastKnownBuffSource,
+  resolveMissingBuffSources,
+} from "../analysis/buffAnalysis.js";
 
 setModuleLogLevel("ReportParser", "debug");
 const log = getLogger("ReportParser");
@@ -211,31 +215,14 @@ function applyBuffsToAttacks(statusList, damageEvents, fightTable, fight) {
           row.buffs[buffName].push(m.source);
         });
       } else {
-        if (matches.length === 0) {
-          // 🛡️ Failsafe: look back within 30s for most recent status of this buff
-          const lookbackWindow = 30000;
-          const recent = statusList
-            .filter(
-              (s) =>
-                s.buff === buffName &&
-                ev.relative >= s.start &&
-                ev.relative - s.end <= lookbackWindow
-            )
-            .sort((a, b) => b.end - a.end)[0];
-
-          if (recent) {
-            if (!row.buffs[buffName]) row.buffs[buffName] = [];
-            row.buffs[buffName].push(recent.source);
-            log.info(
-              `Failsafe applied: credited ${recent.source} for buff=${buffName} at ts=${ev.relative} ` +
-                `(last seen active ${formatRelativeTime(
-                  recent.end + fight.startTime,
-                  fight.startTime
-                )})`
-            );
-            return;
-          }
-
+        const applied = assignLastKnownBuffSource(
+          buffName,
+          ev,
+          statusList,
+          row,
+          fight
+        );
+        if (!applied) {
           // If failsafe also fails, warn
           log.warn(
             `No active status for buff=${buffName} at ts=${ev.relative}. ` +
@@ -252,6 +239,9 @@ function applyBuffsToAttacks(statusList, damageEvents, fightTable, fight) {
                     )}]`
                 )
                 .join(", ")}`
+          );
+          log.warn(
+            `Buff ${buffName} on damage event @${ev.relative} (Fight ${fight.id}) had no matching active status`
           );
         }
         // Buff was present in event.buffs but no source found in statusList
@@ -335,22 +325,7 @@ export function buildFightTable(damageEvents, parsedBuffs, fight, actorById) {
   applyBuffsToAttacks(statusList, damageEvents, table, fight);
 
   // ✅ Final pass: replace null/unknown appliers with all players in this fight
-  for (const [ts, row] of Object.entries(table.rows)) {
-    for (const [buffName, appliers] of Object.entries(row.buffs)) {
-      if (
-        appliers.length === 0 ||
-        appliers.some((a) => !a || a.startsWith("Unknown"))
-      ) {
-        log.warn(
-          `Fight ${fight.id}, ts=${ts}: Buff ${buffName} has no valid source, crediting all players`
-        );
-        // Replace with all player names from global actorById
-        row.buffs[buffName] = table.friendlyPlayerIds
-          .map((id) => actorById.get(id)?.name)
-          .filter(Boolean);
-      }
-    }
-  }
+  resolveMissingBuffSources(table, actorById, fight);
 
   log.info(
     `Fight ${fight.id}: FightTable built with ${

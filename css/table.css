@@ -16,7 +16,7 @@
     background: #ffffff;
     border: 1px solid #ccc;
     color: #222;
-    table-layout: fixed;
+    table-layout: auto;
     /* keeps header + body aligned */
 }
 

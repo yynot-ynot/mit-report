@@ -1,13 +1,20 @@
 import { getLogger, setModuleLogLevel } from "../utility/logger.js";
 import { formatRelativeTime } from "../utility/dataUtils.js";
 import { getRoleClass, sortActorsByJob } from "../config/AppConfig.js";
-import { isJobAbility } from "../analysis/buffAnalysis.js";
+import {
+  isJobAbility,
+  resolveBuffsToAbilities,
+  waitForBuffLookups,
+} from "../analysis/buffAnalysis.js";
 
 setModuleLogLevel("ReportRenderer", "info");
 const log = getLogger("ReportRenderer");
 
 // Toggle for highlighting full target column
 let ENABLE_COLUMN_HIGHLIGHT = true;
+
+// Toggle for collapsing buffs into abilities
+let SHOW_ABILITIES_ONLY = true;
 
 export function renderReport(outputEl, report, loadFightTable) {
   outputEl.innerHTML = `<div class="report-category">${report.title}</div>`;
@@ -76,25 +83,31 @@ export function renderReport(outputEl, report, loadFightTable) {
     const titleEl = document.createElement("h4");
     titleEl.textContent = `${fightTable.name} (Pull: ${fightTable.fightId})`;
 
-    // Toggle button
-    const toggleBtn = document.createElement("button");
-    function updateToggleStyle() {
-      toggleBtn.textContent = ENABLE_COLUMN_HIGHLIGHT
-        ? "Disable Target Player Highlight"
-        : "Enable Target Player Highlight";
-      toggleBtn.className = ENABLE_COLUMN_HIGHLIGHT
-        ? "toggle-btn disable"
-        : "toggle-btn enable";
-    }
-    toggleBtn.addEventListener("click", () => {
-      ENABLE_COLUMN_HIGHLIGHT = !ENABLE_COLUMN_HIGHLIGHT;
-      updateToggleStyle();
-    });
-    updateToggleStyle();
+    // 🔹 Build control panel
+    const controlPanel = renderControlPanel([
+      {
+        labelOn: "Disable Target Player Highlight",
+        labelOff: "Enable Target Player Highlight",
+        state: ENABLE_COLUMN_HIGHLIGHT,
+        onToggle: (newState) => {
+          ENABLE_COLUMN_HIGHLIGHT = newState;
+        },
+      },
+      {
+        labelOn: "Show Buffs (Detailed)",
+        labelOff: "Show Abilities Only",
+        state: SHOW_ABILITIES_ONLY,
+        onToggle: (newState) => {
+          SHOW_ABILITIES_ONLY = newState;
+          rerenderBuffCells(fightTable, report); // 🔁 re-render to update immediately
+        },
+      },
+      // You can easily add more toggles here later
+    ]);
 
     // Assemble header row
     headerRow.appendChild(titleEl);
-    headerRow.appendChild(toggleBtn);
+    headerRow.appendChild(controlPanel);
     section.appendChild(headerRow);
 
     const timestamps = Object.keys(fightTable.rows)
@@ -172,19 +185,29 @@ export function renderReport(outputEl, report, loadFightTable) {
           td.classList.add(getRoleClass(actor.subType));
 
           // Look up buffs applied to this actor at this timestamp
-          const playerBuffs = [];
+          const rawBuffs = [];
           for (const [buffName, appliers] of Object.entries(event.buffs)) {
             if (appliers.includes(actor.name)) {
-              const matched = isJobAbility(buffName, actor.subType);
-              playerBuffs.push(
-                `<span style="color:${
-                  matched ? "#000" : "#b45309"
-                }">${buffName}</span>`
-              );
+              rawBuffs.push(buffName);
             }
           }
 
-          td.innerHTML = playerBuffs.length > 0 ? playerBuffs.join(", ") : "";
+          // Apply toggle: show raw buffs or collapse into abilities
+          let displayBuffs = rawBuffs;
+          if (SHOW_ABILITIES_ONLY) {
+            displayBuffs = resolveBuffsToAbilities(rawBuffs);
+          }
+
+          // Wrap in span with coloring, then stack vertically
+          const styledBuffs = displayBuffs.map((buff) => {
+            const matched = isJobAbility(buff, actor.subType);
+            return `<div><span style="color:${
+              matched ? "#000" : "#b45309"
+            }">${buff}</span></div>`;
+          });
+
+          // Insert into cell
+          td.innerHTML = styledBuffs.length > 0 ? styledBuffs.join("") : "";
 
           // Highlight target cell (compare event.actor to this actor’s name)
           if (event.actor && actor.name === event.actor) {
@@ -213,6 +236,9 @@ export function renderReport(outputEl, report, loadFightTable) {
     }
 
     fightContainer.appendChild(section);
+
+    // 🔁 Schedule re-render once buff lookups are finished
+    waitForBuffLookups(() => rerenderBuffCells(fightTable, report));
   }
 
   function renderPullGrid(encounterId) {
@@ -448,5 +474,115 @@ function enableHeaderHighlight(table, row) {
         if (label) label.remove(); // remove badge on exit
       });
     }
+  });
+}
+
+/**
+ * Build a control panel of toggle buttons for display options.
+ *
+ * @param {Array} options - Array of toggle configs:
+ *   { labelOn: string, labelOff: string, state: boolean, onToggle: function }
+ * @returns {HTMLElement} controlPanel - The built panel element
+ */
+function renderControlPanel(options) {
+  const controlPanel = document.createElement("div");
+  controlPanel.classList.add("control-panel");
+
+  options.forEach((opt) => {
+    const btn = document.createElement("button");
+
+    function updateBtn() {
+      btn.textContent = opt.state ? opt.labelOn : opt.labelOff;
+      btn.className = opt.state ? "toggle-btn disable" : "toggle-btn enable";
+    }
+
+    btn.addEventListener("click", () => {
+      opt.state = !opt.state;
+      opt.onToggle(opt.state);
+      updateBtn();
+    });
+
+    updateBtn();
+    controlPanel.appendChild(btn);
+  });
+
+  return controlPanel;
+}
+
+/**
+ * Rerender buff cells in the fight table without rebuilding the whole DOM.
+ *
+ * Purpose:
+ *   - Prevents flickering when buff lookups finish.
+ *   - Updates only the <td> cells that display buffs/abilities.
+ *
+ * Behavior:
+ *   - Iterates over each row in fightTable.
+ *   - For each player column, recomputes `displayBuffs`
+ *     using resolveBuffsToAbilities if SHOW_ABILITIES_ONLY is active.
+ *   - Updates the cell’s innerHTML with the styled buff list.
+ *   - Preserves row highlighting and frozen headers.
+ *
+ * Usage:
+ *   - Called once when async buff lookups complete (via waitForBuffLookups).
+ *   - Also called when user toggles "Show Abilities Only".
+ *
+ * @param {Object} fightTable - Parsed FightTable with rows and buffs.
+ */
+function rerenderBuffCells(fightTable, report) {
+  const table = fightContainer.querySelector("table.time-table");
+  if (!table) return;
+
+  const tbody = table.querySelector("tbody");
+  if (!tbody) return;
+
+  const timestamps = Object.keys(fightTable.rows)
+    .map((n) => parseInt(n, 10))
+    .sort((a, b) => a - b);
+
+  // Sorted player columns (same as in renderFight)
+  const allActors = fightTable.friendlyPlayerIds
+    .map((id) => report.actorById.get(id))
+    .filter(
+      (a) =>
+        a &&
+        a.type === "Player" &&
+        a.name !== "Multiple Players" &&
+        a.name !== "Limit Break"
+    );
+  const sortedActors = sortActorsByJob(allActors);
+
+  timestamps.forEach((ms, rowIndex) => {
+    const event = fightTable.rows[ms];
+    const row = tbody.rows[rowIndex];
+    if (!row) return;
+
+    sortedActors.forEach((actor, colIndex) => {
+      // Columns offset by 3 (Timestamp, Ability, Damage)
+      const td = row.cells[colIndex + 3];
+      if (!td) return;
+
+      // Buffs applied to this actor at this timestamp
+      const rawBuffs = [];
+      for (const [buffName, appliers] of Object.entries(event.buffs)) {
+        if (appliers.includes(actor.name)) {
+          rawBuffs.push(buffName);
+        }
+      }
+
+      let displayBuffs = rawBuffs;
+      if (SHOW_ABILITIES_ONLY) {
+        displayBuffs = resolveBuffsToAbilities(rawBuffs);
+      }
+
+      const styledBuffs = displayBuffs.map((buff) => {
+        const matched = isJobAbility(buff, actor.subType);
+        return `<div><span style="color:${
+          matched ? "#000" : "#b45309"
+        }">${buff}</span></div>`;
+      });
+
+      td.innerHTML = styledBuffs.length > 0 ? styledBuffs.join("") : "";
+    });
   });
 }

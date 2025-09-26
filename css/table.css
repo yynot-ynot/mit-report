@@ -174,30 +174,6 @@
     word-break: break-word;
 }
 
-/* Toggle button base styling */
-.toggle-btn {
-    padding: 0.3rem 0.8rem;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-    font-size: 0.85rem;
-    font-weight: 600;
-}
-
-/* Enable state (light yellow/orange) */
-.toggle-btn.enable {
-    background-color: #fff8dc;
-    border: 1px solid #ffd580;
-    color: #a06000;
-}
-
-/* Disable state (greyed out) */
-.toggle-btn.disable {
-    background-color: #e0e0e0;
-    border: 1px solid #bbb;
-    color: #666;
-}
-
 /* "Target" label styled as a badge/stamp above header cell */
 .target-label {
     position: absolute;
@@ -229,4 +205,38 @@
     /* already present */
     overflow: visible !important;
     /* 🔑 allow the label to spill outside */
+}
+
+.control-panel {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+    gap: 8px;
+    margin-top: 8px;
+}
+
+/* Enable state (light yellow/orange) */
+.toggle-btn.enable {
+    background-color: #fff8dc;
+    border: 1px solid #ffd580;
+    color: #a06000;
+}
+
+/* Disable state (greyed out) */
+.toggle-btn.disable {
+    background-color: #e0e0e0;
+    border: 1px solid #bbb;
+    color: #666;
+}
+
+.toggle-btn {
+    padding: 6px 10px;
+    cursor: pointer;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    background: #f8f8f8;
+    transition: background 0.2s;
+    text-align: center;
+    /* ensures centered text */
+    white-space: nowrap;
+    /* prevent multi-line wrapping */
 }

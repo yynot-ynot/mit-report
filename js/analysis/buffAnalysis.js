@@ -12,12 +12,36 @@ import { getLogger } from "../utility/logger.js";
 
 const log = getLogger("ReportParser");
 
+// Maps normalized buff → action name, or null
+const buffToAbilityMap = new Map();
+
 /**
  * Check if a given ability/buff is part of a specific job's actions.
  *
- * @param {string} buffName - The ability/buff name to check (e.g. "Kerachole")
+ * Purpose:
+ *   Determines whether a buff/ability name corresponds directly to
+ *   an action in the provided job’s config. This is used in the UI
+ *   layer to distinguish between “true abilities” and secondary
+ *   effects or unidentified buffs.
+ *
+ * Behavior:
+ *   - Performs a case-insensitive match against the job’s action keys.
+ *   - If no direct match is found:
+ *       • Triggers an async lookup via `spawnBuffLookup` to search
+ *         through the job’s ability `effects` fields for a possible origin.
+ *       • This lookup is background-only and does not affect the
+ *         immediate return value.
+ *   - Returns `true` only if the buffName matches an action key directly.
+ *   - Returns `false` otherwise, even if a background lookup is in progress.
+ *
+ * Notes:
+ *   - The async lookup fills `buffToAbilityMap` for later use in the UI.
+ *   - Multiple quick lookups for the same buff are safe, because the
+ *     map tracks `"__PENDING__"` while a search is running.
+ *
+ * @param {string} buffName - The ability/buff name to check (e.g. "Kerachole", "Stem the Flow")
  * @param {string} job - The job subType (e.g. "Sage", "Warrior")
- * @returns {boolean} true if the buff/ability belongs to the job, false otherwise
+ * @returns {boolean} true if the buff/ability matches a known job action, false otherwise
  */
 export function isJobAbility(buffName, job) {
   if (!buffName || !job) return false;
@@ -25,11 +49,24 @@ export function isJobAbility(buffName, job) {
   const jobConfig = loadJobConfig(job);
   if (!jobConfig || !jobConfig.actions) return false;
 
-  // Case-insensitive match on keys of actions
   const normalizedBuff = buffName.trim().toLowerCase();
-  return Object.keys(jobConfig.actions).some(
+
+  // 🔎 Direct match against action names
+  const isDirectMatch = Object.keys(jobConfig.actions).some(
     (actionName) => actionName.trim().toLowerCase() === normalizedBuff
   );
+
+  if (isDirectMatch) {
+    // Ensure table contains direct mapping
+    if (!buffToAbilityMap.has(normalizedBuff)) {
+      buffToAbilityMap.set(normalizedBuff, buffName);
+    }
+  } else {
+    // 🌀 Trigger background lookup to build buffToAbilityMap
+    spawnBuffLookup(normalizedBuff, buffName, job, jobConfig);
+  }
+
+  return isDirectMatch;
 }
 
 /**
@@ -130,4 +167,137 @@ export function resolveMissingBuffSources(table, actorById, fight) {
       }
     }
   }
+}
+
+/**
+ * Purpose:
+ *   Asynchronously attempt to resolve a buff name into its originating
+ *   ability/action by inspecting the "effects" field of a job’s abilities.
+ *
+ * Why:
+ *   Some buffs applied in combat are not directly listed as ability names,
+ *   but instead appear as side-effects of other abilities (e.g. "Stem the Flow"
+ *   from "Bloodwhetting"). This process builds a lookup table that can later
+ *   be used in the UI layer to associate buff names with their true sources.
+ *
+ * Behavior:
+ *   - Normalizes the buff name for case-insensitive matching.
+ *   - If no entry exists in the lookup table, marks it as "__PENDING__".
+ *   - Runs asynchronously (non-blocking) through the job’s actions:
+ *       • If an action’s `effects` contains the buff text, store that action’s name.
+ *       • If no match is found, store `null`.
+ *   - Logs all findings, including the updated lookup table.
+ *
+ * Notes:
+ *   - This does NOT affect the return value of isJobAbility.
+ *   - Multiple quick lookups for the same buff are safe:
+ *     "__PENDING__" prevents duplicate searches until resolved.
+ *
+ * @param {string} normalizedBuff - Lowercased, trimmed buff string key
+ * @param {string} buffName - Original buff name as seen in events
+ * @param {string} job - The job subType (e.g. "Warrior", "Sage")
+ * @param {Object} jobConfig - Job config object (with actions map)
+ */
+function spawnBuffLookup(normalizedBuff, buffName, job, jobConfig) {
+  // Mark lookup as pending if not already tracked
+  if (!buffToAbilityMap.has(normalizedBuff)) {
+    buffToAbilityMap.set(normalizedBuff, "__PENDING__");
+  }
+
+  setTimeout(() => {
+    let foundAction = null;
+
+    for (const [actionName, action] of Object.entries(jobConfig.actions)) {
+      if (Array.isArray(action.effects)) {
+        const match = action.effects.find(
+          (effect) => effect.toLowerCase().includes(normalizedBuff) // fuzzy match
+        );
+        if (match) {
+          foundAction = actionName;
+          break;
+        }
+      }
+    }
+
+    if (foundAction) {
+      buffToAbilityMap.set(normalizedBuff, foundAction);
+      log.info(
+        `[BuffLookup] "${buffName}" resolved → ability "${foundAction}" (job: ${job})`
+      );
+    } else {
+      buffToAbilityMap.set(normalizedBuff, null); // ✅ nothing found
+      log.warn(
+        `[BuffLookup] "${buffName}" could not be resolved for job ${job}`
+      );
+    }
+
+    log.debug("[BuffLookup][Table]", Object.fromEntries(buffToAbilityMap));
+  }, 0);
+}
+
+/**
+ * Resolve a list of buff names into their originating abilities using buffToAbilityMap.
+ *
+ * Purpose:
+ *   Provides a simplified "ability-only" view of buffs by collapsing
+ *   secondary effect buffs into their parent abilities. This makes
+ *   the FightTable easier to read for users who only care about which
+ *   buttons were pressed, not every side effect.
+ *
+ * Behavior:
+ *   - For each buff in the input list:
+ *       • If buffToAbilityMap has an entry (and it’s not "__PENDING__" or null),
+ *         replace the buff with the mapped ability name.
+ *       • Otherwise, keep the buff as-is.
+ *   - Deduplicates the final results to avoid showing both an ability
+ *     and its converted effect buff (e.g. "Bloodwhetting" and "Stem the Flow").
+ *
+ * Example:
+ *   Input: ["Bloodwhetting", "Stem the Flow"]
+ *   Mapping: { "stem the flow" → "Bloodwhetting" }
+ *   Output: ["Bloodwhetting"]
+ *
+ * @param {Array<string>} buffs - List of buff/ability names for a single cell
+ * @returns {Array<string>} resolved - List of simplified ability names
+ */
+export function resolveBuffsToAbilities(buffs) {
+  if (!buffs || buffs.length === 0) return [];
+
+  const resolved = buffs.map((buff) => {
+    const normalized = buff.trim().toLowerCase();
+    const mapped = buffToAbilityMap.get(normalized);
+
+    if (mapped && mapped !== "__PENDING__") {
+      return mapped; // Replace with ability name
+    }
+
+    return buff; // Keep original if no mapping or still pending
+  });
+
+  // Deduplicate while preserving order
+  return [...new Set(resolved)];
+}
+
+/**
+ * Poll until all async buff lookups are completed.
+ * Once no "__PENDING__" entries remain in buffToAbilityMap,
+ * trigger a final re-render.
+ *
+ * @param {Function} rerenderFn - Function to call when lookups are complete (e.g., renderFight)
+ * @param {number} intervalMs - How often to check (default 500ms)
+ */
+export function waitForBuffLookups(rerenderFn, intervalMs = 500) {
+  const intervalId = setInterval(() => {
+    const pending = Array.from(buffToAbilityMap.values()).some(
+      (val) => val === "__PENDING__"
+    );
+
+    if (!pending) {
+      clearInterval(intervalId);
+      console.info(
+        "[BuffLookup] All lookups complete. Triggering final re-render."
+      );
+      rerenderFn(); // 🔄 call back into UI layer
+    }
+  }, intervalMs);
 }

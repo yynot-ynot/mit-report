@@ -10,25 +10,25 @@ export const PictomancerConfig = {
     cast: 1.5,
     recast: 2.5,
     cost: {
-      mp: 300
+      mp: 300,
     },
     range: 25,
     radius: 0,
     tooltip: "Deals fire damage with a potency of 490.\nAdditional Effect: Grants Aetherhues\nDuration: 30s\nCannot be executed while under the effect of Subtractive Palette.\nWhen standing within the bounds of Starry Muse, consumes a stack of Hyperphantasia if available.",
     potency: [
-      "Deals fire damage with a potency of 490."
+      "Deals fire damage with a potency of 490.",
     ],
     effects: [
-      "Additional Effect: Grants Aetherhues"
+      "Additional Effect: Grants Aetherhues",
     ],
     conditions: [],
     duration: {
-      seconds: 30
+      seconds: 30,
     },
     max_charges: null,
     source_url: "FFXIV_Job_Guide_Raw_pictomancer_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   "Aero in Green": {
     id: "pve_action__02",
@@ -40,28 +40,28 @@ export const PictomancerConfig = {
     cast: 1.5,
     recast: 2.5,
     cost: {
-      mp: 300
+      mp: 300,
     },
     range: 25,
     radius: 0,
     tooltip: "Deals wind damage with a potency of 530.\nAdditional Effect: Grants Aetherhues II\nDuration: 30s\nCan only be executed while under the effect of Aetherhues and not under the effect of Subtractive Palette. \nWhen standing within the bounds of Starry Muse, consumes a stack of Hyperphantasia if available.\n\n※This action cannot be assigned to a hotbar.\n※Fire in Red changes to Aero in Green when requirements for execution are met.",
     potency: [
-      "Deals wind damage with a potency of 530."
+      "Deals wind damage with a potency of 530.",
     ],
     effects: [
-      "Additional Effect: Grants Aetherhues II"
+      "Additional Effect: Grants Aetherhues II",
     ],
     conditions: [
       "Can only be executed while under the effect of Aetherhues and not under the effect of Subtractive Palette.",
-      "※This action cannot be assigned to a hotbar."
+      "※This action cannot be assigned to a hotbar.",
     ],
     duration: {
-      seconds: 30
+      seconds: 30,
     },
     max_charges: null,
     source_url: "FFXIV_Job_Guide_Raw_pictomancer_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   "Tempera Coat": {
     id: "pve_action__03",
@@ -80,12 +80,12 @@ export const PictomancerConfig = {
     effects: [],
     conditions: [],
     duration: {
-      seconds: 10
+      seconds: 10,
     },
     max_charges: null,
     source_url: "FFXIV_Job_Guide_Raw_pictomancer_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   "Water in Blue": {
     id: "pve_action__04",
@@ -97,27 +97,27 @@ export const PictomancerConfig = {
     cast: 1.5,
     recast: 2.5,
     cost: {
-      mp: 300
+      mp: 300,
     },
     range: 25,
     radius: 0,
     tooltip: "Deals water damage with a potency of 570.\nAdditional Effect: Increases Palette Gauge by 25\nAdditional Effect: Grants White Paint\nMaximum Stacks: 5\nCan only be executed while under the effect of Aetherhues II and not under the effect of Subtractive Palette.\nWhen standing within the bounds of Starry Muse, consumes a stack of Hyperphantasia if available.\n\n※This action cannot be assigned to a hotbar.\n※Aero in Green changes to Water in Blue when requirements for execution are met.",
     potency: [
-      "Deals water damage with a potency of 570."
+      "Deals water damage with a potency of 570.",
     ],
     effects: [
       "Additional Effect: Increases Palette Gauge by 25",
-      "Additional Effect: Grants White Paint"
+      "Additional Effect: Grants White Paint",
     ],
     conditions: [
       "Can only be executed while under the effect of Aetherhues II and not under the effect of Subtractive Palette.",
-      "※This action cannot be assigned to a hotbar."
+      "※This action cannot be assigned to a hotbar.",
     ],
     duration: null,
     max_charges: null,
     source_url: "FFXIV_Job_Guide_Raw_pictomancer_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   Smudge: {
     id: "pve_action__05",
@@ -134,16 +134,16 @@ export const PictomancerConfig = {
     tooltip: "Quickly dash 15 yalms forward.\nAdditional Effect: Increases movement speed\nDuration: 5s\nCannot be executed while bound.",
     potency: [],
     effects: [
-      "Additional Effect: Increases movement speed"
+      "Additional Effect: Increases movement speed",
     ],
     conditions: [],
     duration: {
-      seconds: 5
+      seconds: 5,
     },
     max_charges: null,
     source_url: "FFXIV_Job_Guide_Raw_pictomancer_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   "Fire II in Red": {
     id: "pve_action__06",
@@ -155,25 +155,25 @@ export const PictomancerConfig = {
     cast: 1.5,
     recast: 2.5,
     cost: {
-      mp: 300
+      mp: 300,
     },
     range: 25,
     radius: 5,
     tooltip: "Deals fire damage with a potency of 180 to target and all enemies nearby it.\nAdditional Effect: Grants Aetherhues\nDuration: 30s\nCannot be executed while under the effect of Subtractive Palette.\nWhen standing within the bounds of Starry Muse, consumes a stack of Hyperphantasia if available.",
     potency: [
-      "Deals fire damage with a potency of 180 to target and all enemies nearby it."
+      "Deals fire damage with a potency of 180 to target and all enemies nearby it.",
     ],
     effects: [
-      "Additional Effect: Grants Aetherhues"
+      "Additional Effect: Grants Aetherhues",
     ],
     conditions: [],
     duration: {
-      seconds: 30
+      seconds: 30,
     },
     max_charges: null,
     source_url: "FFXIV_Job_Guide_Raw_pictomancer_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   "Creature Motif": {
     id: "pve_action__07",
@@ -195,7 +195,7 @@ export const PictomancerConfig = {
     max_charges: null,
     source_url: "FFXIV_Job_Guide_Raw_pictomancer_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   "Living Muse": {
     id: "pve_action__08",
@@ -213,13 +213,13 @@ export const PictomancerConfig = {
     potency: [],
     effects: [],
     conditions: [
-      "Can only be executed when a Creature Motif is depicted on the Creature Canvas."
+      "Can only be executed when a Creature Motif is depicted on the Creature Canvas.",
     ],
     duration: null,
     max_charges: 3,
     source_url: "FFXIV_Job_Guide_Raw_pictomancer_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   "Mog of the Ages": {
     id: "pve_action__09",
@@ -235,17 +235,17 @@ export const PictomancerConfig = {
     radius: 25,
     tooltip: "Render your moogle portrait to life, dealing unaspected damage to all enemies in a straight line before you with a potency of 1,000 for the first enemy, and 70% less for all remaining enemies.\nCan only be executed while Moogle Portrait is active.",
     potency: [
-      "Render your moogle portrait to life, dealing unaspected damage to all enemies in a straight line before you with a potency of 1,000 for the first enemy, and 70% less for all remaining enemies."
+      "Render your moogle portrait to life, dealing unaspected damage to all enemies in a straight line before you with a potency of 1,000 for the first enemy, and 70% less for all remaining enemies.",
     ],
     effects: [],
     conditions: [
-      "Can only be executed while Moogle Portrait is active."
+      "Can only be executed while Moogle Portrait is active.",
     ],
     duration: null,
     max_charges: null,
     source_url: "FFXIV_Job_Guide_Raw_pictomancer_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   "Pom Motif": {
     id: "pve_action__10",
@@ -263,13 +263,13 @@ export const PictomancerConfig = {
     potency: [],
     effects: [],
     conditions: [
-      "※This action cannot be assigned to a hotbar."
+      "※This action cannot be assigned to a hotbar.",
     ],
     duration: null,
     max_charges: null,
     source_url: "FFXIV_Job_Guide_Raw_pictomancer_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   "Wing Motif": {
     id: "pve_action__11",
@@ -287,13 +287,13 @@ export const PictomancerConfig = {
     potency: [],
     effects: [],
     conditions: [
-      "※This action cannot be assigned to a hotbar."
+      "※This action cannot be assigned to a hotbar.",
     ],
     duration: null,
     max_charges: null,
     source_url: "FFXIV_Job_Guide_Raw_pictomancer_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   "Pom Muse": {
     id: "pve_action__12",
@@ -309,20 +309,20 @@ export const PictomancerConfig = {
     radius: 5,
     tooltip: "Render a rain of poms, dealing unaspected damage to target and all enemies nearby it with a potency of 800 for the first enemy, and 70% less for all remaining enemies.\nAdditional Effect: Adds Depiction of Pom to the Creature Canvas\nMaximum Charges: 3\nCan only be executed while a pom is painted on the Creature Canvas.\n\n※This action cannot be assigned to a hotbar.\n※Living Muse changes to Pom Muse when requirements for execution are met.",
     potency: [
-      "Render a rain of poms, dealing unaspected damage to target and all enemies nearby it with a potency of 800 for the first enemy, and 70% less for all remaining enemies."
+      "Render a rain of poms, dealing unaspected damage to target and all enemies nearby it with a potency of 800 for the first enemy, and 70% less for all remaining enemies.",
     ],
     effects: [
-      "Additional Effect: Adds Depiction of Pom to the Creature Canvas"
+      "Additional Effect: Adds Depiction of Pom to the Creature Canvas",
     ],
     conditions: [
       "Can only be executed while a pom is painted on the Creature Canvas.",
-      "※This action cannot be assigned to a hotbar."
+      "※This action cannot be assigned to a hotbar.",
     ],
     duration: null,
     max_charges: 3,
     source_url: "FFXIV_Job_Guide_Raw_pictomancer_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   "Winged Muse": {
     id: "pve_action__13",
@@ -338,20 +338,20 @@ export const PictomancerConfig = {
     radius: 5,
     tooltip: "Render a pair of windborne wings, dealing unaspected damage to target and all enemies nearby it with a potency of 800 for the first enemy, and 70% less for all remaining enemies.\nAdditional Effect: Adds Depiction of Wings to the Creature Canvas\nAlso paints a Moogle Portrait when Depiction of Pom and Depiction of Wings are rendered on the Creature Canvas.\nMaximum Charges: 3\nCan only be executed while a pair of wings is painted on the Creature Canvas.\n\n※This action cannot be assigned to a hotbar.\n※Living Muse changes to Winged Muse when requirements for execution are met.",
     potency: [
-      "Render a pair of windborne wings, dealing unaspected damage to target and all enemies nearby it with a potency of 800 for the first enemy, and 70% less for all remaining enemies."
+      "Render a pair of windborne wings, dealing unaspected damage to target and all enemies nearby it with a potency of 800 for the first enemy, and 70% less for all remaining enemies.",
     ],
     effects: [
-      "Additional Effect: Adds Depiction of Wings to the Creature Canvas"
+      "Additional Effect: Adds Depiction of Wings to the Creature Canvas",
     ],
     conditions: [
       "Can only be executed while a pair of wings is painted on the Creature Canvas.",
-      "※This action cannot be assigned to a hotbar."
+      "※This action cannot be assigned to a hotbar.",
     ],
     duration: null,
     max_charges: 3,
     source_url: "FFXIV_Job_Guide_Raw_pictomancer_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   "Aero II in Green": {
     id: "pve_action__14",
@@ -363,28 +363,28 @@ export const PictomancerConfig = {
     cast: 1.5,
     recast: 2.5,
     cost: {
-      mp: 300
+      mp: 300,
     },
     range: 25,
     radius: 5,
     tooltip: "Deals wind damage with a potency of 200 to target and all enemies nearby it.\nAdditional Effect: Grants Aetherhues II\nDuration: 30s\nCan only be executed while under the effect of Aetherhues and not under the effect of Subtractive Palette. \nWhen standing within the bounds of Starry Muse, consumes a stack of Hyperphantasia if available.\n\n※This action cannot be assigned to a hotbar.\n※Fire II in Red changes to Aero II in Green when requirements for execution are met.",
     potency: [
-      "Deals wind damage with a potency of 200 to target and all enemies nearby it."
+      "Deals wind damage with a potency of 200 to target and all enemies nearby it.",
     ],
     effects: [
-      "Additional Effect: Grants Aetherhues II"
+      "Additional Effect: Grants Aetherhues II",
     ],
     conditions: [
       "Can only be executed while under the effect of Aetherhues and not under the effect of Subtractive Palette.",
-      "※This action cannot be assigned to a hotbar."
+      "※This action cannot be assigned to a hotbar.",
     ],
     duration: {
-      seconds: 30
+      seconds: 30,
     },
     max_charges: null,
     source_url: "FFXIV_Job_Guide_Raw_pictomancer_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   "Water II in Blue": {
     id: "pve_action__15",
@@ -396,27 +396,27 @@ export const PictomancerConfig = {
     cast: 1.5,
     recast: 2.5,
     cost: {
-      mp: 300
+      mp: 300,
     },
     range: 25,
     radius: 5,
     tooltip: "Deals water damage with a potency of 220 to target and all enemies nearby it.\nAdditional Effect: Increases Palette Gauge by 25\nAdditional Effect: Grants White Paint\nMaximum Stacks: 5\nCan only be executed while under the effect of Aetherhues II and not under the effect of Subtractive Palette.\nWhen standing within the bounds of Starry Muse, consumes a stack of Hyperphantasia if available.\n\n※This action cannot be assigned to a hotbar.\n※Aero II in Green changes to Water II in Blue when requirements for execution are met.",
     potency: [
-      "Deals water damage with a potency of 220 to target and all enemies nearby it."
+      "Deals water damage with a potency of 220 to target and all enemies nearby it.",
     ],
     effects: [
       "Additional Effect: Increases Palette Gauge by 25",
-      "Additional Effect: Grants White Paint"
+      "Additional Effect: Grants White Paint",
     ],
     conditions: [
       "Can only be executed while under the effect of Aetherhues II and not under the effect of Subtractive Palette.",
-      "※This action cannot be assigned to a hotbar."
+      "※This action cannot be assigned to a hotbar.",
     ],
     duration: null,
     max_charges: null,
     source_url: "FFXIV_Job_Guide_Raw_pictomancer_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   "Weapon Motif": {
     id: "pve_action__16",
@@ -438,7 +438,7 @@ export const PictomancerConfig = {
     max_charges: null,
     source_url: "FFXIV_Job_Guide_Raw_pictomancer_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   "Steel Muse": {
     id: "pve_action__17",
@@ -456,13 +456,13 @@ export const PictomancerConfig = {
     potency: [],
     effects: [],
     conditions: [
-      "Can only be executed in combat and when a Weapon Motif is depicted on the Weapon Canvas."
+      "Can only be executed in combat and when a Weapon Motif is depicted on the Weapon Canvas.",
     ],
     duration: null,
     max_charges: 2,
     source_url: "FFXIV_Job_Guide_Raw_pictomancer_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   "Hammer Stamp": {
     id: "pve_action__18",
@@ -478,17 +478,17 @@ export const PictomancerConfig = {
     radius: 5,
     tooltip: "Deals unaspected damage as a critical direct hit with a potency of 560 for the first enemy, and 70% less for all remaining enemies.\nCan only be executed while under the effect of Hammer Time.",
     potency: [
-      "Deals unaspected damage as a critical direct hit with a potency of 560 for the first enemy, and 70% less for all remaining enemies."
+      "Deals unaspected damage as a critical direct hit with a potency of 560 for the first enemy, and 70% less for all remaining enemies.",
     ],
     effects: [],
     conditions: [
-      "Can only be executed while under the effect of Hammer Time."
+      "Can only be executed while under the effect of Hammer Time.",
     ],
     duration: null,
     max_charges: null,
     source_url: "FFXIV_Job_Guide_Raw_pictomancer_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   "Hammer Motif": {
     id: "pve_action__19",
@@ -506,13 +506,13 @@ export const PictomancerConfig = {
     potency: [],
     effects: [],
     conditions: [
-      "※This action cannot be assigned to a hotbar."
+      "※This action cannot be assigned to a hotbar.",
     ],
     duration: null,
     max_charges: null,
     source_url: "FFXIV_Job_Guide_Raw_pictomancer_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   "Striking Muse": {
     id: "pve_action__20",
@@ -531,15 +531,15 @@ export const PictomancerConfig = {
     effects: [],
     conditions: [
       "Can only be executed while in combat and when a hammer is painted on the Weapon Canvas.",
-      "※This action cannot be assigned to a hotbar."
+      "※This action cannot be assigned to a hotbar.",
     ],
     duration: {
-      seconds: 30
+      seconds: 30,
     },
     max_charges: 2,
     source_url: "FFXIV_Job_Guide_Raw_pictomancer_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   "Blizzard in Cyan": {
     id: "pve_action__21",
@@ -551,27 +551,27 @@ export const PictomancerConfig = {
     cast: 2.3,
     recast: 3.3,
     cost: {
-      mp: 400
+      mp: 400,
     },
     range: 25,
     radius: 0,
     tooltip: "Deals ice damage with a potency of 860.\nAdditional Effect: Grants Aetherhues\nDuration: 30s\nCan only be executed while under the effect of Subtractive Palette.\nWhen standing within the bounds of Starry Muse, consumes a stack of Hyperphantasia if available.\nThis action does not share a recast timer with any other actions. Upon execution, the recast timer for this action will be applied to all other weaponskills and magic actions.",
     potency: [
-      "Deals ice damage with a potency of 860."
+      "Deals ice damage with a potency of 860.",
     ],
     effects: [
-      "Additional Effect: Grants Aetherhues"
+      "Additional Effect: Grants Aetherhues",
     ],
     conditions: [
-      "Can only be executed while under the effect of Subtractive Palette."
+      "Can only be executed while under the effect of Subtractive Palette.",
     ],
     duration: {
-      seconds: 30
+      seconds: 30,
     },
     max_charges: null,
     source_url: "FFXIV_Job_Guide_Raw_pictomancer_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   "Blizzard II in Cyan": {
     id: "pve_action__22",
@@ -583,27 +583,27 @@ export const PictomancerConfig = {
     cast: 2.3,
     recast: 3.3,
     cost: {
-      mp: 400
+      mp: 400,
     },
     range: 25,
     radius: 5,
     tooltip: "Deals ice damage with a potency of 360 to target and all enemies nearby it.\nAdditional Effect: Grants Aetherhues\nDuration: 30s\nCan only be executed while under the effect of Subtractive Palette.\nWhen standing within the bounds of Starry Muse, consumes a stack of Hyperphantasia if available.\nThis action does not share a recast timer with any other actions. Upon execution, the recast timer for this action will be applied to all other weaponskills and magic actions.",
     potency: [
-      "Deals ice damage with a potency of 360 to target and all enemies nearby it."
+      "Deals ice damage with a potency of 360 to target and all enemies nearby it.",
     ],
     effects: [
-      "Additional Effect: Grants Aetherhues"
+      "Additional Effect: Grants Aetherhues",
     ],
     conditions: [
-      "Can only be executed while under the effect of Subtractive Palette."
+      "Can only be executed while under the effect of Subtractive Palette.",
     ],
     duration: {
-      seconds: 30
+      seconds: 30,
     },
     max_charges: null,
     source_url: "FFXIV_Job_Guide_Raw_pictomancer_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   "Subtractive Palette": {
     id: "pve_action__23",
@@ -621,14 +621,14 @@ export const PictomancerConfig = {
     potency: [],
     effects: [
       "Additional Effect: Grants Monochrome Tones",
-      "Monochrome Tones Effect: Converts one stack of White Paint into Black Paint"
+      "Monochrome Tones Effect: Converts one stack of White Paint into Black Paint",
     ],
     conditions: [],
     duration: null,
     max_charges: null,
     source_url: "FFXIV_Job_Guide_Raw_pictomancer_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   "Stone in Yellow": {
     id: "pve_action__24",
@@ -640,28 +640,28 @@ export const PictomancerConfig = {
     cast: 2.3,
     recast: 3.3,
     cost: {
-      mp: 400
+      mp: 400,
     },
     range: 25,
     radius: 0,
     tooltip: "Deals earth damage with a potency of 900.\nAdditional Effect: Grants Aetherhues II\nDuration: 30s\nCan only be executed while under the effect of Aetherhues and Subtractive Palette.\nWhen standing within the bounds of Starry Muse, consumes a stack of Hyperphantasia if available.\nThis action does not share a recast timer with any other actions. Upon execution, the recast timer for this action will be applied to all other weaponskills and magic actions.\n\n※This action cannot be assigned to a hotbar.\n※Blizzard in Cyan changes to Stone in Yellow when requirements for execution are met.",
     potency: [
-      "Deals earth damage with a potency of 900."
+      "Deals earth damage with a potency of 900.",
     ],
     effects: [
-      "Additional Effect: Grants Aetherhues II"
+      "Additional Effect: Grants Aetherhues II",
     ],
     conditions: [
       "Can only be executed while under the effect of Aetherhues and Subtractive Palette.",
-      "※This action cannot be assigned to a hotbar."
+      "※This action cannot be assigned to a hotbar.",
     ],
     duration: {
-      seconds: 30
+      seconds: 30,
     },
     max_charges: null,
     source_url: "FFXIV_Job_Guide_Raw_pictomancer_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   "Thunder in Magenta": {
     id: "pve_action__25",
@@ -673,26 +673,26 @@ export const PictomancerConfig = {
     cast: 2.3,
     recast: 3.3,
     cost: {
-      mp: 400
+      mp: 400,
     },
     range: 25,
     radius: 0,
     tooltip: "Deals lightning damage with a potency of 940.\nAdditional Effect: Grants White Paint\nMaximum Stacks: 5\nCan only be executed while under the effect of Aetherhues II and Subtractive Palette.\nWhen standing within the bounds of Starry Muse, consumes a stack of Hyperphantasia if available.\nThis action does not share a recast timer with any other actions. Upon execution, the recast timer for this action will be applied to all other weaponskills and magic actions.\n\n※This action cannot be assigned to a hotbar.\n※Stone in Yellow changes to Thunder in Magenta when requirements for execution are met.",
     potency: [
-      "Deals lightning damage with a potency of 940."
+      "Deals lightning damage with a potency of 940.",
     ],
     effects: [
-      "Additional Effect: Grants White Paint"
+      "Additional Effect: Grants White Paint",
     ],
     conditions: [
       "Can only be executed while under the effect of Aetherhues II and Subtractive Palette.",
-      "※This action cannot be assigned to a hotbar."
+      "※This action cannot be assigned to a hotbar.",
     ],
     duration: null,
     max_charges: null,
     source_url: "FFXIV_Job_Guide_Raw_pictomancer_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   "Stone II in Yellow": {
     id: "pve_action__26",
@@ -704,28 +704,28 @@ export const PictomancerConfig = {
     cast: 2.3,
     recast: 3.3,
     cost: {
-      mp: 400
+      mp: 400,
     },
     range: 25,
     radius: 5,
     tooltip: "Deals earth damage with a potency of 380 to target and all enemies nearby it.\nAdditional Effect: Grants Aetherhues II\nDuration: 30s\nCan only be executed while under the effect of Aetherhues and Subtractive Palette.\nWhen standing within the bounds of Starry Muse, consumes a stack of Hyperphantasia if available.\nThis action does not share a recast timer with any other actions. Upon execution, the recast timer for this action will be applied to all other weaponskills and magic actions.\n\n※This action cannot be assigned to a hotbar.\n※Blizzard II in Cyan changes to Stone II in Yellow when requirements for execution are met.",
     potency: [
-      "Deals earth damage with a potency of 380 to target and all enemies nearby it."
+      "Deals earth damage with a potency of 380 to target and all enemies nearby it.",
     ],
     effects: [
-      "Additional Effect: Grants Aetherhues II"
+      "Additional Effect: Grants Aetherhues II",
     ],
     conditions: [
       "Can only be executed while under the effect of Aetherhues and Subtractive Palette.",
-      "※This action cannot be assigned to a hotbar."
+      "※This action cannot be assigned to a hotbar.",
     ],
     duration: {
-      seconds: 30
+      seconds: 30,
     },
     max_charges: null,
     source_url: "FFXIV_Job_Guide_Raw_pictomancer_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   "Thunder II in Magenta": {
     id: "pve_action__27",
@@ -737,26 +737,26 @@ export const PictomancerConfig = {
     cast: 2.3,
     recast: 3.3,
     cost: {
-      mp: 400
+      mp: 400,
     },
     range: 25,
     radius: 5,
     tooltip: "Deals lightning damage with a potency of 400 to target and all enemies nearby it.\nAdditional Effect: Grants White Paint\nMaximum Stacks: 5\nCan only be executed while under the effect of Aetherhues II and Subtractive Palette.\nWhen standing within the bounds of Starry Muse, consumes a stack of Hyperphantasia if available.\nThis action does not share a recast timer with any other actions. Upon execution, the recast timer for this action will be applied to all other weaponskills and magic actions.\n\n※This action cannot be assigned to a hotbar.\n※Stone II in Yellow changes to Thunder II in Magenta when requirements for execution are met.",
     potency: [
-      "Deals lightning damage with a potency of 400 to target and all enemies nearby it."
+      "Deals lightning damage with a potency of 400 to target and all enemies nearby it.",
     ],
     effects: [
-      "Additional Effect: Grants White Paint"
+      "Additional Effect: Grants White Paint",
     ],
     conditions: [
       "Can only be executed while under the effect of Aetherhues II and Subtractive Palette.",
-      "※This action cannot be assigned to a hotbar."
+      "※This action cannot be assigned to a hotbar.",
     ],
     duration: null,
     max_charges: null,
     source_url: "FFXIV_Job_Guide_Raw_pictomancer_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   "Landscape Motif": {
     id: "pve_action__28",
@@ -778,7 +778,7 @@ export const PictomancerConfig = {
     max_charges: null,
     source_url: "FFXIV_Job_Guide_Raw_pictomancer_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   "Scenic Muse": {
     id: "pve_action__29",
@@ -796,13 +796,13 @@ export const PictomancerConfig = {
     potency: [],
     effects: [],
     conditions: [
-      "Can only be executed in combat and when a Landscape Motif is depicted on the Landscape Canvas."
+      "Can only be executed in combat and when a Landscape Motif is depicted on the Landscape Canvas.",
     ],
     duration: null,
     max_charges: null,
     source_url: "FFXIV_Job_Guide_Raw_pictomancer_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   "Starry Sky Motif": {
     id: "pve_action__30",
@@ -820,13 +820,13 @@ export const PictomancerConfig = {
     potency: [],
     effects: [],
     conditions: [
-      "※This action cannot be assigned to a hotbar."
+      "※This action cannot be assigned to a hotbar.",
     ],
     duration: null,
     max_charges: null,
     source_url: "FFXIV_Job_Guide_Raw_pictomancer_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   "Starry Muse": {
     id: "pve_action__31",
@@ -848,19 +848,19 @@ export const PictomancerConfig = {
       "Inspiration Effect: Reduces cast time and recast time of Star Prism and aetherhue spells by 25% while standing within the bounds of the magicked landscape",
       "Additional Effect: Grants Rainbow Bright upon consuming all 5 stacks of Hyperphantasia",
       "Rainbow Bright Effect: Rainbow Drip can be cast immediately and has a reduced recast timer",
-      "Additional Effect: Grants Starstruck"
+      "Additional Effect: Grants Starstruck",
     ],
     conditions: [
       "Can only be executed while in combat and when a starry sky is painted on the Landscape Canvas.",
-      "※This action cannot be assigned to a hotbar."
+      "※This action cannot be assigned to a hotbar.",
     ],
     duration: {
-      seconds: 20
+      seconds: 20,
     },
     max_charges: null,
     source_url: "FFXIV_Job_Guide_Raw_pictomancer_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   "Holy in White": {
     id: "pve_action__32",
@@ -872,23 +872,23 @@ export const PictomancerConfig = {
     cast: 0.0,
     recast: 2.5,
     cost: {
-      mp: 300
+      mp: 300,
     },
     range: 25,
     radius: 5,
     tooltip: "Deals unaspected damage to target and all enemies nearby it with a potency of 570 for the first enemy, and 65% less for all remaining enemies.\nCan only be executed while under the effect of White Paint.\nCannot be executed while under the effect of Monochrome Tones.\nWhite Paint Cost: 1\nWhen standing within the bounds of Starry Muse, consumes a stack of Hyperphantasia if available.",
     potency: [
-      "Deals unaspected damage to target and all enemies nearby it with a potency of 570 for the first enemy, and 65% less for all remaining enemies."
+      "Deals unaspected damage to target and all enemies nearby it with a potency of 570 for the first enemy, and 65% less for all remaining enemies.",
     ],
     effects: [],
     conditions: [
-      "Can only be executed while under the effect of White Paint."
+      "Can only be executed while under the effect of White Paint.",
     ],
     duration: null,
     max_charges: null,
     source_url: "FFXIV_Job_Guide_Raw_pictomancer_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   "Hammer Brush": {
     id: "pve_action__33",
@@ -904,18 +904,18 @@ export const PictomancerConfig = {
     radius: 5,
     tooltip: "Deals unaspected damage as a critical direct hit with a potency of 580 for the first enemy, and 70% less for all remaining enemies.\nCombo Action: Hammer Stamp\nCan only be executed while under the effect of Hammer Time.\n\n※This action cannot be assigned to a hotbar.\n※Hammer Stamp changes to Hammer Brush when requirements for execution are met.",
     potency: [
-      "Deals unaspected damage as a critical direct hit with a potency of 580 for the first enemy, and 70% less for all remaining enemies."
+      "Deals unaspected damage as a critical direct hit with a potency of 580 for the first enemy, and 70% less for all remaining enemies.",
     ],
     effects: [],
     conditions: [
       "Can only be executed while under the effect of Hammer Time.",
-      "※This action cannot be assigned to a hotbar."
+      "※This action cannot be assigned to a hotbar.",
     ],
     duration: null,
     max_charges: null,
     source_url: "FFXIV_Job_Guide_Raw_pictomancer_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   "Polishing Hammer": {
     id: "pve_action__34",
@@ -931,18 +931,18 @@ export const PictomancerConfig = {
     radius: 5,
     tooltip: "Deals unaspected damage as a critical direct hit with a potency of 600 for the first enemy, and 70% less for all remaining enemies.\nCombo Action: Hammer Brush\nCan only be executed while under the effect of Hammer Time.\n\n※This action cannot be assigned to a hotbar.\n※Hammer Brush changes to Polishing Hammer when requirements for execution are met.",
     potency: [
-      "Deals unaspected damage as a critical direct hit with a potency of 600 for the first enemy, and 70% less for all remaining enemies."
+      "Deals unaspected damage as a critical direct hit with a potency of 600 for the first enemy, and 70% less for all remaining enemies.",
     ],
     effects: [],
     conditions: [
       "Can only be executed while under the effect of Hammer Time.",
-      "※This action cannot be assigned to a hotbar."
+      "※This action cannot be assigned to a hotbar.",
     ],
     duration: null,
     max_charges: null,
     source_url: "FFXIV_Job_Guide_Raw_pictomancer_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   "Tempera Grassa": {
     id: "pve_action__35",
@@ -960,15 +960,15 @@ export const PictomancerConfig = {
     potency: [],
     effects: [],
     conditions: [
-      "Can only be executed when under the effect of Tempera Coat."
+      "Can only be executed when under the effect of Tempera Coat.",
     ],
     duration: {
-      seconds: 10
+      seconds: 10,
     },
     max_charges: null,
     source_url: "FFXIV_Job_Guide_Raw_pictomancer_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   "Comet in Black": {
     id: "pve_action__36",
@@ -980,23 +980,23 @@ export const PictomancerConfig = {
     cast: 0.0,
     recast: 3.3,
     cost: {
-      mp: 400
+      mp: 400,
     },
     range: 25,
     radius: 5,
     tooltip: "Deals unaspected damage to target and all enemies nearby it with a potency of 940 for the first enemy, and 65% less for all remaining enemies.\nCan only be executed while under the effect of Black Paint and Monochrome Tones.\nBlack Paint Cost: 1\nWhen standing within the bounds of Starry Muse, consumes a stack of Hyperphantasia if available.\nThis action does not share a recast timer with any other actions. Upon execution, the recast timer for this action will be applied to all other weaponskills and magic actions.",
     potency: [
-      "Deals unaspected damage to target and all enemies nearby it with a potency of 940 for the first enemy, and 65% less for all remaining enemies."
+      "Deals unaspected damage to target and all enemies nearby it with a potency of 940 for the first enemy, and 65% less for all remaining enemies.",
     ],
     effects: [],
     conditions: [
-      "Can only be executed while under the effect of Black Paint and Monochrome Tones."
+      "Can only be executed while under the effect of Black Paint and Monochrome Tones.",
     ],
     duration: null,
     max_charges: null,
     source_url: "FFXIV_Job_Guide_Raw_pictomancer_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   "Rainbow Drip": {
     id: "pve_action__37",
@@ -1012,17 +1012,17 @@ export const PictomancerConfig = {
     radius: 25,
     tooltip: "Deals unaspected damage to all enemies in a straight line before you with a potency of 1,000 for the first enemy, and 85% less for all remaining enemies.\nAdditional Effect: Grants White Paint\nMaximum Stacks: 5\nWhen Rainbow Bright is active, Rainbow Drip can be cast immediately and its recast timer is reduced.\nThis action does not share a recast timer with any other actions. Upon execution, the recast timer for this action will be applied to all other weaponskills and magic actions.",
     potency: [
-      "Deals unaspected damage to all enemies in a straight line before you with a potency of 1,000 for the first enemy, and 85% less for all remaining enemies."
+      "Deals unaspected damage to all enemies in a straight line before you with a potency of 1,000 for the first enemy, and 85% less for all remaining enemies.",
     ],
     effects: [
-      "Additional Effect: Grants White Paint"
+      "Additional Effect: Grants White Paint",
     ],
     conditions: [],
     duration: null,
     max_charges: null,
     source_url: "FFXIV_Job_Guide_Raw_pictomancer_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   "Claw Motif": {
     id: "pve_action__38",
@@ -1040,13 +1040,13 @@ export const PictomancerConfig = {
     potency: [],
     effects: [],
     conditions: [
-      "※This action cannot be assigned to a hotbar."
+      "※This action cannot be assigned to a hotbar.",
     ],
     duration: null,
     max_charges: null,
     source_url: "FFXIV_Job_Guide_Raw_pictomancer_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   "Maw Motif": {
     id: "pve_action__39",
@@ -1064,13 +1064,13 @@ export const PictomancerConfig = {
     potency: [],
     effects: [],
     conditions: [
-      "※This action cannot be assigned to a hotbar."
+      "※This action cannot be assigned to a hotbar.",
     ],
     duration: null,
     max_charges: null,
     source_url: "FFXIV_Job_Guide_Raw_pictomancer_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   "Clawed Muse": {
     id: "pve_action__40",
@@ -1086,20 +1086,20 @@ export const PictomancerConfig = {
     radius: 5,
     tooltip: "Render a sharpened claw, dealing unaspected damage to target and all enemies nearby it with a potency of 800 for the first enemy, and 70% less for all remaining enemies.\nAdditional Effect: Adds Depiction of Claw to the Creature Canvas\nMaximum Charges: 3\nCan only be executed while a claw is painted on the Creature Canvas.\n\n※This action cannot be assigned to a hotbar.\n※Living Muse changes to Clawed Muse when requirements for execution are met.",
     potency: [
-      "Render a sharpened claw, dealing unaspected damage to target and all enemies nearby it with a potency of 800 for the first enemy, and 70% less for all remaining enemies."
+      "Render a sharpened claw, dealing unaspected damage to target and all enemies nearby it with a potency of 800 for the first enemy, and 70% less for all remaining enemies.",
     ],
     effects: [
-      "Additional Effect: Adds Depiction of Claw to the Creature Canvas"
+      "Additional Effect: Adds Depiction of Claw to the Creature Canvas",
     ],
     conditions: [
       "Can only be executed while a claw is painted on the Creature Canvas.",
-      "※This action cannot be assigned to a hotbar."
+      "※This action cannot be assigned to a hotbar.",
     ],
     duration: null,
     max_charges: 3,
     source_url: "FFXIV_Job_Guide_Raw_pictomancer_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   "Fanged Muse": {
     id: "pve_action__41",
@@ -1115,20 +1115,20 @@ export const PictomancerConfig = {
     radius: 5,
     tooltip: "Render a set of ferocious fangs, dealing unaspected damage to target and all enemies nearby it with a potency of 800 for the first enemy, and 70% less for all remaining enemies.\nAdditional Effect: Adds Depiction of Fangs to the Creature Canvas\nAlso paints a Madeen Portrait when Depiction of Pom, Depiction of Wings, Depiction of Claw, and Depiction of Fangs are rendered on the Creature Canvas.\nAll depictions are removed from the canvas upon execution.\nMaximum Charges: 3\nCan only be executed while fangs are painted on the Creature Canvas.\n\n※This action cannot be assigned to a hotbar.\n※Living Muse changes to Fanged Muse when requirements for execution are met.",
     potency: [
-      "Render a set of ferocious fangs, dealing unaspected damage to target and all enemies nearby it with a potency of 800 for the first enemy, and 70% less for all remaining enemies."
+      "Render a set of ferocious fangs, dealing unaspected damage to target and all enemies nearby it with a potency of 800 for the first enemy, and 70% less for all remaining enemies.",
     ],
     effects: [
-      "Additional Effect: Adds Depiction of Fangs to the Creature Canvas"
+      "Additional Effect: Adds Depiction of Fangs to the Creature Canvas",
     ],
     conditions: [
       "Can only be executed while fangs are painted on the Creature Canvas.",
-      "※This action cannot be assigned to a hotbar."
+      "※This action cannot be assigned to a hotbar.",
     ],
     duration: null,
     max_charges: 3,
     source_url: "FFXIV_Job_Guide_Raw_pictomancer_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   "Retribution of the Madeen": {
     id: "pve_action__42",
@@ -1144,18 +1144,18 @@ export const PictomancerConfig = {
     radius: 25,
     tooltip: "Render your Madeen portrait to life, dealing unaspected damage to all enemies in a straight line before you with a potency of 1,100 for the first enemy, and 70% less for all remaining enemies.\nCan only be executed while Madeen Portrait is active.\n\n※This action cannot be assigned to a hotbar.\n※Mog of the Ages changes to Retribution of the Madeen when requirements for execution are met.",
     potency: [
-      "Render your Madeen portrait to life, dealing unaspected damage to all enemies in a straight line before you with a potency of 1,100 for the first enemy, and 70% less for all remaining enemies."
+      "Render your Madeen portrait to life, dealing unaspected damage to all enemies in a straight line before you with a potency of 1,100 for the first enemy, and 70% less for all remaining enemies.",
     ],
     effects: [],
     conditions: [
       "Can only be executed while Madeen Portrait is active.",
-      "※This action cannot be assigned to a hotbar."
+      "※This action cannot be assigned to a hotbar.",
     ],
     duration: null,
     max_charges: null,
     source_url: "FFXIV_Job_Guide_Raw_pictomancer_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   "Star Prism": {
     id: "pve_action__43",
@@ -1172,19 +1172,19 @@ export const PictomancerConfig = {
     tooltip: "Deals unaspected damage with a potency of 1,100 for the first enemy, and 70% less for all remaining enemies.\nAdditional Effect: Restores HP of all party members within 30 yalms of target\nCure Potency: 400\nCan only be executed while under the effect of Starstruck.\nWhen standing within the bounds of Starry Muse, consumes a stack of Hyperphantasia if available.",
     potency: [
       "Deals unaspected damage with a potency of 1,100 for the first enemy, and 70% less for all remaining enemies.",
-      "Cure Potency: 400"
+      "Cure Potency: 400",
     ],
     effects: [
-      "Additional Effect: Restores HP of all party members within 30 yalms of target"
+      "Additional Effect: Restores HP of all party members within 30 yalms of target",
     ],
     conditions: [
-      "Can only be executed while under the effect of Starstruck."
+      "Can only be executed while under the effect of Starstruck.",
     ],
     duration: null,
     max_charges: null,
     source_url: "FFXIV_Job_Guide_Raw_pictomancer_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   Addle: {
     id: "mrange_action__01",
@@ -1203,12 +1203,12 @@ export const PictomancerConfig = {
     effects: [],
     conditions: [],
     duration: {
-      seconds: 15
+      seconds: 15,
     },
     max_charges: null,
     source_url: "FFXIV_Job_Guide_Raw_pictomancer_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   Sleep: {
     id: "mrange_action__02",
@@ -1220,7 +1220,7 @@ export const PictomancerConfig = {
     cast: 2.5,
     recast: 2.5,
     cost: {
-      mp: 800
+      mp: 800,
     },
     range: 30,
     radius: 5,
@@ -1229,12 +1229,12 @@ export const PictomancerConfig = {
     effects: [],
     conditions: [],
     duration: {
-      seconds: 30
+      seconds: 30,
     },
     max_charges: null,
     source_url: "FFXIV_Job_Guide_Raw_pictomancer_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   "Lucid Dreaming": {
     id: "mrange_action__03",
@@ -1250,17 +1250,17 @@ export const PictomancerConfig = {
     radius: 0,
     tooltip: "Gradually restores own MP.\nPotency: 55\nDuration: 21s",
     potency: [
-      "Potency: 55"
+      "Potency: 55",
     ],
     effects: [],
     conditions: [],
     duration: {
-      seconds: 21
+      seconds: 21,
     },
     max_charges: null,
     source_url: "FFXIV_Job_Guide_Raw_pictomancer_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   Swiftcast: {
     id: "mrange_action__04",
@@ -1279,12 +1279,12 @@ export const PictomancerConfig = {
     effects: [],
     conditions: [],
     duration: {
-      seconds: 10
+      seconds: 10,
     },
     max_charges: null,
     source_url: "FFXIV_Job_Guide_Raw_pictomancer_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   Surecast: {
     id: "mrange_action__05",
@@ -1301,17 +1301,17 @@ export const PictomancerConfig = {
     tooltip: "Spells can be cast without interruption.\nAdditional Effect: Nullifies most knockback and draw-in effects\nDuration: 6s",
     potency: [],
     effects: [
-      "Additional Effect: Nullifies most knockback and draw-in effects"
+      "Additional Effect: Nullifies most knockback and draw-in effects",
     ],
     conditions: [],
     duration: {
-      seconds: 6
+      seconds: 6,
     },
     max_charges: null,
     source_url: "FFXIV_Job_Guide_Raw_pictomancer_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
-  }
+    language: "en",
+  },
 },
   rotations: []
 };

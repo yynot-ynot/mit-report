@@ -14,7 +14,7 @@ export const GunbreakerConfig = {
     radius: 0,
     tooltip: "Delivers an attack with a potency of 300.",
     potency: [
-      "Delivers an attack with a potency of 300."
+      "Delivers an attack with a potency of 300.",
     ],
     effects: [],
     conditions: [],
@@ -22,7 +22,7 @@ export const GunbreakerConfig = {
     max_charges: null,
     source_url: "FFXIV_Job_Guide_Raw_gunbreaker_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   "No Mercy": {
     id: "pve_action__02",
@@ -39,16 +39,16 @@ export const GunbreakerConfig = {
     tooltip: "Increases damage dealt by 20%.\nDuration: 20s\nAdditional Effect: Grants Ready to Break\nDuration: 30s",
     potency: [],
     effects: [
-      "Additional Effect: Grants Ready to Break"
+      "Additional Effect: Grants Ready to Break",
     ],
     conditions: [],
     duration: {
-      seconds: 30
+      seconds: 30,
     },
     max_charges: null,
     source_url: "FFXIV_Job_Guide_Raw_gunbreaker_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   "Brutal Shell": {
     id: "pve_action__03",
@@ -66,20 +66,20 @@ export const GunbreakerConfig = {
     potency: [
       "Delivers an attack with a potency of 240.",
       "Combo Potency: 380",
-      "Cure Potency: 200"
+      "Cure Potency: 200",
     ],
     effects: [
       "Combo Bonus: Restores own HP",
-      "Combo Bonus: Creates a barrier which nullifies damage equaling HP restored"
+      "Combo Bonus: Creates a barrier which nullifies damage equaling HP restored",
     ],
     conditions: [],
     duration: {
-      seconds: 30
+      seconds: 30,
     },
     max_charges: null,
     source_url: "FFXIV_Job_Guide_Raw_gunbreaker_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   Camouflage: {
     id: "pve_action__04",
@@ -98,12 +98,12 @@ export const GunbreakerConfig = {
     effects: [],
     conditions: [],
     duration: {
-      seconds: 20
+      seconds: 20,
     },
     max_charges: null,
     source_url: "FFXIV_Job_Guide_Raw_gunbreaker_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   "Demon Slice": {
     id: "pve_action__05",
@@ -119,17 +119,17 @@ export const GunbreakerConfig = {
     radius: 5,
     tooltip: "Delivers an attack with a potency of 100 to all nearby enemies.\nAdditional Effect: Increased enmity",
     potency: [
-      "Delivers an attack with a potency of 100 to all nearby enemies."
+      "Delivers an attack with a potency of 100 to all nearby enemies.",
     ],
     effects: [
-      "Additional Effect: Increased enmity"
+      "Additional Effect: Increased enmity",
     ],
     conditions: [],
     duration: null,
     max_charges: null,
     source_url: "FFXIV_Job_Guide_Raw_gunbreaker_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   "Royal Guard": {
     id: "pve_action__06",
@@ -151,7 +151,7 @@ export const GunbreakerConfig = {
     max_charges: null,
     source_url: "FFXIV_Job_Guide_Raw_gunbreaker_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   "Release Royal Guard": {
     id: "pve_action__07",
@@ -173,7 +173,7 @@ export const GunbreakerConfig = {
     max_charges: null,
     source_url: "FFXIV_Job_Guide_Raw_gunbreaker_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   "Lightning Shot": {
     id: "pve_action__08",
@@ -189,17 +189,17 @@ export const GunbreakerConfig = {
     radius: 0,
     tooltip: "Delivers a ranged attack with a potency of 150.\nAdditional Effect: Increased enmity",
     potency: [
-      "Delivers a ranged attack with a potency of 150."
+      "Delivers a ranged attack with a potency of 150.",
     ],
     effects: [
-      "Additional Effect: Increased enmity"
+      "Additional Effect: Increased enmity",
     ],
     conditions: [],
     duration: null,
     max_charges: null,
     source_url: "FFXIV_Job_Guide_Raw_gunbreaker_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   "Danger Zone": {
     id: "pve_action__09",
@@ -215,7 +215,7 @@ export const GunbreakerConfig = {
     radius: 0,
     tooltip: "Delivers an attack with a potency of 250.",
     potency: [
-      "Delivers an attack with a potency of 250."
+      "Delivers an attack with a potency of 250.",
     ],
     effects: [],
     conditions: [],
@@ -223,7 +223,7 @@ export const GunbreakerConfig = {
     max_charges: null,
     source_url: "FFXIV_Job_Guide_Raw_gunbreaker_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   "Solid Barrel": {
     id: "pve_action__10",
@@ -240,17 +240,17 @@ export const GunbreakerConfig = {
     tooltip: "Delivers an attack with a potency of 240.\nCombo Action: Brutal Shell\nCombo Potency: 460\nCombo Bonus: Adds a Cartridge to your Powder Gauge",
     potency: [
       "Delivers an attack with a potency of 240.",
-      "Combo Potency: 460"
+      "Combo Potency: 460",
     ],
     effects: [
-      "Combo Bonus: Adds a Cartridge to your Powder Gauge"
+      "Combo Bonus: Adds a Cartridge to your Powder Gauge",
     ],
     conditions: [],
     duration: null,
     max_charges: null,
     source_url: "FFXIV_Job_Guide_Raw_gunbreaker_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   "Burst Strike": {
     id: "pve_action__11",
@@ -266,19 +266,19 @@ export const GunbreakerConfig = {
     radius: 0,
     tooltip: "Delivers an attack with a potency of 460.\nAdditional Effect: Grants Ready to Blast\nDuration: 10s\nEffect of Ready to Blast ends upon execution of any weaponskill.\nCartridge Cost: 1",
     potency: [
-      "Delivers an attack with a potency of 460."
+      "Delivers an attack with a potency of 460.",
     ],
     effects: [
-      "Additional Effect: Grants Ready to Blast"
+      "Additional Effect: Grants Ready to Blast",
     ],
     conditions: [],
     duration: {
-      seconds: 10
+      seconds: 10,
     },
     max_charges: null,
     source_url: "FFXIV_Job_Guide_Raw_gunbreaker_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   Nebula: {
     id: "pve_action__12",
@@ -297,12 +297,12 @@ export const GunbreakerConfig = {
     effects: [],
     conditions: [],
     duration: {
-      seconds: 15
+      seconds: 15,
     },
     max_charges: null,
     source_url: "FFXIV_Job_Guide_Raw_gunbreaker_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   "Demon Slaughter": {
     id: "pve_action__13",
@@ -319,18 +319,18 @@ export const GunbreakerConfig = {
     tooltip: "Delivers an attack with a potency of 100 to all nearby enemies.\nAdditional Effect: Increased enmity\nCombo Action: Demon Slice\nCombo Potency: 160\nCombo Bonus: Adds a Cartridge to your Powder Gauge",
     potency: [
       "Delivers an attack with a potency of 100 to all nearby enemies.",
-      "Combo Potency: 160"
+      "Combo Potency: 160",
     ],
     effects: [
       "Additional Effect: Increased enmity",
-      "Combo Bonus: Adds a Cartridge to your Powder Gauge"
+      "Combo Bonus: Adds a Cartridge to your Powder Gauge",
     ],
     conditions: [],
     duration: null,
     max_charges: null,
     source_url: "FFXIV_Job_Guide_Raw_gunbreaker_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   Aurora: {
     id: "pve_action__14",
@@ -346,17 +346,17 @@ export const GunbreakerConfig = {
     radius: 0,
     tooltip: "Grants Regen to target.\nCure Potency: 300\nDuration: 18s\nMaximum Charges: 2",
     potency: [
-      "Cure Potency: 300"
+      "Cure Potency: 300",
     ],
     effects: [],
     conditions: [],
     duration: {
-      seconds: 18
+      seconds: 18,
     },
     max_charges: 2,
     source_url: "FFXIV_Job_Guide_Raw_gunbreaker_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   Superbolide: {
     id: "pve_action__15",
@@ -375,12 +375,12 @@ export const GunbreakerConfig = {
     effects: [],
     conditions: [],
     duration: {
-      seconds: 10
+      seconds: 10,
     },
     max_charges: null,
     source_url: "FFXIV_Job_Guide_Raw_gunbreaker_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   "Sonic Break": {
     id: "pve_action__16",
@@ -397,21 +397,21 @@ export const GunbreakerConfig = {
     tooltip: "Delivers an attack with a potency of 300.\nAdditional Effect: Damage over time\nPotency: 60\nDuration: 30s\nCan only be executed when Ready to Break.",
     potency: [
       "Delivers an attack with a potency of 300.",
-      "Potency: 60"
+      "Potency: 60",
     ],
     effects: [
-      "Additional Effect: Damage over time"
+      "Additional Effect: Damage over time",
     ],
     conditions: [
-      "Can only be executed when Ready to Break."
+      "Can only be executed when Ready to Break.",
     ],
     duration: {
-      seconds: 30
+      seconds: 30,
     },
     max_charges: null,
     source_url: "FFXIV_Job_Guide_Raw_gunbreaker_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   Trajectory: {
     id: "pve_action__17",
@@ -428,14 +428,14 @@ export const GunbreakerConfig = {
     tooltip: "Rush to a targeted enemy's location.\nAdditional Effect: Increased enmity\nMaximum Charges: 2\nCannot be executed while bound.",
     potency: [],
     effects: [
-      "Additional Effect: Increased enmity"
+      "Additional Effect: Increased enmity",
     ],
     conditions: [],
     duration: null,
     max_charges: 2,
     source_url: "FFXIV_Job_Guide_Raw_gunbreaker_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   "Gnashing Fang": {
     id: "pve_action__18",
@@ -451,19 +451,19 @@ export const GunbreakerConfig = {
     radius: 0,
     tooltip: "Delivers an attack with a potency of 500.\nAdditional Effect: Grants Ready to Rip\nDuration: 10s\nEffect of Ready to Rip ends upon execution of any weaponskill.\nCartridge Cost: 1\nThis weaponskill does not share a recast timer with any other actions.",
     potency: [
-      "Delivers an attack with a potency of 500."
+      "Delivers an attack with a potency of 500.",
     ],
     effects: [
-      "Additional Effect: Grants Ready to Rip"
+      "Additional Effect: Grants Ready to Rip",
     ],
     conditions: [],
     duration: {
-      seconds: 10
+      seconds: 10,
     },
     max_charges: null,
     source_url: "FFXIV_Job_Guide_Raw_gunbreaker_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   "Savage Claw": {
     id: "pve_action__19",
@@ -479,21 +479,21 @@ export const GunbreakerConfig = {
     radius: 0,
     tooltip: "Delivers an attack with a potency of 560.\nCombo Action: Gnashing Fang\nCombo Bonus: Grants Ready to Tear\nDuration: 10s\nEffect of Ready to Tear ends upon execution of any weaponskill.\n\n※This action cannot be assigned to a hotbar.\n※Gnashing Fang changes to Savage Claw when requirements for execution are met.",
     potency: [
-      "Delivers an attack with a potency of 560."
+      "Delivers an attack with a potency of 560.",
     ],
     effects: [
-      "Combo Bonus: Grants Ready to Tear"
+      "Combo Bonus: Grants Ready to Tear",
     ],
     conditions: [
-      "※This action cannot be assigned to a hotbar."
+      "※This action cannot be assigned to a hotbar.",
     ],
     duration: {
-      seconds: 10
+      seconds: 10,
     },
     max_charges: null,
     source_url: "FFXIV_Job_Guide_Raw_gunbreaker_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   "Wicked Talon": {
     id: "pve_action__20",
@@ -509,21 +509,21 @@ export const GunbreakerConfig = {
     radius: 0,
     tooltip: "Delivers an attack with a potency of 620.\nCombo Action: Savage Claw\nCombo Bonus: Grants Ready to Gouge\nDuration: 10s\nEffect of Ready to Gouge ends upon execution of any weaponskill.\n\n※This action cannot be assigned to a hotbar.\n※Savage Claw changes to Wicked Talon when requirements for execution are met.",
     potency: [
-      "Delivers an attack with a potency of 620."
+      "Delivers an attack with a potency of 620.",
     ],
     effects: [
-      "Combo Bonus: Grants Ready to Gouge"
+      "Combo Bonus: Grants Ready to Gouge",
     ],
     conditions: [
-      "※This action cannot be assigned to a hotbar."
+      "※This action cannot be assigned to a hotbar.",
     ],
     duration: {
-      seconds: 10
+      seconds: 10,
     },
     max_charges: null,
     source_url: "FFXIV_Job_Guide_Raw_gunbreaker_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   "Bow Shock": {
     id: "pve_action__21",
@@ -540,19 +540,19 @@ export const GunbreakerConfig = {
     tooltip: "Delivers an attack with a potency of 150 to all nearby enemies.\nAdditional Effect: Damage over time\nPotency: 60\nDuration: 15s",
     potency: [
       "Delivers an attack with a potency of 150 to all nearby enemies.",
-      "Potency: 60"
+      "Potency: 60",
     ],
     effects: [
-      "Additional Effect: Damage over time"
+      "Additional Effect: Damage over time",
     ],
     conditions: [],
     duration: {
-      seconds: 15
+      seconds: 15,
     },
     max_charges: null,
     source_url: "FFXIV_Job_Guide_Raw_gunbreaker_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   "Heart of Light": {
     id: "pve_action__22",
@@ -571,12 +571,12 @@ export const GunbreakerConfig = {
     effects: [],
     conditions: [],
     duration: {
-      seconds: 15
+      seconds: 15,
     },
     max_charges: null,
     source_url: "FFXIV_Job_Guide_Raw_gunbreaker_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   "Heart of Stone": {
     id: "pve_action__23",
@@ -593,16 +593,16 @@ export const GunbreakerConfig = {
     tooltip: "Reduces damage taken by a party member or self by 15%.\nDuration: 7s\nAdditional Effect: When targeting a party member while under the effect of Brutal Shell, that effect is also granted to the target\nDuration: 30s",
     potency: [],
     effects: [
-      "Additional Effect: When targeting a party member while under the effect of Brutal Shell, that effect is also granted to the target"
+      "Additional Effect: When targeting a party member while under the effect of Brutal Shell, that effect is also granted to the target",
     ],
     conditions: [],
     duration: {
-      seconds: 30
+      seconds: 30,
     },
     max_charges: null,
     source_url: "FFXIV_Job_Guide_Raw_gunbreaker_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   Continuation: {
     id: "pve_action__24",
@@ -624,7 +624,7 @@ export const GunbreakerConfig = {
     max_charges: null,
     source_url: "FFXIV_Job_Guide_Raw_gunbreaker_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   "Jugular Rip": {
     id: "pve_action__25",
@@ -640,18 +640,18 @@ export const GunbreakerConfig = {
     radius: 0,
     tooltip: "Delivers an attack with a potency of 240.\nCan only be executed when Ready to Rip.\n\n※This action cannot be assigned to a hotbar.\n※Continuation changes to Jugular Rip when requirements for execution are met.",
     potency: [
-      "Delivers an attack with a potency of 240."
+      "Delivers an attack with a potency of 240.",
     ],
     effects: [],
     conditions: [
       "Can only be executed when Ready to Rip.",
-      "※This action cannot be assigned to a hotbar."
+      "※This action cannot be assigned to a hotbar.",
     ],
     duration: null,
     max_charges: null,
     source_url: "FFXIV_Job_Guide_Raw_gunbreaker_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   "Abdomen Tear": {
     id: "pve_action__26",
@@ -667,18 +667,18 @@ export const GunbreakerConfig = {
     radius: 0,
     tooltip: "Delivers an attack with a potency of 280.\nCan only be executed when Ready to Tear.\n\n※This action cannot be assigned to a hotbar.\n※Continuation changes to Abdomen Tear when requirements for execution are met.",
     potency: [
-      "Delivers an attack with a potency of 280."
+      "Delivers an attack with a potency of 280.",
     ],
     effects: [],
     conditions: [
       "Can only be executed when Ready to Tear.",
-      "※This action cannot be assigned to a hotbar."
+      "※This action cannot be assigned to a hotbar.",
     ],
     duration: null,
     max_charges: null,
     source_url: "FFXIV_Job_Guide_Raw_gunbreaker_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   "Eye Gouge": {
     id: "pve_action__27",
@@ -694,18 +694,18 @@ export const GunbreakerConfig = {
     radius: 0,
     tooltip: "Delivers an attack with a potency of 320.\nCan only be executed when Ready to Gouge.\n\n※This action cannot be assigned to a hotbar.\n※Continuation changes to Eye Gouge when requirements for execution are met.",
     potency: [
-      "Delivers an attack with a potency of 320."
+      "Delivers an attack with a potency of 320.",
     ],
     effects: [],
     conditions: [
       "Can only be executed when Ready to Gouge.",
-      "※This action cannot be assigned to a hotbar."
+      "※This action cannot be assigned to a hotbar.",
     ],
     duration: null,
     max_charges: null,
     source_url: "FFXIV_Job_Guide_Raw_gunbreaker_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   "Fated Circle": {
     id: "pve_action__28",
@@ -721,19 +721,19 @@ export const GunbreakerConfig = {
     radius: 5,
     tooltip: "Delivers an attack with a potency of 300 to all nearby enemies.\nAdditional Effect: Grants Ready to Raze\nDuration: 10s\nEffect of Ready to Raze ends upon execution of any weaponskill.\nCartridge Cost: 1",
     potency: [
-      "Delivers an attack with a potency of 300 to all nearby enemies."
+      "Delivers an attack with a potency of 300 to all nearby enemies.",
     ],
     effects: [
-      "Additional Effect: Grants Ready to Raze"
+      "Additional Effect: Grants Ready to Raze",
     ],
     conditions: [],
     duration: {
-      seconds: 10
+      seconds: 10,
     },
     max_charges: null,
     source_url: "FFXIV_Job_Guide_Raw_gunbreaker_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   Bloodfest: {
     id: "pve_action__29",
@@ -750,16 +750,16 @@ export const GunbreakerConfig = {
     tooltip: "Draws aetheric energy from target, adding 3 Cartridges to your Powder Gauge.\nAdditional Effect: Grants Ready to Reign\nDuration: 30s",
     potency: [],
     effects: [
-      "Additional Effect: Grants Ready to Reign"
+      "Additional Effect: Grants Ready to Reign",
     ],
     conditions: [],
     duration: {
-      seconds: 30
+      seconds: 30,
     },
     max_charges: null,
     source_url: "FFXIV_Job_Guide_Raw_gunbreaker_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   "Blasting Zone": {
     id: "pve_action__30",
@@ -775,7 +775,7 @@ export const GunbreakerConfig = {
     radius: 0,
     tooltip: "Delivers an attack with a potency of 800.",
     potency: [
-      "Delivers an attack with a potency of 800."
+      "Delivers an attack with a potency of 800.",
     ],
     effects: [],
     conditions: [],
@@ -783,7 +783,7 @@ export const GunbreakerConfig = {
     max_charges: null,
     source_url: "FFXIV_Job_Guide_Raw_gunbreaker_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   "Heart of Corundum": {
     id: "pve_action__31",
@@ -799,23 +799,23 @@ export const GunbreakerConfig = {
     radius: 0,
     tooltip: "Reduces damage taken by target party member or self by 15%.\nDuration: 8s\nAdditional Effect: When targeting a party member while under the effect of Brutal Shell, that effect is also granted to the target\nDuration: 30s\nAdditional Effect: Grants Clarity of Corundum to target\nClarity of Corundum Effect: Reduces damage taken by 15%\nDuration: 4s\nAdditional Effect: Grants Catharsis of Corundum to target\nCatharsis of Corundum Effect: Restores HP when HP falls to 50% or below, or upon effect duration expiration\nCure Potency: 900\nDuration: 20s",
     potency: [
-      "Cure Potency: 900"
+      "Cure Potency: 900",
     ],
     effects: [
       "Additional Effect: When targeting a party member while under the effect of Brutal Shell, that effect is also granted to the target",
       "Additional Effect: Grants Clarity of Corundum to target",
       "Clarity of Corundum Effect: Reduces damage taken by 15%",
       "Additional Effect: Grants Catharsis of Corundum to target",
-      "Catharsis of Corundum Effect: Restores HP when HP falls to 50% or below, or upon effect duration expiration"
+      "Catharsis of Corundum Effect: Restores HP when HP falls to 50% or below, or upon effect duration expiration",
     ],
     conditions: [],
     duration: {
-      seconds: 20
+      seconds: 20,
     },
     max_charges: null,
     source_url: "FFXIV_Job_Guide_Raw_gunbreaker_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   Hypervelocity: {
     id: "pve_action__32",
@@ -831,18 +831,18 @@ export const GunbreakerConfig = {
     radius: 0,
     tooltip: "Delivers an attack with a potency of 200.\nCan only be executed when Ready to Blast.\n\n※This action cannot be assigned to a hotbar.\n※Continuation changes to Hypervelocity when requirements for execution are met.",
     potency: [
-      "Delivers an attack with a potency of 200."
+      "Delivers an attack with a potency of 200.",
     ],
     effects: [],
     conditions: [
       "Can only be executed when Ready to Blast.",
-      "※This action cannot be assigned to a hotbar."
+      "※This action cannot be assigned to a hotbar.",
     ],
     duration: null,
     max_charges: null,
     source_url: "FFXIV_Job_Guide_Raw_gunbreaker_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   "Double Down": {
     id: "pve_action__33",
@@ -858,7 +858,7 @@ export const GunbreakerConfig = {
     radius: 5,
     tooltip: "Delivers an attack to all nearby enemies with a potency of 1,200 for the first enemy, and 15% less for all remaining enemies.\nCartridge Cost: 1\nThis weaponskill does not share a recast timer with any other actions.",
     potency: [
-      "Delivers an attack to all nearby enemies with a potency of 1,200 for the first enemy, and 15% less for all remaining enemies."
+      "Delivers an attack to all nearby enemies with a potency of 1,200 for the first enemy, and 15% less for all remaining enemies.",
     ],
     effects: [],
     conditions: [],
@@ -866,7 +866,7 @@ export const GunbreakerConfig = {
     max_charges: null,
     source_url: "FFXIV_Job_Guide_Raw_gunbreaker_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   "Great Nebula": {
     id: "pve_action__34",
@@ -883,16 +883,16 @@ export const GunbreakerConfig = {
     tooltip: "Reduces damage taken by 40%.\nAdditional Effect: Increases maximum HP by 20% and restores the amount increased.\nDuration: 15s",
     potency: [],
     effects: [
-      "Additional Effect: Increases maximum HP by 20% and restores the amount increased."
+      "Additional Effect: Increases maximum HP by 20% and restores the amount increased.",
     ],
     conditions: [],
     duration: {
-      seconds: 15
+      seconds: 15,
     },
     max_charges: null,
     source_url: "FFXIV_Job_Guide_Raw_gunbreaker_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   "Fated Brand": {
     id: "pve_action__35",
@@ -908,18 +908,18 @@ export const GunbreakerConfig = {
     radius: 5,
     tooltip: "Delivers an attack with a potency of 120 to all nearby enemies.\nCan only be executed when Ready to Raze.\n\n※This action cannot be assigned to a hotbar.\n※Continuation changes to Fated Brand when requirements for execution are met.",
     potency: [
-      "Delivers an attack with a potency of 120 to all nearby enemies."
+      "Delivers an attack with a potency of 120 to all nearby enemies.",
     ],
     effects: [],
     conditions: [
       "Can only be executed when Ready to Raze.",
-      "※This action cannot be assigned to a hotbar."
+      "※This action cannot be assigned to a hotbar.",
     ],
     duration: null,
     max_charges: null,
     source_url: "FFXIV_Job_Guide_Raw_gunbreaker_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   "Reign of Beasts": {
     id: "pve_action__36",
@@ -935,17 +935,17 @@ export const GunbreakerConfig = {
     radius: 5,
     tooltip: "Delivers an attack to target and all enemies nearby it with a potency of 1,000 for the first enemy, and 60% less for all remaining enemies.\nCan only be executed when Ready to Reign.",
     potency: [
-      "Delivers an attack to target and all enemies nearby it with a potency of 1,000 for the first enemy, and 60% less for all remaining enemies."
+      "Delivers an attack to target and all enemies nearby it with a potency of 1,000 for the first enemy, and 60% less for all remaining enemies.",
     ],
     effects: [],
     conditions: [
-      "Can only be executed when Ready to Reign."
+      "Can only be executed when Ready to Reign.",
     ],
     duration: null,
     max_charges: null,
     source_url: "FFXIV_Job_Guide_Raw_gunbreaker_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   "Noble Blood": {
     id: "pve_action__37",
@@ -961,17 +961,17 @@ export const GunbreakerConfig = {
     radius: 5,
     tooltip: "Delivers an attack to target and all enemies nearby it with a potency of 1,100 for the first enemy, and 60% less for all remaining enemies.\nCombo Action: Reign of Beasts\n\n※This action cannot be assigned to a hotbar.\n※Reign of Beasts changes to Noble Blood when requirements for execution are met.",
     potency: [
-      "Delivers an attack to target and all enemies nearby it with a potency of 1,100 for the first enemy, and 60% less for all remaining enemies."
+      "Delivers an attack to target and all enemies nearby it with a potency of 1,100 for the first enemy, and 60% less for all remaining enemies.",
     ],
     effects: [],
     conditions: [
-      "※This action cannot be assigned to a hotbar."
+      "※This action cannot be assigned to a hotbar.",
     ],
     duration: null,
     max_charges: null,
     source_url: "FFXIV_Job_Guide_Raw_gunbreaker_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   "Lion Heart": {
     id: "pve_action__38",
@@ -987,17 +987,17 @@ export const GunbreakerConfig = {
     radius: 5,
     tooltip: "Delivers an attack to target and all enemies nearby it with a potency of 1,200 for the first enemy, and 60% less for all remaining enemies.\nCombo Action: Noble Blood\n\n※This action cannot be assigned to a hotbar.\n※Noble Blood changes to Lion Heart when requirements for execution are met.",
     potency: [
-      "Delivers an attack to target and all enemies nearby it with a potency of 1,200 for the first enemy, and 60% less for all remaining enemies."
+      "Delivers an attack to target and all enemies nearby it with a potency of 1,200 for the first enemy, and 60% less for all remaining enemies.",
     ],
     effects: [],
     conditions: [
-      "※This action cannot be assigned to a hotbar."
+      "※This action cannot be assigned to a hotbar.",
     ],
     duration: null,
     max_charges: null,
     source_url: "FFXIV_Job_Guide_Raw_gunbreaker_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   Rampart: {
     id: "tank_action__01",
@@ -1014,16 +1014,16 @@ export const GunbreakerConfig = {
     tooltip: "Reduces damage taken by 20%.\nAdditional Effect: Increases HP recovery via healing actions on self by 15%\nDuration: 20s",
     potency: [],
     effects: [
-      "Additional Effect: Increases HP recovery via healing actions on self by 15%"
+      "Additional Effect: Increases HP recovery via healing actions on self by 15%",
     ],
     conditions: [],
     duration: {
-      seconds: 20
+      seconds: 20,
     },
     max_charges: null,
     source_url: "FFXIV_Job_Guide_Raw_gunbreaker_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   "Low Blow": {
     id: "tank_action__02",
@@ -1042,12 +1042,12 @@ export const GunbreakerConfig = {
     effects: [],
     conditions: [],
     duration: {
-      seconds: 5
+      seconds: 5,
     },
     max_charges: null,
     source_url: "FFXIV_Job_Guide_Raw_gunbreaker_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   Provoke: {
     id: "tank_action__03",
@@ -1069,7 +1069,7 @@ export const GunbreakerConfig = {
     max_charges: null,
     source_url: "FFXIV_Job_Guide_Raw_gunbreaker_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   Interject: {
     id: "tank_action__04",
@@ -1091,7 +1091,7 @@ export const GunbreakerConfig = {
     max_charges: null,
     source_url: "FFXIV_Job_Guide_Raw_gunbreaker_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   Reprisal: {
     id: "tank_action__05",
@@ -1110,12 +1110,12 @@ export const GunbreakerConfig = {
     effects: [],
     conditions: [],
     duration: {
-      seconds: 15
+      seconds: 15,
     },
     max_charges: null,
     source_url: "FFXIV_Job_Guide_Raw_gunbreaker_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   "Arm's Length": {
     id: "tank_action__06",
@@ -1132,16 +1132,16 @@ export const GunbreakerConfig = {
     tooltip: "Nullifies most knockback and draw-in effects.\nDuration: 6s\nAdditional Effect: When you are struck by a physical attack, the striker will be afflicted with Slow +20%\nDuration: 15s",
     potency: [],
     effects: [
-      "Additional Effect: When you are struck by a physical attack, the striker will be afflicted with Slow +20%"
+      "Additional Effect: When you are struck by a physical attack, the striker will be afflicted with Slow +20%",
     ],
     conditions: [],
     duration: {
-      seconds: 15
+      seconds: 15,
     },
     max_charges: null,
     source_url: "FFXIV_Job_Guide_Raw_gunbreaker_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   Shirk: {
     id: "tank_action__07",
@@ -1163,8 +1163,8 @@ export const GunbreakerConfig = {
     max_charges: null,
     source_url: "FFXIV_Job_Guide_Raw_gunbreaker_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
-  }
+    language: "en",
+  },
 },
   rotations: []
 };

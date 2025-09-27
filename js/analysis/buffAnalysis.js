@@ -15,6 +15,21 @@ const log = getLogger("ReportParser");
 // Maps normalized buff → action name, or null
 const buffToAbilityMap = new Map();
 
+// 🔒 Buffs that should *always* be displayed as buffs (never collapse to abilities)
+const ALWAYS_SHOW_AS_BUFF = new Set([
+  "kardion", // Example
+  "differential diagnosis",
+  "galvanize",
+]);
+
+// 🔒 Hardcoded Buff → Ability overrides
+const HARDCODED_BUFF_TO_ABILITY = {
+  "blackest night": "The Blackest Night",
+  intersection: "Celestial Intersection",
+  "undead rebirth": "Living Dead",
+  holosakos: "Holos",
+};
+
 /**
  * Check if a given ability/buff is part of a specific job's actions.
  *
@@ -61,6 +76,12 @@ export function isJobAbility(buffName, job) {
     if (!buffToAbilityMap.has(normalizedBuff)) {
       buffToAbilityMap.set(normalizedBuff, buffName);
     }
+  }
+  // 🔎 Check hardcoded lookup table
+  else if (HARDCODED_BUFF_TO_ABILITY[normalizedBuff]) {
+    const mappedAbility = HARDCODED_BUFF_TO_ABILITY[normalizedBuff];
+    buffToAbilityMap.set(normalizedBuff, mappedAbility);
+    return true;
   } else {
     // 🌀 Trigger background lookup to build buffToAbilityMap
     spawnBuffLookup(normalizedBuff, buffName, job, jobConfig);
@@ -294,7 +315,7 @@ export function waitForBuffLookups(rerenderFn, intervalMs = 500) {
 
     if (!pending) {
       clearInterval(intervalId);
-      console.info(
+      log.info(
         "[BuffLookup] All lookups complete. Triggering final re-render."
       );
       rerenderFn(); // 🔄 call back into UI layer

@@ -14,7 +14,7 @@ export const PaladinConfig = {
     radius: 0,
     tooltip: "Delivers an attack with a potency of 220.",
     potency: [
-      "Delivers an attack with a potency of 220."
+      "Delivers an attack with a potency of 220.",
     ],
     effects: [],
     conditions: [],
@@ -22,7 +22,7 @@ export const PaladinConfig = {
     max_charges: null,
     source_url: "FFXIV_Job_Guide_Raw_paladin_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   "Fight or Flight": {
     id: "pve_action__02",
@@ -39,16 +39,16 @@ export const PaladinConfig = {
     tooltip: "Increases damage dealt by 25%.\nDuration: 20s\nAdditional Effect: Grants Goring Blade Ready\nDuration: 30s",
     potency: [],
     effects: [
-      "Additional Effect: Grants Goring Blade Ready"
+      "Additional Effect: Grants Goring Blade Ready",
     ],
     conditions: [],
     duration: {
-      seconds: 30
+      seconds: 30,
     },
     max_charges: null,
     source_url: "FFXIV_Job_Guide_Raw_paladin_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   "Riot Blade": {
     id: "pve_action__03",
@@ -65,17 +65,17 @@ export const PaladinConfig = {
     tooltip: "Delivers an attack with a potency of 170.\nCombo Action: Fast Blade\nCombo Potency: 330\nCombo Bonus: Restores MP",
     potency: [
       "Delivers an attack with a potency of 170.",
-      "Combo Potency: 330"
+      "Combo Potency: 330",
     ],
     effects: [
-      "Combo Bonus: Restores MP"
+      "Combo Bonus: Restores MP",
     ],
     conditions: [],
     duration: null,
     max_charges: null,
     source_url: "FFXIV_Job_Guide_Raw_paladin_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   "Total Eclipse": {
     id: "pve_action__04",
@@ -91,17 +91,17 @@ export const PaladinConfig = {
     radius: 5,
     tooltip: "Delivers an attack with a potency of 120 to all nearby enemies.\nAdditional Effect: Increased enmity",
     potency: [
-      "Delivers an attack with a potency of 120 to all nearby enemies."
+      "Delivers an attack with a potency of 120 to all nearby enemies.",
     ],
     effects: [
-      "Additional Effect: Increased enmity"
+      "Additional Effect: Increased enmity",
     ],
     conditions: [],
     duration: null,
     max_charges: null,
     source_url: "FFXIV_Job_Guide_Raw_paladin_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   "Shield Bash": {
     id: "pve_action__05",
@@ -117,19 +117,19 @@ export const PaladinConfig = {
     radius: 0,
     tooltip: "Delivers an attack with a potency of 100.\nAdditional Effect: Stun\nDuration: 6s",
     potency: [
-      "Delivers an attack with a potency of 100."
+      "Delivers an attack with a potency of 100.",
     ],
     effects: [
-      "Additional Effect: Stun"
+      "Additional Effect: Stun",
     ],
     conditions: [],
     duration: {
-      seconds: 6
+      seconds: 6,
     },
     max_charges: null,
     source_url: "FFXIV_Job_Guide_Raw_paladin_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   "Iron Will": {
     id: "pve_action__06",
@@ -151,7 +151,7 @@ export const PaladinConfig = {
     max_charges: null,
     source_url: "FFXIV_Job_Guide_Raw_paladin_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   "Release Iron Will": {
     id: "pve_action__07",
@@ -173,7 +173,7 @@ export const PaladinConfig = {
     max_charges: null,
     source_url: "FFXIV_Job_Guide_Raw_paladin_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   "Shield Lob": {
     id: "pve_action__08",
@@ -189,17 +189,17 @@ export const PaladinConfig = {
     radius: 0,
     tooltip: "Delivers a ranged attack with a potency of 100.\nAdditional Effect: Increased enmity",
     potency: [
-      "Delivers a ranged attack with a potency of 100."
+      "Delivers a ranged attack with a potency of 100.",
     ],
     effects: [
-      "Additional Effect: Increased enmity"
+      "Additional Effect: Increased enmity",
     ],
     conditions: [],
     duration: null,
     max_charges: null,
     source_url: "FFXIV_Job_Guide_Raw_paladin_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   "Rage of Halone": {
     id: "pve_action__09",
@@ -216,7 +216,7 @@ export const PaladinConfig = {
     tooltip: "Delivers an attack with a potency of 100.\nCombo Action: Riot Blade\nCombo Potency: 330",
     potency: [
       "Delivers an attack with a potency of 100.",
-      "Combo Potency: 330"
+      "Combo Potency: 330",
     ],
     effects: [],
     conditions: [],
@@ -224,7 +224,7 @@ export const PaladinConfig = {
     max_charges: null,
     source_url: "FFXIV_Job_Guide_Raw_paladin_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   "Spirits Within": {
     id: "pve_action__10",
@@ -240,17 +240,17 @@ export const PaladinConfig = {
     radius: 0,
     tooltip: "Delivers an attack with a potency of 270.\nAdditional Effect: Restores MP",
     potency: [
-      "Delivers an attack with a potency of 270."
+      "Delivers an attack with a potency of 270.",
     ],
     effects: [
-      "Additional Effect: Restores MP"
+      "Additional Effect: Restores MP",
     ],
     conditions: [],
     duration: null,
     max_charges: null,
     source_url: "FFXIV_Job_Guide_Raw_paladin_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   Sheltron: {
     id: "pve_action__11",
@@ -269,12 +269,12 @@ export const PaladinConfig = {
     effects: [],
     conditions: [],
     duration: {
-      seconds: 6
+      seconds: 6,
     },
     max_charges: null,
     source_url: "FFXIV_Job_Guide_Raw_paladin_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   Sentinel: {
     id: "pve_action__12",
@@ -293,12 +293,12 @@ export const PaladinConfig = {
     effects: [],
     conditions: [],
     duration: {
-      seconds: 15
+      seconds: 15,
     },
     max_charges: null,
     source_url: "FFXIV_Job_Guide_Raw_paladin_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   Prominence: {
     id: "pve_action__13",
@@ -316,22 +316,22 @@ export const PaladinConfig = {
     potency: [
       "Delivers an attack with a potency of 100 to all nearby enemies.",
       "Combo Potency: 220",
-      "Divine Might Effect: Allows next Holy Spirit or Holy Circle to be cast immediately with increased potency"
+      "Divine Might Effect: Allows next Holy Spirit or Holy Circle to be cast immediately with increased potency",
     ],
     effects: [
       "Additional Effect: Increased enmity",
       "Combo Bonus: Restores MP",
       "Combo Bonus: Grants Divine Might",
-      "Divine Might Effect: Allows next Holy Spirit or Holy Circle to be cast immediately with increased potency"
+      "Divine Might Effect: Allows next Holy Spirit or Holy Circle to be cast immediately with increased potency",
     ],
     conditions: [],
     duration: {
-      seconds: 30
+      seconds: 30,
     },
     max_charges: null,
     source_url: "FFXIV_Job_Guide_Raw_paladin_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   Cover: {
     id: "pve_action__14",
@@ -350,12 +350,12 @@ export const PaladinConfig = {
     effects: [],
     conditions: [],
     duration: {
-      seconds: 12
+      seconds: 12,
     },
     max_charges: null,
     source_url: "FFXIV_Job_Guide_Raw_paladin_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   "Circle of Scorn": {
     id: "pve_action__15",
@@ -372,19 +372,19 @@ export const PaladinConfig = {
     tooltip: "Delivers an attack with a potency of 140 to all nearby enemies.\nAdditional Effect: Damage over time\nPotency: 30\nDuration: 15s",
     potency: [
       "Delivers an attack with a potency of 140 to all nearby enemies.",
-      "Potency: 30"
+      "Potency: 30",
     ],
     effects: [
-      "Additional Effect: Damage over time"
+      "Additional Effect: Damage over time",
     ],
     conditions: [],
     duration: {
-      seconds: 15
+      seconds: 15,
     },
     max_charges: null,
     source_url: "FFXIV_Job_Guide_Raw_paladin_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   "Hallowed Ground": {
     id: "pve_action__16",
@@ -403,12 +403,12 @@ export const PaladinConfig = {
     effects: [],
     conditions: [],
     duration: {
-      seconds: 10
+      seconds: 10,
     },
     max_charges: null,
     source_url: "FFXIV_Job_Guide_Raw_paladin_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   Bulwark: {
     id: "pve_action__17",
@@ -427,12 +427,12 @@ export const PaladinConfig = {
     effects: [],
     conditions: [],
     duration: {
-      seconds: 10
+      seconds: 10,
     },
     max_charges: null,
     source_url: "FFXIV_Job_Guide_Raw_paladin_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   "Goring Blade": {
     id: "pve_action__18",
@@ -448,17 +448,17 @@ export const PaladinConfig = {
     radius: 0,
     tooltip: "Delivers an attack with a potency of 700.\nCan only be executed while under the effect of Goring Blade Ready.",
     potency: [
-      "Delivers an attack with a potency of 700."
+      "Delivers an attack with a potency of 700.",
     ],
     effects: [],
     conditions: [
-      "Can only be executed while under the effect of Goring Blade Ready."
+      "Can only be executed while under the effect of Goring Blade Ready.",
     ],
     duration: null,
     max_charges: null,
     source_url: "FFXIV_Job_Guide_Raw_paladin_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   "Divine Veil": {
     id: "pve_action__19",
@@ -474,19 +474,19 @@ export const PaladinConfig = {
     radius: 30,
     tooltip: "Creates a barrier around self and all party members near you that absorbs damage equivalent to 10% of your maximum HP.\nDuration: 30s\nAdditional Effect: Restores target's HP\nCure Potency: 400",
     potency: [
-      "Cure Potency: 400"
+      "Cure Potency: 400",
     ],
     effects: [
-      "Additional Effect: Restores target's HP"
+      "Additional Effect: Restores target's HP",
     ],
     conditions: [],
     duration: {
-      seconds: 30
+      seconds: 30,
     },
     max_charges: null,
     source_url: "FFXIV_Job_Guide_Raw_paladin_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   Clemency: {
     id: "pve_action__20",
@@ -498,23 +498,23 @@ export const PaladinConfig = {
     cast: 1.5,
     recast: 2.5,
     cost: {
-      mp: 2000
+      mp: 2000,
     },
     range: 30,
     radius: 0,
     tooltip: "Restores target's HP.\nCure Potency: 1,000\nAdditional Effect: Restores to self 50% of HP restored to target if target is a party member",
     potency: [
-      "Cure Potency: 1,000"
+      "Cure Potency: 1,000",
     ],
     effects: [
-      "Additional Effect: Restores to self 50% of HP restored to target if target is a party member"
+      "Additional Effect: Restores to self 50% of HP restored to target if target is a party member",
     ],
     conditions: [],
     duration: null,
     max_charges: null,
     source_url: "FFXIV_Job_Guide_Raw_paladin_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   "Royal Authority": {
     id: "pve_action__21",
@@ -532,21 +532,21 @@ export const PaladinConfig = {
     potency: [
       "Delivers an attack with a potency of 200.",
       "Combo Potency: 460",
-      "Divine Might Effect: Allows next Holy Spirit or Holy Circle to be cast immediately with increased potency"
+      "Divine Might Effect: Allows next Holy Spirit or Holy Circle to be cast immediately with increased potency",
     ],
     effects: [
       "Combo Bonus: Grants Atonement Ready",
       "Combo Bonus: Grants Divine Might",
-      "Divine Might Effect: Allows next Holy Spirit or Holy Circle to be cast immediately with increased potency"
+      "Divine Might Effect: Allows next Holy Spirit or Holy Circle to be cast immediately with increased potency",
     ],
     conditions: [],
     duration: {
-      seconds: 30
+      seconds: 30,
     },
     max_charges: null,
     source_url: "FFXIV_Job_Guide_Raw_paladin_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   Intervention: {
     id: "pve_action__22",
@@ -562,23 +562,23 @@ export const PaladinConfig = {
     radius: 0,
     tooltip: "Reduces target party member's damage taken by 10%.\nDuration: 8s\nAdditional Effect: Increases damage reduction by an additional 10% if Rampart or Guardian are active\nAdditional Effect: Grants Knight's Resolve to target\nKnight's Resolve Effect: Reduces damage taken by 10%\nDuration: 4s\nAdditional Effect: Grants Knight's Benediction to target\nKnight's Benediction Effect: Gradually restores HP\nCure Potency: 250\nDuration: 12s\nOath Gauge Cost: 50",
     potency: [
-      "Cure Potency: 250"
+      "Cure Potency: 250",
     ],
     effects: [
       "Additional Effect: Increases damage reduction by an additional 10% if Rampart or Guardian are active",
       "Additional Effect: Grants Knight's Resolve to target",
       "Knight's Resolve Effect: Reduces damage taken by 10%",
       "Additional Effect: Grants Knight's Benediction to target",
-      "Knight's Benediction Effect: Gradually restores HP"
+      "Knight's Benediction Effect: Gradually restores HP",
     ],
     conditions: [],
     duration: {
-      seconds: 12
+      seconds: 12,
     },
     max_charges: null,
     source_url: "FFXIV_Job_Guide_Raw_paladin_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   "Holy Spirit": {
     id: "pve_action__23",
@@ -590,7 +590,7 @@ export const PaladinConfig = {
     cast: 1.5,
     recast: 2.5,
     cost: {
-      mp: 1000
+      mp: 1000,
     },
     range: 25,
     radius: 0,
@@ -599,17 +599,17 @@ export const PaladinConfig = {
       "Deals unaspected damage with a potency of 400.",
       "Divine Might Potency: 500",
       "Requiescat Potency: 700",
-      "Cure Potency: 400"
+      "Cure Potency: 400",
     ],
     effects: [
-      "Additional Effect: Restores own HP"
+      "Additional Effect: Restores own HP",
     ],
     conditions: [],
     duration: null,
     max_charges: null,
     source_url: "FFXIV_Job_Guide_Raw_paladin_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   Intervene: {
     id: "pve_action__24",
@@ -625,7 +625,7 @@ export const PaladinConfig = {
     radius: 0,
     tooltip: "Rushes target and delivers an attack with a potency of 150.\nMaximum Charges: 2\nCannot be executed while bound.",
     potency: [
-      "Rushes target and delivers an attack with a potency of 150."
+      "Rushes target and delivers an attack with a potency of 150.",
     ],
     effects: [],
     conditions: [],
@@ -633,7 +633,7 @@ export const PaladinConfig = {
     max_charges: 2,
     source_url: "FFXIV_Job_Guide_Raw_paladin_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   Requiescat: {
     id: "pve_action__25",
@@ -650,21 +650,21 @@ export const PaladinConfig = {
     tooltip: "Deals unaspected damage with a potency of 320.\nAdditional Effect: Grants 4 stacks of Requiescat\nRequiescat Effect: Increases the potency of Holy Spirit, Holy Circle, and all Confiteor combo actions, and spells will require no cast time\nAdditional Effect: Grants Confiteor Ready\nDuration: 30s",
     potency: [
       "Deals unaspected damage with a potency of 320.",
-      "Requiescat Effect: Increases the potency of Holy Spirit, Holy Circle, and all Confiteor combo actions, and spells will require no cast time"
+      "Requiescat Effect: Increases the potency of Holy Spirit, Holy Circle, and all Confiteor combo actions, and spells will require no cast time",
     ],
     effects: [
       "Additional Effect: Grants 4 stacks of Requiescat",
       "Requiescat Effect: Increases the potency of Holy Spirit, Holy Circle, and all Confiteor combo actions, and spells will require no cast time",
-      "Additional Effect: Grants Confiteor Ready"
+      "Additional Effect: Grants Confiteor Ready",
     ],
     conditions: [],
     duration: {
-      seconds: 30
+      seconds: 30,
     },
     max_charges: null,
     source_url: "FFXIV_Job_Guide_Raw_paladin_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   "Passage of Arms": {
     id: "pve_action__26",
@@ -683,12 +683,12 @@ export const PaladinConfig = {
     effects: [],
     conditions: [],
     duration: {
-      seconds: 18
+      seconds: 18,
     },
     max_charges: null,
     source_url: "FFXIV_Job_Guide_Raw_paladin_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   "Holy Circle": {
     id: "pve_action__27",
@@ -700,7 +700,7 @@ export const PaladinConfig = {
     cast: 1.5,
     recast: 2.5,
     cost: {
-      mp: 1000
+      mp: 1000,
     },
     range: 0,
     radius: 5,
@@ -709,17 +709,17 @@ export const PaladinConfig = {
       "Deals unaspected damage with a potency of 100 to all nearby enemies.",
       "Divine Might Potency: 250",
       "Requiescat Potency: 350",
-      "Cure Potency: 400"
+      "Cure Potency: 400",
     ],
     effects: [
-      "Additional Effect: Restores own HP"
+      "Additional Effect: Restores own HP",
     ],
     conditions: [],
     duration: null,
     max_charges: null,
     source_url: "FFXIV_Job_Guide_Raw_paladin_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   Atonement: {
     id: "pve_action__28",
@@ -735,22 +735,22 @@ export const PaladinConfig = {
     radius: 0,
     tooltip: "Delivers an attack with a potency of 460.\nAdditional Effect: Restores MP\nAdditional Effect: Grants Supplication Ready\nDuration: 30s\nCan only be executed while under the effect of Atonement Ready.",
     potency: [
-      "Delivers an attack with a potency of 460."
+      "Delivers an attack with a potency of 460.",
     ],
     effects: [
       "Additional Effect: Restores MP",
-      "Additional Effect: Grants Supplication Ready"
+      "Additional Effect: Grants Supplication Ready",
     ],
     conditions: [
-      "Can only be executed while under the effect of Atonement Ready."
+      "Can only be executed while under the effect of Atonement Ready.",
     ],
     duration: {
-      seconds: 30
+      seconds: 30,
     },
     max_charges: null,
     source_url: "FFXIV_Job_Guide_Raw_paladin_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   Supplication: {
     id: "pve_action__29",
@@ -766,23 +766,23 @@ export const PaladinConfig = {
     radius: 0,
     tooltip: "Delivers an attack with a potency of 500.\nAdditional Effect: Restores MP\nAdditional Effect: Grants Sepulchre Ready\nDuration: 30s\nCan only be executed while under the effect of Supplication Ready.\n\n※This action cannot be assigned to a hotbar.\n※Atonement changes to Supplication when requirements for execution are met.",
     potency: [
-      "Delivers an attack with a potency of 500."
+      "Delivers an attack with a potency of 500.",
     ],
     effects: [
       "Additional Effect: Restores MP",
-      "Additional Effect: Grants Sepulchre Ready"
+      "Additional Effect: Grants Sepulchre Ready",
     ],
     conditions: [
       "Can only be executed while under the effect of Supplication Ready.",
-      "※This action cannot be assigned to a hotbar."
+      "※This action cannot be assigned to a hotbar.",
     ],
     duration: {
-      seconds: 30
+      seconds: 30,
     },
     max_charges: null,
     source_url: "FFXIV_Job_Guide_Raw_paladin_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   Sepulchre: {
     id: "pve_action__30",
@@ -798,20 +798,20 @@ export const PaladinConfig = {
     radius: 0,
     tooltip: "Delivers an attack with a potency of 540.\nAdditional Effect: Restores MP\nCan only be executed while under the effect of Sepulchre Ready.\n\n※This action cannot be assigned to a hotbar.\n※Supplication changes to Sepulchre when requirements for execution are met.",
     potency: [
-      "Delivers an attack with a potency of 540."
+      "Delivers an attack with a potency of 540.",
     ],
     effects: [
-      "Additional Effect: Restores MP"
+      "Additional Effect: Restores MP",
     ],
     conditions: [
       "Can only be executed while under the effect of Sepulchre Ready.",
-      "※This action cannot be assigned to a hotbar."
+      "※This action cannot be assigned to a hotbar.",
     ],
     duration: null,
     max_charges: null,
     source_url: "FFXIV_Job_Guide_Raw_paladin_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   Confiteor: {
     id: "pve_action__31",
@@ -823,7 +823,7 @@ export const PaladinConfig = {
     cast: 0.0,
     recast: 2.5,
     cost: {
-      mp: 1000
+      mp: 1000,
     },
     range: 25,
     radius: 5,
@@ -831,19 +831,19 @@ export const PaladinConfig = {
     potency: [
       "Deals unaspected damage to target and all enemies nearby it with a potency of 500 for the first enemy, and 60% less for all remaining enemies.",
       "Requiescat Potency: 1,000",
-      "Cure Potency: 400"
+      "Cure Potency: 400",
     ],
     effects: [
-      "Additional Effect: Restores own HP"
+      "Additional Effect: Restores own HP",
     ],
     conditions: [
-      "Can only be executed while under the effect of Confiteor Ready. Effect fades upon execution."
+      "Can only be executed while under the effect of Confiteor Ready. Effect fades upon execution.",
     ],
     duration: null,
     max_charges: null,
     source_url: "FFXIV_Job_Guide_Raw_paladin_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   "Holy Sheltron": {
     id: "pve_action__32",
@@ -859,22 +859,22 @@ export const PaladinConfig = {
     radius: 0,
     tooltip: "Reduces damage taken by 15%.\nDuration: 8s\nAdditional Effect: Grants Knight's Resolve\nKnight's Resolve Effect: Reduces damage taken by 15%\nDuration: 4s\nAdditional Effect: Grants Knight's Benediction\nKnight's Benediction Effect: Gradually restores HP\nCure Potency: 250\nDuration: 12s\nOath Gauge Cost: 50",
     potency: [
-      "Cure Potency: 250"
+      "Cure Potency: 250",
     ],
     effects: [
       "Additional Effect: Grants Knight's Resolve",
       "Knight's Resolve Effect: Reduces damage taken by 15%",
       "Additional Effect: Grants Knight's Benediction",
-      "Knight's Benediction Effect: Gradually restores HP"
+      "Knight's Benediction Effect: Gradually restores HP",
     ],
     conditions: [],
     duration: {
-      seconds: 12
+      seconds: 12,
     },
     max_charges: null,
     source_url: "FFXIV_Job_Guide_Raw_paladin_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   Expiacion: {
     id: "pve_action__33",
@@ -890,17 +890,17 @@ export const PaladinConfig = {
     radius: 5,
     tooltip: "Delivers an attack to target and all enemies nearby it with a potency of 450 for the first enemy, and 60% less for all remaining enemies.\nAdditional Effect: Restores MP",
     potency: [
-      "Delivers an attack to target and all enemies nearby it with a potency of 450 for the first enemy, and 60% less for all remaining enemies."
+      "Delivers an attack to target and all enemies nearby it with a potency of 450 for the first enemy, and 60% less for all remaining enemies.",
     ],
     effects: [
-      "Additional Effect: Restores MP"
+      "Additional Effect: Restores MP",
     ],
     conditions: [],
     duration: null,
     max_charges: null,
     source_url: "FFXIV_Job_Guide_Raw_paladin_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   "Blade of Faith": {
     id: "pve_action__34",
@@ -912,7 +912,7 @@ export const PaladinConfig = {
     cast: 0.0,
     recast: 2.5,
     cost: {
-      mp: 1000
+      mp: 1000,
     },
     range: 25,
     radius: 5,
@@ -920,19 +920,19 @@ export const PaladinConfig = {
     potency: [
       "Deals unaspected damage to target and all enemies nearby it with a potency of 260 for the first enemy, and 60% less for all remaining enemies.",
       "Requiescat Potency: 760",
-      "Cure Potency: 400"
+      "Cure Potency: 400",
     ],
     effects: [
-      "Additional Effect: Restores own HP"
+      "Additional Effect: Restores own HP",
     ],
     conditions: [
-      "※This action cannot be assigned to a hotbar."
+      "※This action cannot be assigned to a hotbar.",
     ],
     duration: null,
     max_charges: null,
     source_url: "FFXIV_Job_Guide_Raw_paladin_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   "Blade of Truth": {
     id: "pve_action__35",
@@ -944,7 +944,7 @@ export const PaladinConfig = {
     cast: 0.0,
     recast: 2.5,
     cost: {
-      mp: 1000
+      mp: 1000,
     },
     range: 25,
     radius: 5,
@@ -952,19 +952,19 @@ export const PaladinConfig = {
     potency: [
       "Deals unaspected damage to target and all enemies nearby it with a potency of 380 for the first enemy, and 60% less for all remaining enemies.",
       "Requiescat Potency: 880",
-      "Cure Potency: 400"
+      "Cure Potency: 400",
     ],
     effects: [
-      "Additional Effect: Restores own HP"
+      "Additional Effect: Restores own HP",
     ],
     conditions: [
-      "※This action cannot be assigned to a hotbar."
+      "※This action cannot be assigned to a hotbar.",
     ],
     duration: null,
     max_charges: null,
     source_url: "FFXIV_Job_Guide_Raw_paladin_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   "Blade of Valor": {
     id: "pve_action__36",
@@ -976,7 +976,7 @@ export const PaladinConfig = {
     cast: 0.0,
     recast: 2.5,
     cost: {
-      mp: 1000
+      mp: 1000,
     },
     range: 25,
     radius: 5,
@@ -984,22 +984,22 @@ export const PaladinConfig = {
     potency: [
       "Deals unaspected damage to target and all enemies nearby it with a potency of 500 for the first enemy, and 60% less for all remaining enemies.",
       "Requiescat Potency: 1,000",
-      "Cure Potency: 400"
+      "Cure Potency: 400",
     ],
     effects: [
       "Additional Effect: Restores own HP",
-      "Additional Effect: Grants Blade of Honor Ready"
+      "Additional Effect: Grants Blade of Honor Ready",
     ],
     conditions: [
-      "※This action cannot be assigned to a hotbar."
+      "※This action cannot be assigned to a hotbar.",
     ],
     duration: {
-      seconds: 30
+      seconds: 30,
     },
     max_charges: null,
     source_url: "FFXIV_Job_Guide_Raw_paladin_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   Guardian: {
     id: "pve_action__37",
@@ -1015,19 +1015,19 @@ export const PaladinConfig = {
     radius: 0,
     tooltip: "Reduces damage taken by 40%.\nDuration: 15s\nAdditional Effect: Erects a magicked barrier which nullifies damage equivalent to a heal of 1,000 potency\nDuration: 15s",
     potency: [
-      "Additional Effect: Erects a magicked barrier which nullifies damage equivalent to a heal of 1,000 potency"
+      "Additional Effect: Erects a magicked barrier which nullifies damage equivalent to a heal of 1,000 potency",
     ],
     effects: [
-      "Additional Effect: Erects a magicked barrier which nullifies damage equivalent to a heal of 1,000 potency"
+      "Additional Effect: Erects a magicked barrier which nullifies damage equivalent to a heal of 1,000 potency",
     ],
     conditions: [],
     duration: {
-      seconds: 15
+      seconds: 15,
     },
     max_charges: null,
     source_url: "FFXIV_Job_Guide_Raw_paladin_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   Imperator: {
     id: "pve_action__38",
@@ -1044,21 +1044,21 @@ export const PaladinConfig = {
     tooltip: "Deals unaspected damage to target and all enemies nearby it with a potency of 580 for the first enemy, and 60% less for all remaining enemies.\nAdditional Effect: Grants 4 stacks of Requiescat\nDuration: 30s\nRequiescat Effect: Increases the potency of Holy Spirit, Holy Circle, and all Confiteor combo actions, and spells will require no cast time\nAdditional Effect: Grants Confiteor Ready\nDuration: 30s",
     potency: [
       "Deals unaspected damage to target and all enemies nearby it with a potency of 580 for the first enemy, and 60% less for all remaining enemies.",
-      "Requiescat Effect: Increases the potency of Holy Spirit, Holy Circle, and all Confiteor combo actions, and spells will require no cast time"
+      "Requiescat Effect: Increases the potency of Holy Spirit, Holy Circle, and all Confiteor combo actions, and spells will require no cast time",
     ],
     effects: [
       "Additional Effect: Grants 4 stacks of Requiescat",
       "Requiescat Effect: Increases the potency of Holy Spirit, Holy Circle, and all Confiteor combo actions, and spells will require no cast time",
-      "Additional Effect: Grants Confiteor Ready"
+      "Additional Effect: Grants Confiteor Ready",
     ],
     conditions: [],
     duration: {
-      seconds: 30
+      seconds: 30,
     },
     max_charges: null,
     source_url: "FFXIV_Job_Guide_Raw_paladin_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   "Blade of Honor": {
     id: "pve_action__39",
@@ -1074,18 +1074,18 @@ export const PaladinConfig = {
     radius: 5,
     tooltip: "Deals unaspected damage to target and all enemies nearby it with a potency of 1,000 for the first enemy, and 60% less for all remaining enemies.\nCan only be executed while under the effect of Blade of Honor Ready.\n\n※This action cannot be assigned to a hotbar.\n※Imperator changes to Blade of Honor when requirements for execution are met.",
     potency: [
-      "Deals unaspected damage to target and all enemies nearby it with a potency of 1,000 for the first enemy, and 60% less for all remaining enemies."
+      "Deals unaspected damage to target and all enemies nearby it with a potency of 1,000 for the first enemy, and 60% less for all remaining enemies.",
     ],
     effects: [],
     conditions: [
       "Can only be executed while under the effect of Blade of Honor Ready.",
-      "※This action cannot be assigned to a hotbar."
+      "※This action cannot be assigned to a hotbar.",
     ],
     duration: null,
     max_charges: null,
     source_url: "FFXIV_Job_Guide_Raw_paladin_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   Rampart: {
     id: "tank_action__01",
@@ -1102,16 +1102,16 @@ export const PaladinConfig = {
     tooltip: "Reduces damage taken by 20%.\nAdditional Effect: Increases HP recovery via healing actions on self by 15%\nDuration: 20s",
     potency: [],
     effects: [
-      "Additional Effect: Increases HP recovery via healing actions on self by 15%"
+      "Additional Effect: Increases HP recovery via healing actions on self by 15%",
     ],
     conditions: [],
     duration: {
-      seconds: 20
+      seconds: 20,
     },
     max_charges: null,
     source_url: "FFXIV_Job_Guide_Raw_paladin_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   "Low Blow": {
     id: "tank_action__02",
@@ -1130,12 +1130,12 @@ export const PaladinConfig = {
     effects: [],
     conditions: [],
     duration: {
-      seconds: 5
+      seconds: 5,
     },
     max_charges: null,
     source_url: "FFXIV_Job_Guide_Raw_paladin_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   Provoke: {
     id: "tank_action__03",
@@ -1157,7 +1157,7 @@ export const PaladinConfig = {
     max_charges: null,
     source_url: "FFXIV_Job_Guide_Raw_paladin_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   Interject: {
     id: "tank_action__04",
@@ -1179,7 +1179,7 @@ export const PaladinConfig = {
     max_charges: null,
     source_url: "FFXIV_Job_Guide_Raw_paladin_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   Reprisal: {
     id: "tank_action__05",
@@ -1198,12 +1198,12 @@ export const PaladinConfig = {
     effects: [],
     conditions: [],
     duration: {
-      seconds: 15
+      seconds: 15,
     },
     max_charges: null,
     source_url: "FFXIV_Job_Guide_Raw_paladin_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   "Arm's Length": {
     id: "tank_action__06",
@@ -1220,16 +1220,16 @@ export const PaladinConfig = {
     tooltip: "Nullifies most knockback and draw-in effects.\nDuration: 6s\nAdditional Effect: When you are struck by a physical attack, the striker will be afflicted with Slow +20%\nDuration: 15s",
     potency: [],
     effects: [
-      "Additional Effect: When you are struck by a physical attack, the striker will be afflicted with Slow +20%"
+      "Additional Effect: When you are struck by a physical attack, the striker will be afflicted with Slow +20%",
     ],
     conditions: [],
     duration: {
-      seconds: 15
+      seconds: 15,
     },
     max_charges: null,
     source_url: "FFXIV_Job_Guide_Raw_paladin_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   Shirk: {
     id: "tank_action__07",
@@ -1251,8 +1251,8 @@ export const PaladinConfig = {
     max_charges: null,
     source_url: "FFXIV_Job_Guide_Raw_paladin_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
-  }
+    language: "en",
+  },
 },
   rotations: []
 };

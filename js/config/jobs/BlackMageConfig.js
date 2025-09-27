@@ -18,7 +18,7 @@ export const BlackMageConfig = {
     castTime: 2.42,
     recastTime: 2.42,
     aliases: [
-      "F1"
+      "F1",
     ],
     id: "pve_action__02",
     icon_url: "https://lds-img.finalfantasyxiv.com/d/0f0b18de207de52d394b2ca8cb990a38e96587e0.png",
@@ -29,25 +29,25 @@ export const BlackMageConfig = {
     cast: 2.0,
     recast: 2.5,
     cost: {
-      mp: 800
+      mp: 800,
     },
     range: 25,
     radius: 0,
     tooltip: "Deals fire damage with a potency of 180.\nAdditional Effect: Grants Astral Fire or removes Umbral Ice\nAdditional Effect: 40% chance to grant Firestarter\nFirestarter Effect: Next Fire III will cost no MP and have no cast time",
     potency: [
-      "Deals fire damage with a potency of 180."
+      "Deals fire damage with a potency of 180.",
     ],
     effects: [
       "Additional Effect: Grants Astral Fire or removes Umbral Ice",
       "Additional Effect: 40% chance to grant Firestarter",
-      "Firestarter Effect: Next Fire III will cost no MP and have no cast time"
+      "Firestarter Effect: Next Fire III will cost no MP and have no cast time",
     ],
     conditions: [],
     duration: null,
     max_charges: null,
     source_url: "FFXIV_Job_Guide_Raw_blackmage_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   "Fire III": {
     base: 290,
@@ -60,7 +60,7 @@ export const BlackMageConfig = {
     castTime: 3.53,
     recastTime: 2.42,
     aliases: [
-      "F3"
+      "F3",
     ],
     id: "pve_action__11",
     icon_url: "https://lds-img.finalfantasyxiv.com/d/3ff8dcabba57f6a697d5a86fc7490884b74eddff.png",
@@ -71,23 +71,23 @@ export const BlackMageConfig = {
     cast: 3.5,
     recast: 2.5,
     cost: {
-      mp: 2000
+      mp: 2000,
     },
     range: 25,
     radius: 0,
     tooltip: "Deals fire damage with a potency of 290.\nAdditional Effect: Grants Astral Fire III and removes Umbral Ice",
     potency: [
-      "Deals fire damage with a potency of 290."
+      "Deals fire damage with a potency of 290.",
     ],
     effects: [
-      "Additional Effect: Grants Astral Fire III and removes Umbral Ice"
+      "Additional Effect: Grants Astral Fire III and removes Umbral Ice",
     ],
     conditions: [],
     duration: null,
     max_charges: null,
     source_url: "FFXIV_Job_Guide_Raw_blackmage_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   "Fire IV": {
     base: 300,
@@ -100,7 +100,7 @@ export const BlackMageConfig = {
     castTime: 2.42,
     recastTime: 2.42,
     aliases: [
-      "F4"
+      "F4",
     ],
     id: "pve_action__20",
     icon_url: "https://lds-img.finalfantasyxiv.com/d/92e87bf20382bc6359c7448008c3423724b9f0b4.png",
@@ -111,25 +111,25 @@ export const BlackMageConfig = {
     cast: 2.0,
     recast: 2.5,
     cost: {
-      mp: 800
+      mp: 800,
     },
     range: 25,
     radius: 0,
     tooltip: "Deals fire damage with a potency of 300.\nAdditional Effect: Grants Astral Soul\nEffect ends when Astral Fire expires.\nCan only be executed while under the effect of Astral Fire.",
     potency: [
-      "Deals fire damage with a potency of 300."
+      "Deals fire damage with a potency of 300.",
     ],
     effects: [
-      "Additional Effect: Grants Astral Soul"
+      "Additional Effect: Grants Astral Soul",
     ],
     conditions: [
-      "Can only be executed while under the effect of Astral Fire."
+      "Can only be executed while under the effect of Astral Fire.",
     ],
     duration: null,
     max_charges: null,
     source_url: "FFXIV_Job_Guide_Raw_blackmage_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   Despair: {
     base: 350,
@@ -142,7 +142,7 @@ export const BlackMageConfig = {
     castTime: 2.42,
     recastTime: 2.42,
     aliases: [
-      "Desp"
+      "Desp",
     ],
     id: "pve_action__25",
     icon_url: "https://lds-img.finalfantasyxiv.com/d/ec2a834393b6ffaf415b043fb9e2c6d23afde9cd.png",
@@ -153,25 +153,25 @@ export const BlackMageConfig = {
     cast: 0.0,
     recast: 2.5,
     cost: {
-      mp: "all"
+      mp: "all",
     },
     range: 25,
     radius: 0,
     tooltip: "Deals fire damage with a potency of 350.\nAdditional Effect: Grants Astral Fire III\nCan only be executed while under the effect of Astral Fire.",
     potency: [
-      "Deals fire damage with a potency of 350."
+      "Deals fire damage with a potency of 350.",
     ],
     effects: [
-      "Additional Effect: Grants Astral Fire III"
+      "Additional Effect: Grants Astral Fire III",
     ],
     conditions: [
-      "Can only be executed while under the effect of Astral Fire."
+      "Can only be executed while under the effect of Astral Fire.",
     ],
     duration: null,
     max_charges: null,
     source_url: "FFXIV_Job_Guide_Raw_blackmage_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   "Flare Star": {
     base: 500,
@@ -184,7 +184,7 @@ export const BlackMageConfig = {
     castTime: 2.42,
     recastTime: 2.42,
     aliases: [
-      "FS"
+      "FS",
     ],
     id: "pve_action__34",
     icon_url: "https://lds-img.finalfantasyxiv.com/d/1bf799ec68187691dceb2adb9dc0ea1259f03dd1.png",
@@ -199,17 +199,17 @@ export const BlackMageConfig = {
     radius: 5,
     tooltip: "Deals fire damage to target and all enemies nearby it with a potency of 500 for the first enemy, and 65% less for all remaining enemies.\nCan only be executed when the Astral Gauge is full.",
     potency: [
-      "Deals fire damage to target and all enemies nearby it with a potency of 500 for the first enemy, and 65% less for all remaining enemies."
+      "Deals fire damage to target and all enemies nearby it with a potency of 500 for the first enemy, and 65% less for all remaining enemies.",
     ],
     effects: [],
     conditions: [
-      "Can only be executed when the Astral Gauge is full."
+      "Can only be executed when the Astral Gauge is full.",
     ],
     duration: null,
     max_charges: null,
     source_url: "FFXIV_Job_Guide_Raw_blackmage_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   "Blizzard III": {
     base: 290,
@@ -222,7 +222,7 @@ export const BlackMageConfig = {
     castTime: 3.53,
     recastTime: 2.42,
     aliases: [
-      "B3"
+      "B3",
     ],
     id: "pve_action__12",
     icon_url: "https://lds-img.finalfantasyxiv.com/d/6dbb819d3f64b93d6f6ffa23a73101c79592ae2f.png",
@@ -233,23 +233,23 @@ export const BlackMageConfig = {
     cast: 3.5,
     recast: 2.5,
     cost: {
-      mp: 800
+      mp: 800,
     },
     range: 25,
     radius: 0,
     tooltip: "Deals ice damage with a potency of 290.\nAdditional Effect: Grants Umbral Ice III and removes Astral Fire",
     potency: [
-      "Deals ice damage with a potency of 290."
+      "Deals ice damage with a potency of 290.",
     ],
     effects: [
-      "Additional Effect: Grants Umbral Ice III and removes Astral Fire"
+      "Additional Effect: Grants Umbral Ice III and removes Astral Fire",
     ],
     conditions: [],
     duration: null,
     max_charges: null,
     source_url: "FFXIV_Job_Guide_Raw_blackmage_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   "Blizzard IV": {
     base: 300,
@@ -262,7 +262,7 @@ export const BlackMageConfig = {
     castTime: 2.42,
     recastTime: 2.42,
     aliases: [
-      "B4"
+      "B4",
     ],
     id: "pve_action__19",
     icon_url: "https://lds-img.finalfantasyxiv.com/d/d370de07c30f08bd306ed3c58f0f0490b4541870.png",
@@ -273,25 +273,25 @@ export const BlackMageConfig = {
     cast: 2.0,
     recast: 2.5,
     cost: {
-      mp: 800
+      mp: 800,
     },
     range: 25,
     radius: 0,
     tooltip: "Deals ice damage with a potency of 300.\nAdditional Effect: Grants 3 Umbral Hearts\nUmbral Heart Bonus: Nullifies Astral Fire's MP cost increase for Fire spells and reduces MP cost for Flare by one-third\nCan only be executed while under the effect of Umbral Ice.",
     potency: [
-      "Deals ice damage with a potency of 300."
+      "Deals ice damage with a potency of 300.",
     ],
     effects: [
-      "Additional Effect: Grants 3 Umbral Hearts"
+      "Additional Effect: Grants 3 Umbral Hearts",
     ],
     conditions: [
-      "Can only be executed while under the effect of Umbral Ice."
+      "Can only be executed while under the effect of Umbral Ice.",
     ],
     duration: null,
     max_charges: null,
     source_url: "FFXIV_Job_Guide_Raw_blackmage_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   Paradox: {
     base: 540,
@@ -305,7 +305,7 @@ export const BlackMageConfig = {
     recastTime: 2.42,
     aliases: [
       "PD",
-      "Para"
+      "Para",
     ],
     id: "pve_action__30",
     icon_url: "https://lds-img.finalfantasyxiv.com/d/e4dbf2ab28919eb82a4b410db2a07cf59706c011.png",
@@ -316,27 +316,27 @@ export const BlackMageConfig = {
     cast: 0.0,
     recast: 2.5,
     cost: {
-      mp: 1600
+      mp: 1600,
     },
     range: 25,
     radius: 0,
     tooltip: "Deals unaspected damage with a potency of 540.\nAstral Fire Bonus: Grants Firestarter\nFirestarter Effect: Next Fire III will require no time to cast and cost no MP\nUmbral Ice Bonus: Requires no MP to cast\nCan only be executed while under the effect of Paradox.\n\n※This action cannot be assigned to a hotbar.\n※Fire and Blizzard change to Paradox when requirements for execution are met.",
     potency: [
-      "Deals unaspected damage with a potency of 540."
+      "Deals unaspected damage with a potency of 540.",
     ],
     effects: [
-      "Firestarter Effect: Next Fire III will require no time to cast and cost no MP"
+      "Firestarter Effect: Next Fire III will require no time to cast and cost no MP",
     ],
     conditions: [
       "Umbral Ice Bonus: Requires no MP to cast",
       "Can only be executed while under the effect of Paradox.",
-      "※This action cannot be assigned to a hotbar."
+      "※This action cannot be assigned to a hotbar.",
     ],
     duration: null,
     max_charges: null,
     source_url: "FFXIV_Job_Guide_Raw_blackmage_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   Flare: {
     base: 240,
@@ -358,26 +358,26 @@ export const BlackMageConfig = {
     cast: 2.0,
     recast: 2.5,
     cost: {
-      mp: "all"
+      mp: "all",
     },
     range: 25,
     radius: 5,
     tooltip: "Deals fire damage to target and all enemies nearby it with a potency of 240 for the first enemy, and 30% less for all remaining enemies.\nAdditional Effect: Grants Astral Fire III\nAdditional Effect: Grants 3 stacks of Astral Soul\nEffect ends when Astral Fire expires.\nCan only be executed while under the effect of Astral Fire.",
     potency: [
-      "Deals fire damage to target and all enemies nearby it with a potency of 240 for the first enemy, and 30% less for all remaining enemies."
+      "Deals fire damage to target and all enemies nearby it with a potency of 240 for the first enemy, and 30% less for all remaining enemies.",
     ],
     effects: [
       "Additional Effect: Grants Astral Fire III",
-      "Additional Effect: Grants 3 stacks of Astral Soul"
+      "Additional Effect: Grants 3 stacks of Astral Soul",
     ],
     conditions: [
-      "Can only be executed while under the effect of Astral Fire."
+      "Can only be executed while under the effect of Astral Fire.",
     ],
     duration: null,
     max_charges: null,
     source_url: "FFXIV_Job_Guide_Raw_blackmage_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   Blizzard: {
     base: 180,
@@ -390,7 +390,7 @@ export const BlackMageConfig = {
     castTime: 2.42,
     recastTime: 2.42,
     aliases: [
-      "UI1"
+      "UI1",
     ],
     id: "pve_action__01",
     icon_url: "https://lds-img.finalfantasyxiv.com/d/dab74d4a196c546228d67c91db4bde70c32c45df.png",
@@ -401,23 +401,23 @@ export const BlackMageConfig = {
     cast: 2.0,
     recast: 2.5,
     cost: {
-      mp: 400
+      mp: 400,
     },
     range: 25,
     radius: 0,
     tooltip: "Deals ice damage with a potency of 180.\nAdditional Effect: Grants Umbral Ice or removes Astral Fire",
     potency: [
-      "Deals ice damage with a potency of 180."
+      "Deals ice damage with a potency of 180.",
     ],
     effects: [
-      "Additional Effect: Grants Umbral Ice or removes Astral Fire"
+      "Additional Effect: Grants Umbral Ice or removes Astral Fire",
     ],
     conditions: [],
     duration: null,
     max_charges: null,
     source_url: "FFXIV_Job_Guide_Raw_blackmage_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   Transpose: {
     id: "pve_action__03",
@@ -439,7 +439,7 @@ export const BlackMageConfig = {
     max_charges: null,
     source_url: "FFXIV_Job_Guide_Raw_blackmage_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   Thunder: {
     id: "pve_action__04",
@@ -456,19 +456,19 @@ export const BlackMageConfig = {
     tooltip: "Deals lightning damage with a potency of 100.\nAdditional Effect: Lightning damage over time\nPotency: 45\nDuration: 24s\nCan only be cast while under the effect of Thunderhead, granted when gaining Astral Fire or Umbral Ice from an unaspected state, or changing between their influences.\nOnly one Thunder spell-induced damage over time effect per caster can be inflicted upon a single target.",
     potency: [
       "Deals lightning damage with a potency of 100.",
-      "Potency: 45"
+      "Potency: 45",
     ],
     effects: [
-      "Additional Effect: Lightning damage over time"
+      "Additional Effect: Lightning damage over time",
     ],
     conditions: [],
     duration: {
-      seconds: 24
+      seconds: 24,
     },
     max_charges: null,
     source_url: "FFXIV_Job_Guide_Raw_blackmage_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   "Blizzard II": {
     id: "pve_action__05",
@@ -480,23 +480,23 @@ export const BlackMageConfig = {
     cast: 3.0,
     recast: 2.5,
     cost: {
-      mp: 800
+      mp: 800,
     },
     range: 25,
     radius: 5,
     tooltip: "Deals ice damage with a potency of 80 to target and all enemies nearby it.\nAdditional Effect: Grants Umbral Ice III and removes Astral Fire",
     potency: [
-      "Deals ice damage with a potency of 80 to target and all enemies nearby it."
+      "Deals ice damage with a potency of 80 to target and all enemies nearby it.",
     ],
     effects: [
-      "Additional Effect: Grants Umbral Ice III and removes Astral Fire"
+      "Additional Effect: Grants Umbral Ice III and removes Astral Fire",
     ],
     conditions: [],
     duration: null,
     max_charges: null,
     source_url: "FFXIV_Job_Guide_Raw_blackmage_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   Scathe: {
     id: "pve_action__06",
@@ -508,24 +508,24 @@ export const BlackMageConfig = {
     cast: 0.0,
     recast: 2.5,
     cost: {
-      mp: 800
+      mp: 800,
     },
     range: 25,
     radius: 0,
     tooltip: "Deals unaspected damage with a potency of 100.\nAdditional Effect: 20% chance potency will double",
     potency: [
       "Deals unaspected damage with a potency of 100.",
-      "Additional Effect: 20% chance potency will double"
+      "Additional Effect: 20% chance potency will double",
     ],
     effects: [
-      "Additional Effect: 20% chance potency will double"
+      "Additional Effect: 20% chance potency will double",
     ],
     conditions: [],
     duration: null,
     max_charges: null,
     source_url: "FFXIV_Job_Guide_Raw_blackmage_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   "Fire II": {
     id: "pve_action__07",
@@ -537,23 +537,23 @@ export const BlackMageConfig = {
     cast: 3.0,
     recast: 2.5,
     cost: {
-      mp: 1500
+      mp: 1500,
     },
     range: 25,
     radius: 5,
     tooltip: "Deals fire damage with a potency of 80 to target and all enemies nearby it.\nAdditional Effect: Grants Astral Fire III and removes Umbral Ice",
     potency: [
-      "Deals fire damage with a potency of 80 to target and all enemies nearby it."
+      "Deals fire damage with a potency of 80 to target and all enemies nearby it.",
     ],
     effects: [
-      "Additional Effect: Grants Astral Fire III and removes Umbral Ice"
+      "Additional Effect: Grants Astral Fire III and removes Umbral Ice",
     ],
     conditions: [],
     duration: null,
     max_charges: null,
     source_url: "FFXIV_Job_Guide_Raw_blackmage_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   "Thunder II": {
     id: "pve_action__08",
@@ -570,19 +570,19 @@ export const BlackMageConfig = {
     tooltip: "Deals lightning damage with a potency of 60 to target and all enemies nearby it.\nAdditional Effect: Lightning damage over time\nPotency: 30\nDuration: 18s\nCan only be cast while under the effect of Thunderhead, granted when gaining Astral Fire or Umbral Ice from an unaspected state, or changing between their influences.\nOnly one Thunder spell-induced damage over time effect per caster can be inflicted upon a single target.",
     potency: [
       "Deals lightning damage with a potency of 60 to target and all enemies nearby it.",
-      "Potency: 30"
+      "Potency: 30",
     ],
     effects: [
-      "Additional Effect: Lightning damage over time"
+      "Additional Effect: Lightning damage over time",
     ],
     conditions: [],
     duration: {
-      seconds: 18
+      seconds: 18,
     },
     max_charges: null,
     source_url: "FFXIV_Job_Guide_Raw_blackmage_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   Manaward: {
     id: "pve_action__09",
@@ -601,12 +601,12 @@ export const BlackMageConfig = {
     effects: [],
     conditions: [],
     duration: {
-      seconds: 20
+      seconds: 20,
     },
     max_charges: null,
     source_url: "FFXIV_Job_Guide_Raw_blackmage_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   Manafont: {
     id: "pve_action__10",
@@ -626,16 +626,16 @@ export const BlackMageConfig = {
       "Additional Effect: Grants Astral Fire III",
       "Additional Effect: Grants Thunderhead",
       "Additional Effect: Grants 3 Umbral Hearts",
-      "Additional Effect: Grants Paradox"
+      "Additional Effect: Grants Paradox",
     ],
     conditions: [
-      "Can only be executed while under the effect of Astral Fire."
+      "Can only be executed while under the effect of Astral Fire.",
     ],
     duration: null,
     max_charges: null,
     source_url: "FFXIV_Job_Guide_Raw_blackmage_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   "Umbral Soul": {
     id: "pve_action__13",
@@ -652,16 +652,16 @@ export const BlackMageConfig = {
     tooltip: "Grants Umbral Ice and 1 Umbral Heart.\nUmbral Heart Bonus: Nullifies Astral Fire's MP cost increase for Fire spells and reduces MP cost for Flare by one-third\nAdditional Effect: Restores an amount of MP commensurate with your stacks of Umbral Ice\nUmbral Ice I: 2,500 MP\nUmbral Ice II: 5,000 MP\nUmbral Ice III: 10,000 MP\nGrants Umbral Ice III and 3 Umbral Hearts, and also restores 10,000 MP when used while outside of combat.\nCan only be executed while under the effect of Umbral Ice.",
     potency: [],
     effects: [
-      "Additional Effect: Restores an amount of MP commensurate with your stacks of Umbral Ice"
+      "Additional Effect: Restores an amount of MP commensurate with your stacks of Umbral Ice",
     ],
     conditions: [
-      "Can only be executed while under the effect of Umbral Ice."
+      "Can only be executed while under the effect of Umbral Ice.",
     ],
     duration: null,
     max_charges: null,
     source_url: "FFXIV_Job_Guide_Raw_blackmage_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   Freeze: {
     id: "pve_action__14",
@@ -673,25 +673,25 @@ export const BlackMageConfig = {
     cast: 2.0,
     recast: 2.5,
     cost: {
-      mp: 1000
+      mp: 1000,
     },
     range: 25,
     radius: 5,
     tooltip: "Deals ice damage with a potency of 120 to target and all enemies nearby it.\nAdditional Effect: Grants 3 Umbral Hearts\nUmbral Heart Bonus: Nullifies Astral Fire's MP cost increase for Fire spells and reduces MP cost for Flare by one-third\nCan only be executed while under the effect of Umbral Ice.",
     potency: [
-      "Deals ice damage with a potency of 120 to target and all enemies nearby it."
+      "Deals ice damage with a potency of 120 to target and all enemies nearby it.",
     ],
     effects: [
-      "Additional Effect: Grants 3 Umbral Hearts"
+      "Additional Effect: Grants 3 Umbral Hearts",
     ],
     conditions: [
-      "Can only be executed while under the effect of Umbral Ice."
+      "Can only be executed while under the effect of Umbral Ice.",
     ],
     duration: null,
     max_charges: null,
     source_url: "FFXIV_Job_Guide_Raw_blackmage_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   "Thunder III": {
     id: "pve_action__15",
@@ -708,19 +708,19 @@ export const BlackMageConfig = {
     tooltip: "Deals lightning damage with a potency of 120.\nAdditional Effect: Lightning damage over time\nPotency: 50\nDuration: 27s\nCan only be cast while under the effect of Thunderhead, granted when gaining Astral Fire or Umbral Ice from an unaspected state, or changing between their influences.\nOnly one Thunder spell-induced damage over time effect per caster can be inflicted upon a single target.",
     potency: [
       "Deals lightning damage with a potency of 120.",
-      "Potency: 50"
+      "Potency: 50",
     ],
     effects: [
-      "Additional Effect: Lightning damage over time"
+      "Additional Effect: Lightning damage over time",
     ],
     conditions: [],
     duration: {
-      seconds: 27
+      seconds: 27,
     },
     max_charges: null,
     source_url: "FFXIV_Job_Guide_Raw_blackmage_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   "Aetherial Manipulation": {
     id: "pve_action__16",
@@ -742,7 +742,7 @@ export const BlackMageConfig = {
     max_charges: null,
     source_url: "FFXIV_Job_Guide_Raw_blackmage_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   "Ley Lines": {
     id: "pve_action__18",
@@ -761,12 +761,12 @@ export const BlackMageConfig = {
     effects: [],
     conditions: [],
     duration: {
-      seconds: 20
+      seconds: 20,
     },
     max_charges: 2,
     source_url: "FFXIV_Job_Guide_Raw_blackmage_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   "Between the Lines": {
     id: "pve_action__21",
@@ -788,7 +788,7 @@ export const BlackMageConfig = {
     max_charges: null,
     source_url: "FFXIV_Job_Guide_Raw_blackmage_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   "Thunder IV": {
     id: "pve_action__22",
@@ -805,19 +805,19 @@ export const BlackMageConfig = {
     tooltip: "Deals lightning damage with a potency of 80 to target and all enemies nearby it.\nAdditional Effect: Lightning damage over time\nPotency: 35\nDuration: 21s\nCan only be cast while under the effect of Thunderhead, granted when gaining Astral Fire or Umbral Ice from an unaspected state, or changing between their influences.\nOnly one Thunder spell-induced damage over time effect per caster can be inflicted upon a single target.",
     potency: [
       "Deals lightning damage with a potency of 80 to target and all enemies nearby it.",
-      "Potency: 35"
+      "Potency: 35",
     ],
     effects: [
-      "Additional Effect: Lightning damage over time"
+      "Additional Effect: Lightning damage over time",
     ],
     conditions: [],
     duration: {
-      seconds: 21
+      seconds: 21,
     },
     max_charges: null,
     source_url: "FFXIV_Job_Guide_Raw_blackmage_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   Triplecast: {
     id: "pve_action__23",
@@ -836,12 +836,12 @@ export const BlackMageConfig = {
     effects: [],
     conditions: [],
     duration: {
-      seconds: 15
+      seconds: 15,
     },
     max_charges: 2,
     source_url: "FFXIV_Job_Guide_Raw_blackmage_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   Foul: {
     id: "pve_action__24",
@@ -857,7 +857,7 @@ export const BlackMageConfig = {
     radius: 5,
     tooltip: "Deals unaspected damage to target and all enemies nearby it with a potency of 600 for the first enemy, and 25% less for all remaining enemies.\nPolyglot Cost: 1",
     potency: [
-      "Deals unaspected damage to target and all enemies nearby it with a potency of 600 for the first enemy, and 25% less for all remaining enemies."
+      "Deals unaspected damage to target and all enemies nearby it with a potency of 600 for the first enemy, and 25% less for all remaining enemies.",
     ],
     effects: [],
     conditions: [],
@@ -865,7 +865,7 @@ export const BlackMageConfig = {
     max_charges: null,
     source_url: "FFXIV_Job_Guide_Raw_blackmage_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   Xenoglossy: {
     id: "pve_action__26",
@@ -881,7 +881,7 @@ export const BlackMageConfig = {
     radius: 0,
     tooltip: "Deals unaspected damage with a potency of 890.\nPolyglot Cost: 1",
     potency: [
-      "Deals unaspected damage with a potency of 890."
+      "Deals unaspected damage with a potency of 890.",
     ],
     effects: [],
     conditions: [],
@@ -889,7 +889,7 @@ export const BlackMageConfig = {
     max_charges: null,
     source_url: "FFXIV_Job_Guide_Raw_blackmage_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   "High Fire II": {
     id: "pve_action__27",
@@ -901,23 +901,23 @@ export const BlackMageConfig = {
     cast: 3.0,
     recast: 2.5,
     cost: {
-      mp: 1500
+      mp: 1500,
     },
     range: 25,
     radius: 5,
     tooltip: "Deals fire damage with a potency of 100 to target and all enemies nearby it.\nAdditional Effect: Grants Astral Fire III and removes Umbral Ice",
     potency: [
-      "Deals fire damage with a potency of 100 to target and all enemies nearby it."
+      "Deals fire damage with a potency of 100 to target and all enemies nearby it.",
     ],
     effects: [
-      "Additional Effect: Grants Astral Fire III and removes Umbral Ice"
+      "Additional Effect: Grants Astral Fire III and removes Umbral Ice",
     ],
     conditions: [],
     duration: null,
     max_charges: null,
     source_url: "FFXIV_Job_Guide_Raw_blackmage_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   "High Blizzard II": {
     id: "pve_action__28",
@@ -929,23 +929,23 @@ export const BlackMageConfig = {
     cast: 3.0,
     recast: 2.5,
     cost: {
-      mp: 800
+      mp: 800,
     },
     range: 25,
     radius: 5,
     tooltip: "Deals ice damage with a potency of 100 to target and all enemies nearby it.\nAdditional Effect: Grants Umbral Ice III and removes Astral Fire",
     potency: [
-      "Deals ice damage with a potency of 100 to target and all enemies nearby it."
+      "Deals ice damage with a potency of 100 to target and all enemies nearby it.",
     ],
     effects: [
-      "Additional Effect: Grants Umbral Ice III and removes Astral Fire"
+      "Additional Effect: Grants Umbral Ice III and removes Astral Fire",
     ],
     conditions: [],
     duration: null,
     max_charges: null,
     source_url: "FFXIV_Job_Guide_Raw_blackmage_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   Amplifier: {
     id: "pve_action__29",
@@ -963,13 +963,13 @@ export const BlackMageConfig = {
     potency: [],
     effects: [],
     conditions: [
-      "Can only be executed while under the effect of Astral Fire or Umbral Ice."
+      "Can only be executed while under the effect of Astral Fire or Umbral Ice.",
     ],
     duration: null,
     max_charges: null,
     source_url: "FFXIV_Job_Guide_Raw_blackmage_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   "High Thunder": {
     id: "pve_action__31",
@@ -986,19 +986,19 @@ export const BlackMageConfig = {
     tooltip: "Deals lightning damage with a potency of 150.\nAdditional Effect: Lightning damage over time\nPotency: 60\nDuration: 30s\nCan only be cast while under the effect of Thunderhead, granted when gaining Astral Fire or Umbral Ice from an unaspected state, or changing between their influences.\nOnly one Thunder spell-induced damage over time effect per caster can be inflicted upon a single target.",
     potency: [
       "Deals lightning damage with a potency of 150.",
-      "Potency: 60"
+      "Potency: 60",
     ],
     effects: [
-      "Additional Effect: Lightning damage over time"
+      "Additional Effect: Lightning damage over time",
     ],
     conditions: [],
     duration: {
-      seconds: 30
+      seconds: 30,
     },
     max_charges: null,
     source_url: "FFXIV_Job_Guide_Raw_blackmage_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   "High Thunder II": {
     id: "pve_action__32",
@@ -1015,19 +1015,19 @@ export const BlackMageConfig = {
     tooltip: "Deals lightning damage with a potency of 100 to target and all enemies nearby it.\nAdditional Effect: Lightning damage over time\nPotency: 40\nDuration: 24s\nCan only be cast while under the effect of Thunderhead, granted when gaining Astral Fire or Umbral Ice from an unaspected state, or changing between their influences.\nOnly one Thunder spell-induced damage over time effect per caster can be inflicted upon a single target.",
     potency: [
       "Deals lightning damage with a potency of 100 to target and all enemies nearby it.",
-      "Potency: 40"
+      "Potency: 40",
     ],
     effects: [
-      "Additional Effect: Lightning damage over time"
+      "Additional Effect: Lightning damage over time",
     ],
     conditions: [],
     duration: {
-      seconds: 24
+      seconds: 24,
     },
     max_charges: null,
     source_url: "FFXIV_Job_Guide_Raw_blackmage_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   Retrace: {
     id: "pve_action__33",
@@ -1045,13 +1045,13 @@ export const BlackMageConfig = {
     potency: [],
     effects: [],
     conditions: [
-      "Can only be executed while under the effect of Ley Lines, and the effect duration will not be reset."
+      "Can only be executed while under the effect of Ley Lines, and the effect duration will not be reset.",
     ],
     duration: null,
     max_charges: null,
     source_url: "FFXIV_Job_Guide_Raw_blackmage_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   Addle: {
     id: "mrange_action__01",
@@ -1070,12 +1070,12 @@ export const BlackMageConfig = {
     effects: [],
     conditions: [],
     duration: {
-      seconds: 15
+      seconds: 15,
     },
     max_charges: null,
     source_url: "FFXIV_Job_Guide_Raw_blackmage_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   Sleep: {
     id: "mrange_action__02",
@@ -1087,7 +1087,7 @@ export const BlackMageConfig = {
     cast: 2.5,
     recast: 2.5,
     cost: {
-      mp: 800
+      mp: 800,
     },
     range: 30,
     radius: 5,
@@ -1096,12 +1096,12 @@ export const BlackMageConfig = {
     effects: [],
     conditions: [],
     duration: {
-      seconds: 30
+      seconds: 30,
     },
     max_charges: null,
     source_url: "FFXIV_Job_Guide_Raw_blackmage_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   "Lucid Dreaming": {
     id: "mrange_action__03",
@@ -1117,17 +1117,17 @@ export const BlackMageConfig = {
     radius: 0,
     tooltip: "Gradually restores own MP.\nPotency: 55\nDuration: 21s",
     potency: [
-      "Potency: 55"
+      "Potency: 55",
     ],
     effects: [],
     conditions: [],
     duration: {
-      seconds: 21
+      seconds: 21,
     },
     max_charges: null,
     source_url: "FFXIV_Job_Guide_Raw_blackmage_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   Swiftcast: {
     id: "mrange_action__04",
@@ -1146,12 +1146,12 @@ export const BlackMageConfig = {
     effects: [],
     conditions: [],
     duration: {
-      seconds: 10
+      seconds: 10,
     },
     max_charges: null,
     source_url: "FFXIV_Job_Guide_Raw_blackmage_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   Surecast: {
     id: "mrange_action__05",
@@ -1168,17 +1168,17 @@ export const BlackMageConfig = {
     tooltip: "Spells can be cast without interruption.\nAdditional Effect: Nullifies most knockback and draw-in effects\nDuration: 6s",
     potency: [],
     effects: [
-      "Additional Effect: Nullifies most knockback and draw-in effects"
+      "Additional Effect: Nullifies most knockback and draw-in effects",
     ],
     conditions: [],
     duration: {
-      seconds: 6
+      seconds: 6,
     },
     max_charges: null,
     source_url: "FFXIV_Job_Guide_Raw_blackmage_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
-  }
+    language: "en",
+  },
 },
   rotations: [
     {

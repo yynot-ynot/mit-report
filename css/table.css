@@ -98,7 +98,7 @@
 
 /* On row hover, highlight target cell */
 .time-table tbody tr:hover td.target-cell {
-    border: 3px solid #ffd580;
+    border: 2px solid #ffd580;
     /* light yellow/orange border */
     background-color: #fff8dc;
     /* light yellow/orange fill */
@@ -190,6 +190,8 @@
     border-radius: 4px;
     box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
     pointer-events: none;
+    white-space: nowrap;
+    /* keep "Target" on one line */
     z-index: 2000;
 }
 

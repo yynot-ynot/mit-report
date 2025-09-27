@@ -14,7 +14,7 @@ export const RedMageConfig = {
     radius: 0,
     tooltip: "Delivers an attack with a potency of 130.\nAction upgraded to Enchanted Riposte if both Black Mana and White Mana are at 20 or more.",
     potency: [
-      "Delivers an attack with a potency of 130."
+      "Delivers an attack with a potency of 130.",
     ],
     effects: [],
     conditions: [],
@@ -22,7 +22,7 @@ export const RedMageConfig = {
     max_charges: null,
     source_url: "FFXIV_Job_Guide_Raw_redmage_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   Jolt: {
     id: "pve_action__02",
@@ -34,23 +34,23 @@ export const RedMageConfig = {
     cast: 2.0,
     recast: 2.5,
     cost: {
-      mp: 200
+      mp: 200,
     },
     range: 25,
     radius: 0,
     tooltip: "Deals unaspected damage with a potency of 170.\nAdditional Effect: Increases both Black Mana and White Mana by 2",
     potency: [
-      "Deals unaspected damage with a potency of 170."
+      "Deals unaspected damage with a potency of 170.",
     ],
     effects: [
-      "Additional Effect: Increases both Black Mana and White Mana by 2"
+      "Additional Effect: Increases both Black Mana and White Mana by 2",
     ],
     conditions: [],
     duration: null,
     max_charges: null,
     source_url: "FFXIV_Job_Guide_Raw_redmage_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   Verthunder: {
     id: "pve_action__03",
@@ -62,26 +62,26 @@ export const RedMageConfig = {
     cast: 5.0,
     recast: 2.5,
     cost: {
-      mp: 300
+      mp: 300,
     },
     range: 25,
     radius: 0,
     tooltip: "Deals lightning damage with a potency of 360.\nAdditional Effect: Increases Black Mana by 6\nAdditional Effect: 50% chance of becoming Verfire Ready\nDuration: 30s",
     potency: [
-      "Deals lightning damage with a potency of 360."
+      "Deals lightning damage with a potency of 360.",
     ],
     effects: [
       "Additional Effect: Increases Black Mana by 6",
-      "Additional Effect: 50% chance of becoming Verfire Ready"
+      "Additional Effect: 50% chance of becoming Verfire Ready",
     ],
     conditions: [],
     duration: {
-      seconds: 30
+      seconds: 30,
     },
     max_charges: null,
     source_url: "FFXIV_Job_Guide_Raw_redmage_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   "Corps-a-corps": {
     id: "pve_action__04",
@@ -97,7 +97,7 @@ export const RedMageConfig = {
     radius: 0,
     tooltip: "Rushes target and delivers an attack with a potency of 130.\nMaximum Charges: 2\nCannot be executed while bound.",
     potency: [
-      "Rushes target and delivers an attack with a potency of 130."
+      "Rushes target and delivers an attack with a potency of 130.",
     ],
     effects: [],
     conditions: [],
@@ -105,7 +105,7 @@ export const RedMageConfig = {
     max_charges: 2,
     source_url: "FFXIV_Job_Guide_Raw_redmage_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   Veraero: {
     id: "pve_action__05",
@@ -117,26 +117,26 @@ export const RedMageConfig = {
     cast: 5.0,
     recast: 2.5,
     cost: {
-      mp: 300
+      mp: 300,
     },
     range: 25,
     radius: 0,
     tooltip: "Deals wind damage with a potency of 360.\nAdditional Effect: Increases White Mana by 6\nAdditional Effect: 50% chance of becoming Verstone Ready\nDuration: 30s",
     potency: [
-      "Deals wind damage with a potency of 360."
+      "Deals wind damage with a potency of 360.",
     ],
     effects: [
       "Additional Effect: Increases White Mana by 6",
-      "Additional Effect: 50% chance of becoming Verstone Ready"
+      "Additional Effect: 50% chance of becoming Verstone Ready",
     ],
     conditions: [],
     duration: {
-      seconds: 30
+      seconds: 30,
     },
     max_charges: null,
     source_url: "FFXIV_Job_Guide_Raw_redmage_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   Scatter: {
     id: "pve_action__06",
@@ -148,24 +148,24 @@ export const RedMageConfig = {
     cast: 5.0,
     recast: 2.5,
     cost: {
-      mp: 400
+      mp: 400,
     },
     range: 25,
     radius: 5,
     tooltip: "Deals unaspected damage with a potency of 120 to target and all enemies nearby it.\nAcceleration Potency: 170\nAdditional Effect: Increases both Black Mana and White Mana by 3",
     potency: [
       "Deals unaspected damage with a potency of 120 to target and all enemies nearby it.",
-      "Acceleration Potency: 170"
+      "Acceleration Potency: 170",
     ],
     effects: [
-      "Additional Effect: Increases both Black Mana and White Mana by 3"
+      "Additional Effect: Increases both Black Mana and White Mana by 3",
     ],
     conditions: [],
     duration: null,
     max_charges: null,
     source_url: "FFXIV_Job_Guide_Raw_redmage_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   "Verthunder II": {
     id: "pve_action__07",
@@ -177,23 +177,23 @@ export const RedMageConfig = {
     cast: 2.0,
     recast: 2.5,
     cost: {
-      mp: 400
+      mp: 400,
     },
     range: 25,
     radius: 5,
     tooltip: "Deals lightning damage with a potency of 140 to target and all enemies nearby it.\nAdditional Effect: Increases Black Mana by 7",
     potency: [
-      "Deals lightning damage with a potency of 140 to target and all enemies nearby it."
+      "Deals lightning damage with a potency of 140 to target and all enemies nearby it.",
     ],
     effects: [
-      "Additional Effect: Increases Black Mana by 7"
+      "Additional Effect: Increases Black Mana by 7",
     ],
     conditions: [],
     duration: null,
     max_charges: null,
     source_url: "FFXIV_Job_Guide_Raw_redmage_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   "Veraero II": {
     id: "pve_action__08",
@@ -205,23 +205,23 @@ export const RedMageConfig = {
     cast: 2.0,
     recast: 2.5,
     cost: {
-      mp: 400
+      mp: 400,
     },
     range: 25,
     radius: 5,
     tooltip: "Deals wind damage with a potency of 140 to target and all enemies nearby it.\nAdditional Effect: Increases White Mana by 7",
     potency: [
-      "Deals wind damage with a potency of 140 to target and all enemies nearby it."
+      "Deals wind damage with a potency of 140 to target and all enemies nearby it.",
     ],
     effects: [
-      "Additional Effect: Increases White Mana by 7"
+      "Additional Effect: Increases White Mana by 7",
     ],
     conditions: [],
     duration: null,
     max_charges: null,
     source_url: "FFXIV_Job_Guide_Raw_redmage_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   Verfire: {
     id: "pve_action__09",
@@ -233,25 +233,25 @@ export const RedMageConfig = {
     cast: 2.0,
     recast: 2.5,
     cost: {
-      mp: 200
+      mp: 200,
     },
     range: 25,
     radius: 0,
     tooltip: "Deals fire damage with a potency of 380.\nAdditional Effect: Increases Black Mana by 5\nCan only be executed while Verfire Ready is active.",
     potency: [
-      "Deals fire damage with a potency of 380."
+      "Deals fire damage with a potency of 380.",
     ],
     effects: [
-      "Additional Effect: Increases Black Mana by 5"
+      "Additional Effect: Increases Black Mana by 5",
     ],
     conditions: [
-      "Can only be executed while Verfire Ready is active."
+      "Can only be executed while Verfire Ready is active.",
     ],
     duration: null,
     max_charges: null,
     source_url: "FFXIV_Job_Guide_Raw_redmage_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   Verstone: {
     id: "pve_action__10",
@@ -263,25 +263,25 @@ export const RedMageConfig = {
     cast: 2.0,
     recast: 2.5,
     cost: {
-      mp: 200
+      mp: 200,
     },
     range: 25,
     radius: 0,
     tooltip: "Deals earth damage with a potency of 380.\nAdditional Effect: Increases White Mana by 5\nCan only be executed while Verstone Ready is active.",
     potency: [
-      "Deals earth damage with a potency of 380."
+      "Deals earth damage with a potency of 380.",
     ],
     effects: [
-      "Additional Effect: Increases White Mana by 5"
+      "Additional Effect: Increases White Mana by 5",
     ],
     conditions: [
-      "Can only be executed while Verstone Ready is active."
+      "Can only be executed while Verstone Ready is active.",
     ],
     duration: null,
     max_charges: null,
     source_url: "FFXIV_Job_Guide_Raw_redmage_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   Zwerchhau: {
     id: "pve_action__11",
@@ -298,7 +298,7 @@ export const RedMageConfig = {
     tooltip: "Delivers an attack with a potency of 100.\nCombo Action: Riposte or Enchanted Riposte\nCombo Potency: 150\nAction upgraded to Enchanted Zwerchhau if both Black Mana and White Mana are at 15 or more.",
     potency: [
       "Delivers an attack with a potency of 100.",
-      "Combo Potency: 150"
+      "Combo Potency: 150",
     ],
     effects: [],
     conditions: [],
@@ -306,7 +306,7 @@ export const RedMageConfig = {
     max_charges: null,
     source_url: "FFXIV_Job_Guide_Raw_redmage_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   Displacement: {
     id: "pve_action__12",
@@ -322,19 +322,19 @@ export const RedMageConfig = {
     radius: 0,
     tooltip: "Delivers an attack with a potency of 180.\nAdditional Effect: 15-yalm backstep\nMaximum Charges: 2\nCannot be executed while bound.\nShares a recast timer with Engagement.",
     potency: [
-      "Delivers an attack with a potency of 180."
+      "Delivers an attack with a potency of 180.",
     ],
     effects: [
-      "Additional Effect: 15-yalm backstep"
+      "Additional Effect: 15-yalm backstep",
     ],
     conditions: [
-      "Shares a recast timer with Engagement."
+      "Shares a recast timer with Engagement.",
     ],
     duration: null,
     max_charges: 2,
     source_url: "FFXIV_Job_Guide_Raw_redmage_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   Engagement: {
     id: "pve_action__13",
@@ -350,17 +350,17 @@ export const RedMageConfig = {
     radius: 0,
     tooltip: "Delivers an attack with a potency of 180.\nMaximum Charges: 2\nShares a recast timer with Displacement.",
     potency: [
-      "Delivers an attack with a potency of 180."
+      "Delivers an attack with a potency of 180.",
     ],
     effects: [],
     conditions: [
-      "Shares a recast timer with Displacement."
+      "Shares a recast timer with Displacement.",
     ],
     duration: null,
     max_charges: 2,
     source_url: "FFXIV_Job_Guide_Raw_redmage_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   Fleche: {
     id: "pve_action__14",
@@ -376,7 +376,7 @@ export const RedMageConfig = {
     radius: 0,
     tooltip: "Delivers an attack with a potency of 480.",
     potency: [
-      "Delivers an attack with a potency of 480."
+      "Delivers an attack with a potency of 480.",
     ],
     effects: [],
     conditions: [],
@@ -384,7 +384,7 @@ export const RedMageConfig = {
     max_charges: null,
     source_url: "FFXIV_Job_Guide_Raw_redmage_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   Redoublement: {
     id: "pve_action__15",
@@ -401,7 +401,7 @@ export const RedMageConfig = {
     tooltip: "Delivers an attack with a potency of 100.\nCombo Action: Zwerchhau or Enchanted Zwerchhau\nCombo Potency: 230\nAction upgraded to Enchanted Redoublement if both Black Mana and White Mana are at 15 or more.",
     potency: [
       "Delivers an attack with a potency of 100.",
-      "Combo Potency: 230"
+      "Combo Potency: 230",
     ],
     effects: [],
     conditions: [],
@@ -409,7 +409,7 @@ export const RedMageConfig = {
     max_charges: null,
     source_url: "FFXIV_Job_Guide_Raw_redmage_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   Acceleration: {
     id: "pve_action__16",
@@ -425,21 +425,21 @@ export const RedMageConfig = {
     radius: 0,
     tooltip: "Ensures the next Verthunder III, Veraero III, or Impact can be cast immediately.\nDuration: 20s\nAdditional Effect: Increases the potency of Impact by 50\nAdditional Effect: Ensures Verthunder III and Veraero III trigger Verfire Ready or Verstone Ready respectively\nAdditional Effect: Grants Grand Impact Ready\nDuration: 30s\nMaximum Charges: 2",
     potency: [
-      "Additional Effect: Increases the potency of Impact by 50"
+      "Additional Effect: Increases the potency of Impact by 50",
     ],
     effects: [
       "Additional Effect: Increases the potency of Impact by 50",
       "Additional Effect: Ensures Verthunder III and Veraero III trigger Verfire Ready or Verstone Ready respectively",
-      "Additional Effect: Grants Grand Impact Ready"
+      "Additional Effect: Grants Grand Impact Ready",
     ],
     conditions: [],
     duration: {
-      seconds: 30
+      seconds: 30,
     },
     max_charges: 2,
     source_url: "FFXIV_Job_Guide_Raw_redmage_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   Moulinet: {
     id: "pve_action__17",
@@ -455,7 +455,7 @@ export const RedMageConfig = {
     radius: 8,
     tooltip: "Delivers an attack with a potency of 60 to all enemies in a cone before you.\nAction upgraded to Enchanted Moulinet if both Black Mana and White Mana are at 20 or more.",
     potency: [
-      "Delivers an attack with a potency of 60 to all enemies in a cone before you."
+      "Delivers an attack with a potency of 60 to all enemies in a cone before you.",
     ],
     effects: [],
     conditions: [],
@@ -463,7 +463,7 @@ export const RedMageConfig = {
     max_charges: null,
     source_url: "FFXIV_Job_Guide_Raw_redmage_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   Vercure: {
     id: "pve_action__18",
@@ -475,13 +475,13 @@ export const RedMageConfig = {
     cast: 2.0,
     recast: 2.5,
     cost: {
-      mp: 500
+      mp: 500,
     },
     range: 30,
     radius: 0,
     tooltip: "Restores target's HP.\nCure Potency: 350",
     potency: [
-      "Cure Potency: 350"
+      "Cure Potency: 350",
     ],
     effects: [],
     conditions: [],
@@ -489,7 +489,7 @@ export const RedMageConfig = {
     max_charges: null,
     source_url: "FFXIV_Job_Guide_Raw_redmage_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   "Contre Sixte": {
     id: "pve_action__19",
@@ -505,7 +505,7 @@ export const RedMageConfig = {
     radius: 6,
     tooltip: "Delivers an attack with a potency of 420 to target and all enemies nearby it.",
     potency: [
-      "Delivers an attack with a potency of 420 to target and all enemies nearby it."
+      "Delivers an attack with a potency of 420 to target and all enemies nearby it.",
     ],
     effects: [],
     conditions: [],
@@ -513,7 +513,7 @@ export const RedMageConfig = {
     max_charges: null,
     source_url: "FFXIV_Job_Guide_Raw_redmage_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   Embolden: {
     id: "pve_action__20",
@@ -530,16 +530,16 @@ export const RedMageConfig = {
     tooltip: "Increases own magic damage dealt by 5% and damage dealt by nearby party members by 5%.\nDuration: 20s\nAdditional Effect: Grants Thorned Flourish\nDuration: 30s",
     potency: [],
     effects: [
-      "Additional Effect: Grants Thorned Flourish"
+      "Additional Effect: Grants Thorned Flourish",
     ],
     conditions: [],
     duration: {
-      seconds: 30
+      seconds: 30,
     },
     max_charges: null,
     source_url: "FFXIV_Job_Guide_Raw_redmage_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   Manafication: {
     id: "pve_action__21",
@@ -558,18 +558,18 @@ export const RedMageConfig = {
     effects: [
       "Additional Effect: Grants 6 stacks of Manafication",
       "Manafication Effect: Increases magic damage dealt by 5%",
-      "Additional Effect: Grants Prefulgence Ready upon consuming 6 stacks of Manafication"
+      "Additional Effect: Grants Prefulgence Ready upon consuming 6 stacks of Manafication",
     ],
     conditions: [
-      "Can only be executed while in combat."
+      "Can only be executed while in combat.",
     ],
     duration: {
-      seconds: 30
+      seconds: 30,
     },
     max_charges: null,
     source_url: "FFXIV_Job_Guide_Raw_redmage_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   "Jolt II": {
     id: "pve_action__22",
@@ -581,23 +581,23 @@ export const RedMageConfig = {
     cast: 2.0,
     recast: 2.5,
     cost: {
-      mp: 200
+      mp: 200,
     },
     range: 25,
     radius: 0,
     tooltip: "Deals unaspected damage with a potency of 280.\nAdditional Effect: Increases both Black Mana and White Mana by 2",
     potency: [
-      "Deals unaspected damage with a potency of 280."
+      "Deals unaspected damage with a potency of 280.",
     ],
     effects: [
-      "Additional Effect: Increases both Black Mana and White Mana by 2"
+      "Additional Effect: Increases both Black Mana and White Mana by 2",
     ],
     conditions: [],
     duration: null,
     max_charges: null,
     source_url: "FFXIV_Job_Guide_Raw_redmage_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   Verraise: {
     id: "pve_action__23",
@@ -609,7 +609,7 @@ export const RedMageConfig = {
     cast: 10.0,
     recast: 2.5,
     cost: {
-      mp: 2400
+      mp: 2400,
     },
     range: 30,
     radius: 0,
@@ -621,7 +621,7 @@ export const RedMageConfig = {
     max_charges: null,
     source_url: "FFXIV_Job_Guide_Raw_redmage_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   Impact: {
     id: "pve_action__24",
@@ -633,24 +633,24 @@ export const RedMageConfig = {
     cast: 5.0,
     recast: 2.5,
     cost: {
-      mp: 400
+      mp: 400,
     },
     range: 25,
     radius: 5,
     tooltip: "Deals unaspected damage with a potency of 210 to target and all enemies nearby it.\nAcceleration Potency: 260\nAdditional Effect: Increases both Black Mana and White Mana by 3",
     potency: [
       "Deals unaspected damage with a potency of 210 to target and all enemies nearby it.",
-      "Acceleration Potency: 260"
+      "Acceleration Potency: 260",
     ],
     effects: [
-      "Additional Effect: Increases both Black Mana and White Mana by 3"
+      "Additional Effect: Increases both Black Mana and White Mana by 3",
     ],
     conditions: [],
     duration: null,
     max_charges: null,
     source_url: "FFXIV_Job_Guide_Raw_redmage_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   Verflare: {
     id: "pve_action__25",
@@ -662,28 +662,28 @@ export const RedMageConfig = {
     cast: 0.0,
     recast: 2.5,
     cost: {
-      mp: 400
+      mp: 400,
     },
     range: 25,
     radius: 5,
     tooltip: "Deals fire damage to target and all enemies nearby it with a potency of 650 for the first enemy, and 55% less for all remaining enemies.\nAdditional Effect: Increases Black Mana by 11\nAdditional Effect: 20% chance of becoming Verfire Ready\nDuration: 30s\nChance to become Verfire Ready increases to 100% if White Mana is higher than Black Mana at time of execution.\nMana Stack Cost: 3\n\n※This action cannot be assigned to a hotbar.\n※Verthunder III and Verthunder II change to Verflare when requirements for execution are met.",
     potency: [
-      "Deals fire damage to target and all enemies nearby it with a potency of 650 for the first enemy, and 55% less for all remaining enemies."
+      "Deals fire damage to target and all enemies nearby it with a potency of 650 for the first enemy, and 55% less for all remaining enemies.",
     ],
     effects: [
       "Additional Effect: Increases Black Mana by 11",
-      "Additional Effect: 20% chance of becoming Verfire Ready"
+      "Additional Effect: 20% chance of becoming Verfire Ready",
     ],
     conditions: [
-      "※This action cannot be assigned to a hotbar."
+      "※This action cannot be assigned to a hotbar.",
     ],
     duration: {
-      seconds: 30
+      seconds: 30,
     },
     max_charges: null,
     source_url: "FFXIV_Job_Guide_Raw_redmage_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   Verholy: {
     id: "pve_action__26",
@@ -695,28 +695,28 @@ export const RedMageConfig = {
     cast: 0.0,
     recast: 2.5,
     cost: {
-      mp: 400
+      mp: 400,
     },
     range: 25,
     radius: 5,
     tooltip: "Deals unaspected damage to target and all enemies nearby it with a potency of 650 for the first enemy, and 55% less for all remaining enemies.\nAdditional Effect: Increases White Mana by 11\nAdditional Effect: 20% chance of becoming Verstone Ready\nDuration: 30s\nChance to become Verstone Ready increases to 100% if Black Mana is higher than White Mana at time of execution.\nMana Stack Cost: 3\n\n※This action cannot be assigned to a hotbar.\n※Veraero III and Veraero II change to Verholy when requirements for execution are met.",
     potency: [
-      "Deals unaspected damage to target and all enemies nearby it with a potency of 650 for the first enemy, and 55% less for all remaining enemies."
+      "Deals unaspected damage to target and all enemies nearby it with a potency of 650 for the first enemy, and 55% less for all remaining enemies.",
     ],
     effects: [
       "Additional Effect: Increases White Mana by 11",
-      "Additional Effect: 20% chance of becoming Verstone Ready"
+      "Additional Effect: 20% chance of becoming Verstone Ready",
     ],
     conditions: [
-      "※This action cannot be assigned to a hotbar."
+      "※This action cannot be assigned to a hotbar.",
     ],
     duration: {
-      seconds: 30
+      seconds: 30,
     },
     max_charges: null,
     source_url: "FFXIV_Job_Guide_Raw_redmage_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   Reprise: {
     id: "pve_action__27",
@@ -732,7 +732,7 @@ export const RedMageConfig = {
     radius: 0,
     tooltip: "Delivers an attack with a potency of 100.\nAction upgraded to Enchanted Reprise if both Black Mana and White Mana are at 5 or more.",
     potency: [
-      "Delivers an attack with a potency of 100."
+      "Delivers an attack with a potency of 100.",
     ],
     effects: [],
     conditions: [],
@@ -740,7 +740,7 @@ export const RedMageConfig = {
     max_charges: null,
     source_url: "FFXIV_Job_Guide_Raw_redmage_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   Scorch: {
     id: "pve_action__28",
@@ -752,26 +752,26 @@ export const RedMageConfig = {
     cast: 0.0,
     recast: 2.5,
     cost: {
-      mp: 400
+      mp: 400,
     },
     range: 25,
     radius: 5,
     tooltip: "Deals unaspected damage to target and all enemies nearby it with a potency of 750 for the first enemy, and 55% less for all remaining enemies.\nCombo Action: Verflare or Verholy\nAdditional Effect: Increases both Black Mana and White Mana by 4\nCan only be executed after successfully landing Verflare or Verholy as a combo action.\n\n※This action cannot be assigned to a hotbar.\n※Jolt III and Impact change to Scorch when requirements for execution are met.",
     potency: [
-      "Deals unaspected damage to target and all enemies nearby it with a potency of 750 for the first enemy, and 55% less for all remaining enemies."
+      "Deals unaspected damage to target and all enemies nearby it with a potency of 750 for the first enemy, and 55% less for all remaining enemies.",
     ],
     effects: [
-      "Additional Effect: Increases both Black Mana and White Mana by 4"
+      "Additional Effect: Increases both Black Mana and White Mana by 4",
     ],
     conditions: [
       "Can only be executed after successfully landing Verflare or Verholy as a combo action.",
-      "※This action cannot be assigned to a hotbar."
+      "※This action cannot be assigned to a hotbar.",
     ],
     duration: null,
     max_charges: null,
     source_url: "FFXIV_Job_Guide_Raw_redmage_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   "Verthunder III": {
     id: "pve_action__29",
@@ -783,26 +783,26 @@ export const RedMageConfig = {
     cast: 5.0,
     recast: 2.5,
     cost: {
-      mp: 300
+      mp: 300,
     },
     range: 25,
     radius: 0,
     tooltip: "Deals lightning damage with a potency of 440.\nAdditional Effect: Increases Black Mana by 6\nAdditional Effect: 50% chance of becoming Verfire Ready\nDuration: 30s",
     potency: [
-      "Deals lightning damage with a potency of 440."
+      "Deals lightning damage with a potency of 440.",
     ],
     effects: [
       "Additional Effect: Increases Black Mana by 6",
-      "Additional Effect: 50% chance of becoming Verfire Ready"
+      "Additional Effect: 50% chance of becoming Verfire Ready",
     ],
     conditions: [],
     duration: {
-      seconds: 30
+      seconds: 30,
     },
     max_charges: null,
     source_url: "FFXIV_Job_Guide_Raw_redmage_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   "Veraero III": {
     id: "pve_action__30",
@@ -814,26 +814,26 @@ export const RedMageConfig = {
     cast: 5.0,
     recast: 2.5,
     cost: {
-      mp: 300
+      mp: 300,
     },
     range: 25,
     radius: 0,
     tooltip: "Deals wind damage with a potency of 440.\nAdditional Effect: Increases White Mana by 6\nAdditional Effect: 50% chance of becoming Verstone Ready\nDuration: 30s",
     potency: [
-      "Deals wind damage with a potency of 440."
+      "Deals wind damage with a potency of 440.",
     ],
     effects: [
       "Additional Effect: Increases White Mana by 6",
-      "Additional Effect: 50% chance of becoming Verstone Ready"
+      "Additional Effect: 50% chance of becoming Verstone Ready",
     ],
     conditions: [],
     duration: {
-      seconds: 30
+      seconds: 30,
     },
     max_charges: null,
     source_url: "FFXIV_Job_Guide_Raw_redmage_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   "Jolt III": {
     id: "pve_action__31",
@@ -845,23 +845,23 @@ export const RedMageConfig = {
     cast: 2.0,
     recast: 2.5,
     cost: {
-      mp: 200
+      mp: 200,
     },
     range: 25,
     radius: 0,
     tooltip: "Deals unaspected damage with a potency of 360.\nAdditional Effect: Increases both Black Mana and White Mana by 2",
     potency: [
-      "Deals unaspected damage with a potency of 360."
+      "Deals unaspected damage with a potency of 360.",
     ],
     effects: [
-      "Additional Effect: Increases both Black Mana and White Mana by 2"
+      "Additional Effect: Increases both Black Mana and White Mana by 2",
     ],
     conditions: [],
     duration: null,
     max_charges: null,
     source_url: "FFXIV_Job_Guide_Raw_redmage_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   "Magick Barrier": {
     id: "pve_action__32",
@@ -880,12 +880,12 @@ export const RedMageConfig = {
     effects: [],
     conditions: [],
     duration: {
-      seconds: 10
+      seconds: 10,
     },
     max_charges: null,
     source_url: "FFXIV_Job_Guide_Raw_redmage_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   Resolution: {
     id: "pve_action__33",
@@ -897,26 +897,26 @@ export const RedMageConfig = {
     cast: 0.0,
     recast: 2.5,
     cost: {
-      mp: 400
+      mp: 400,
     },
     range: 25,
     radius: 25,
     tooltip: "Deals unaspected damage to all enemies in a straight line before you with a potency of 850 for the first enemy, and 55% less for all remaining enemies.\nCombo Action: Scorch\nAdditional Effect: Increases both Black Mana and White Mana by 4\nCan only be executed after successfully landing Scorch as a combo action.\n\n※This action cannot be assigned to a hotbar.\n※Scorch changes to Resolution when requirements for execution are met.",
     potency: [
-      "Deals unaspected damage to all enemies in a straight line before you with a potency of 850 for the first enemy, and 55% less for all remaining enemies."
+      "Deals unaspected damage to all enemies in a straight line before you with a potency of 850 for the first enemy, and 55% less for all remaining enemies.",
     ],
     effects: [
-      "Additional Effect: Increases both Black Mana and White Mana by 4"
+      "Additional Effect: Increases both Black Mana and White Mana by 4",
     ],
     conditions: [
       "Can only be executed after successfully landing Scorch as a combo action.",
-      "※This action cannot be assigned to a hotbar."
+      "※This action cannot be assigned to a hotbar.",
     ],
     duration: null,
     max_charges: null,
     source_url: "FFXIV_Job_Guide_Raw_redmage_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   "Vice of Thorns": {
     id: "pve_action__34",
@@ -932,17 +932,17 @@ export const RedMageConfig = {
     radius: 5,
     tooltip: "Deals unaspected damage to target and all enemies nearby it with a potency of 900 for the first enemy, and 55% less for all remaining enemies.\nCan only be executed while under the effect of Thorned Flourish.",
     potency: [
-      "Deals unaspected damage to target and all enemies nearby it with a potency of 900 for the first enemy, and 55% less for all remaining enemies."
+      "Deals unaspected damage to target and all enemies nearby it with a potency of 900 for the first enemy, and 55% less for all remaining enemies.",
     ],
     effects: [],
     conditions: [
-      "Can only be executed while under the effect of Thorned Flourish."
+      "Can only be executed while under the effect of Thorned Flourish.",
     ],
     duration: null,
     max_charges: null,
     source_url: "FFXIV_Job_Guide_Raw_redmage_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   "Grand Impact": {
     id: "pve_action__35",
@@ -954,26 +954,26 @@ export const RedMageConfig = {
     cast: 0.0,
     recast: 2.5,
     cost: {
-      mp: 400
+      mp: 400,
     },
     range: 25,
     radius: 5,
     tooltip: "Deals unaspected damage to target and all enemies nearby it with a potency of 600 for the first enemy, and 55% less for all remaining enemies.\nAdditional Effect: Increases both Black Mana and White Mana by 3\nCan only be executed while under the effect of Grand Impact Ready.\n\n※This action cannot be assigned to a hotbar.\n※Jolt III and Impact change to Grand Impact when requirements for execution are met.",
     potency: [
-      "Deals unaspected damage to target and all enemies nearby it with a potency of 600 for the first enemy, and 55% less for all remaining enemies."
+      "Deals unaspected damage to target and all enemies nearby it with a potency of 600 for the first enemy, and 55% less for all remaining enemies.",
     ],
     effects: [
-      "Additional Effect: Increases both Black Mana and White Mana by 3"
+      "Additional Effect: Increases both Black Mana and White Mana by 3",
     ],
     conditions: [
       "Can only be executed while under the effect of Grand Impact Ready.",
-      "※This action cannot be assigned to a hotbar."
+      "※This action cannot be assigned to a hotbar.",
     ],
     duration: null,
     max_charges: null,
     source_url: "FFXIV_Job_Guide_Raw_redmage_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   Prefulgence: {
     id: "pve_action__36",
@@ -989,18 +989,18 @@ export const RedMageConfig = {
     radius: 5,
     tooltip: "Deals unaspected damage to target and all enemies nearby it with a potency of 1,200 for the first enemy, and 55% less for all remaining enemies.\nCan only be executed while under the effect of Prefulgence Ready.\n\n※This action cannot be assigned to a hotbar.\n※Manafication changes to Prefulgence when requirements for execution are met.",
     potency: [
-      "Deals unaspected damage to target and all enemies nearby it with a potency of 1,200 for the first enemy, and 55% less for all remaining enemies."
+      "Deals unaspected damage to target and all enemies nearby it with a potency of 1,200 for the first enemy, and 55% less for all remaining enemies.",
     ],
     effects: [],
     conditions: [
       "Can only be executed while under the effect of Prefulgence Ready.",
-      "※This action cannot be assigned to a hotbar."
+      "※This action cannot be assigned to a hotbar.",
     ],
     duration: null,
     max_charges: null,
     source_url: "FFXIV_Job_Guide_Raw_redmage_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   "Enchanted Riposte": {
     id: "pve_action__37",
@@ -1016,19 +1016,19 @@ export const RedMageConfig = {
     radius: 0,
     tooltip: "Deals unaspected damage with a potency of 340.\nAdditional Effect: Grants a Mana Stack\nBalance Gauge Cost: 20 Black Mana\nBalance Gauge Cost: 20 White Mana\n\n※This action cannot be assigned to a hotbar.\n※Riposte changes to Enchanted Riposte when requirements for execution are met.",
     potency: [
-      "Deals unaspected damage with a potency of 340."
+      "Deals unaspected damage with a potency of 340.",
     ],
     effects: [
-      "Additional Effect: Grants a Mana Stack"
+      "Additional Effect: Grants a Mana Stack",
     ],
     conditions: [
-      "※This action cannot be assigned to a hotbar."
+      "※This action cannot be assigned to a hotbar.",
     ],
     duration: null,
     max_charges: null,
     source_url: "FFXIV_Job_Guide_Raw_redmage_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   "Enchanted Zwerchhau": {
     id: "pve_action__38",
@@ -1045,19 +1045,19 @@ export const RedMageConfig = {
     tooltip: "Deals unaspected damage with a potency of 190.\nCombo Action: Riposte or Enchanted Riposte\nCombo Potency: 380\nAdditional Effect: Grants a Mana Stack\nBalance Gauge Cost: 15 Black Mana\nBalance Gauge Cost: 15 White Mana\n\n※This action cannot be assigned to a hotbar.\n※Zwerchhau changes to Enchanted Zwerchhau when requirements for execution are met.",
     potency: [
       "Deals unaspected damage with a potency of 190.",
-      "Combo Potency: 380"
+      "Combo Potency: 380",
     ],
     effects: [
-      "Additional Effect: Grants a Mana Stack"
+      "Additional Effect: Grants a Mana Stack",
     ],
     conditions: [
-      "※This action cannot be assigned to a hotbar."
+      "※This action cannot be assigned to a hotbar.",
     ],
     duration: null,
     max_charges: null,
     source_url: "FFXIV_Job_Guide_Raw_redmage_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   "Enchanted Redoublement": {
     id: "pve_action__39",
@@ -1074,19 +1074,19 @@ export const RedMageConfig = {
     tooltip: "Deals unaspected damage with a potency of 190.\nCombo Action: Enchanted Zwerchhau\nCombo Potency: 560\nAdditional Effect: Grants a Mana Stack\nBalance Gauge Cost: 15 Black Mana\nBalance Gauge Cost: 15 White Mana\n\n※This action cannot be assigned to a hotbar.\n※Redoublement changes to Enchanted Redoublement when requirements for execution are met.",
     potency: [
       "Deals unaspected damage with a potency of 190.",
-      "Combo Potency: 560"
+      "Combo Potency: 560",
     ],
     effects: [
-      "Additional Effect: Grants a Mana Stack"
+      "Additional Effect: Grants a Mana Stack",
     ],
     conditions: [
-      "※This action cannot be assigned to a hotbar."
+      "※This action cannot be assigned to a hotbar.",
     ],
     duration: null,
     max_charges: null,
     source_url: "FFXIV_Job_Guide_Raw_redmage_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   "Enchanted Moulinet": {
     id: "pve_action__40",
@@ -1102,19 +1102,19 @@ export const RedMageConfig = {
     radius: 8,
     tooltip: "Deals unaspected damage with a potency of 130 to all enemies in a cone before you.\nAdditional Effect: Grants a Mana Stack\nBalance Gauge Cost: 20 Black Mana\nBalance Gauge Cost: 20 White Mana\n\n※This action cannot be assigned to a hotbar.\n※Moulinet changes to Enchanted Moulinet when requirements for execution are met.",
     potency: [
-      "Deals unaspected damage with a potency of 130 to all enemies in a cone before you."
+      "Deals unaspected damage with a potency of 130 to all enemies in a cone before you.",
     ],
     effects: [
-      "Additional Effect: Grants a Mana Stack"
+      "Additional Effect: Grants a Mana Stack",
     ],
     conditions: [
-      "※This action cannot be assigned to a hotbar."
+      "※This action cannot be assigned to a hotbar.",
     ],
     duration: null,
     max_charges: null,
     source_url: "FFXIV_Job_Guide_Raw_redmage_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   "Enchanted Moulinet Deux": {
     id: "pve_action__41",
@@ -1130,19 +1130,19 @@ export const RedMageConfig = {
     radius: 8,
     tooltip: "Deals unaspected damage with a potency of 140 to all enemies in a cone before you.\nCombo Action: Enchanted Moulinet\nAdditional Effect: Grants a Mana Stack\nBalance Gauge Cost: 15 Black Mana\nBalance Gauge Cost: 15 White Mana\n\n※This action cannot be assigned to a hotbar.\n※Enchanted Moulinet changes to Enchanted Moulinet Deux when requirements for execution are met.",
     potency: [
-      "Deals unaspected damage with a potency of 140 to all enemies in a cone before you."
+      "Deals unaspected damage with a potency of 140 to all enemies in a cone before you.",
     ],
     effects: [
-      "Additional Effect: Grants a Mana Stack"
+      "Additional Effect: Grants a Mana Stack",
     ],
     conditions: [
-      "※This action cannot be assigned to a hotbar."
+      "※This action cannot be assigned to a hotbar.",
     ],
     duration: null,
     max_charges: null,
     source_url: "FFXIV_Job_Guide_Raw_redmage_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   "Enchanted Moulinet Trois": {
     id: "pve_action__42",
@@ -1158,19 +1158,19 @@ export const RedMageConfig = {
     radius: 8,
     tooltip: "Deals unaspected damage with a potency of 150 to all enemies in a cone before you.\nCombo Action: Enchanted Moulinet Deux\nAdditional Effect: Grants a Mana Stack\nBalance Gauge Cost: 15 Black Mana\nBalance Gauge Cost: 15 White Mana\n\n※This action cannot be assigned to a hotbar.\n※Enchanted Moulinet Deux changes to Enchanted Moulinet Trois when requirements for execution are met.",
     potency: [
-      "Deals unaspected damage with a potency of 150 to all enemies in a cone before you."
+      "Deals unaspected damage with a potency of 150 to all enemies in a cone before you.",
     ],
     effects: [
-      "Additional Effect: Grants a Mana Stack"
+      "Additional Effect: Grants a Mana Stack",
     ],
     conditions: [
-      "※This action cannot be assigned to a hotbar."
+      "※This action cannot be assigned to a hotbar.",
     ],
     duration: null,
     max_charges: null,
     source_url: "FFXIV_Job_Guide_Raw_redmage_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   "Enchanted Reprise": {
     id: "pve_action__43",
@@ -1186,17 +1186,17 @@ export const RedMageConfig = {
     radius: 0,
     tooltip: "Deals unaspected damage with a potency of 420.\nBalance Gauge Cost: 5 Black Mana\nBalance Gauge Cost: 5 White Mana\n\n※This action cannot be assigned to a hotbar.\n※Reprise changes to Enchanted Reprise when requirements for execution are met.",
     potency: [
-      "Deals unaspected damage with a potency of 420."
+      "Deals unaspected damage with a potency of 420.",
     ],
     effects: [],
     conditions: [
-      "※This action cannot be assigned to a hotbar."
+      "※This action cannot be assigned to a hotbar.",
     ],
     duration: null,
     max_charges: null,
     source_url: "FFXIV_Job_Guide_Raw_redmage_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   Addle: {
     id: "mrange_action__01",
@@ -1215,12 +1215,12 @@ export const RedMageConfig = {
     effects: [],
     conditions: [],
     duration: {
-      seconds: 15
+      seconds: 15,
     },
     max_charges: null,
     source_url: "FFXIV_Job_Guide_Raw_redmage_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   Sleep: {
     id: "mrange_action__02",
@@ -1232,7 +1232,7 @@ export const RedMageConfig = {
     cast: 2.5,
     recast: 2.5,
     cost: {
-      mp: 800
+      mp: 800,
     },
     range: 30,
     radius: 5,
@@ -1241,12 +1241,12 @@ export const RedMageConfig = {
     effects: [],
     conditions: [],
     duration: {
-      seconds: 30
+      seconds: 30,
     },
     max_charges: null,
     source_url: "FFXIV_Job_Guide_Raw_redmage_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   "Lucid Dreaming": {
     id: "mrange_action__03",
@@ -1262,17 +1262,17 @@ export const RedMageConfig = {
     radius: 0,
     tooltip: "Gradually restores own MP.\nPotency: 55\nDuration: 21s",
     potency: [
-      "Potency: 55"
+      "Potency: 55",
     ],
     effects: [],
     conditions: [],
     duration: {
-      seconds: 21
+      seconds: 21,
     },
     max_charges: null,
     source_url: "FFXIV_Job_Guide_Raw_redmage_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   Swiftcast: {
     id: "mrange_action__04",
@@ -1291,12 +1291,12 @@ export const RedMageConfig = {
     effects: [],
     conditions: [],
     duration: {
-      seconds: 10
+      seconds: 10,
     },
     max_charges: null,
     source_url: "FFXIV_Job_Guide_Raw_redmage_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   Surecast: {
     id: "mrange_action__05",
@@ -1313,17 +1313,17 @@ export const RedMageConfig = {
     tooltip: "Spells can be cast without interruption.\nAdditional Effect: Nullifies most knockback and draw-in effects\nDuration: 6s",
     potency: [],
     effects: [
-      "Additional Effect: Nullifies most knockback and draw-in effects"
+      "Additional Effect: Nullifies most knockback and draw-in effects",
     ],
     conditions: [],
     duration: {
-      seconds: 6
+      seconds: 6,
     },
     max_charges: null,
     source_url: "FFXIV_Job_Guide_Raw_redmage_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
-  }
+    language: "en",
+  },
 },
   rotations: []
 };

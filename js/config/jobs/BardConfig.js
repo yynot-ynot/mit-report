@@ -14,19 +14,19 @@ export const BardConfig = {
     radius: 0,
     tooltip: "Delivers an attack with a potency of 160.\nAdditional Effect: 20% chance of granting Hawk's Eye\nDuration: 30s",
     potency: [
-      "Delivers an attack with a potency of 160."
+      "Delivers an attack with a potency of 160.",
     ],
     effects: [
-      "Additional Effect: 20% chance of granting Hawk's Eye"
+      "Additional Effect: 20% chance of granting Hawk's Eye",
     ],
     conditions: [],
     duration: {
-      seconds: 30
+      seconds: 30,
     },
     max_charges: null,
     source_url: "FFXIV_Job_Guide_Raw_bard_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   "Straight Shot": {
     id: "pve_action__02",
@@ -42,17 +42,17 @@ export const BardConfig = {
     radius: 0,
     tooltip: "Delivers an attack with a potency of 200.\nCan only be executed when under the effect of Hawk's Eye or Barrage.",
     potency: [
-      "Delivers an attack with a potency of 200."
+      "Delivers an attack with a potency of 200.",
     ],
     effects: [],
     conditions: [
-      "Can only be executed when under the effect of Hawk's Eye or Barrage."
+      "Can only be executed when under the effect of Hawk's Eye or Barrage.",
     ],
     duration: null,
     max_charges: null,
     source_url: "FFXIV_Job_Guide_Raw_bard_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   "Raging Strikes": {
     id: "pve_action__03",
@@ -71,12 +71,12 @@ export const BardConfig = {
     effects: [],
     conditions: [],
     duration: {
-      seconds: 20
+      seconds: 20,
     },
     max_charges: null,
     source_url: "FFXIV_Job_Guide_Raw_bard_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   "Venomous Bite": {
     id: "pve_action__04",
@@ -93,19 +93,19 @@ export const BardConfig = {
     tooltip: "Delivers an attack with a potency of 100.\nAdditional Effect: Venom\nPotency: 15\nDuration: 45s",
     potency: [
       "Delivers an attack with a potency of 100.",
-      "Potency: 15"
+      "Potency: 15",
     ],
     effects: [
-      "Additional Effect: Venom"
+      "Additional Effect: Venom",
     ],
     conditions: [],
     duration: {
-      seconds: 45
+      seconds: 45,
     },
     max_charges: null,
     source_url: "FFXIV_Job_Guide_Raw_bard_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   Bloodletter: {
     id: "pve_action__05",
@@ -121,17 +121,17 @@ export const BardConfig = {
     radius: 0,
     tooltip: "Delivers an attack with a potency of 130.\nMaximum Charges: 3\nShares a recast timer with Rain of Death.",
     potency: [
-      "Delivers an attack with a potency of 130."
+      "Delivers an attack with a potency of 130.",
     ],
     effects: [],
     conditions: [
-      "Shares a recast timer with Rain of Death."
+      "Shares a recast timer with Rain of Death.",
     ],
     duration: null,
     max_charges: 3,
     source_url: "FFXIV_Job_Guide_Raw_bard_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   "Repelling Shot": {
     id: "pve_action__06",
@@ -153,7 +153,7 @@ export const BardConfig = {
     max_charges: null,
     source_url: "FFXIV_Job_Guide_Raw_bard_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   "Quick Nock": {
     id: "pve_action__07",
@@ -169,19 +169,19 @@ export const BardConfig = {
     radius: 12,
     tooltip: "Delivers an attack with a potency of 110 to all enemies in a cone before you.\nAdditional Effect: 20% chance of granting Hawk's Eye\nDuration: 30s",
     potency: [
-      "Delivers an attack with a potency of 110 to all enemies in a cone before you."
+      "Delivers an attack with a potency of 110 to all enemies in a cone before you.",
     ],
     effects: [
-      "Additional Effect: 20% chance of granting Hawk's Eye"
+      "Additional Effect: 20% chance of granting Hawk's Eye",
     ],
     conditions: [],
     duration: {
-      seconds: 30
+      seconds: 30,
     },
     max_charges: null,
     source_url: "FFXIV_Job_Guide_Raw_bard_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   "Wide Volley": {
     id: "pve_action__08",
@@ -198,17 +198,17 @@ export const BardConfig = {
     tooltip: "Delivers an attack with a potency of 140 to target and all enemies nearby it.\nBarrage Potency: 220\nCan only be executed while under the effect of Hawk's Eye or Barrage.",
     potency: [
       "Delivers an attack with a potency of 140 to target and all enemies nearby it.",
-      "Barrage Potency: 220"
+      "Barrage Potency: 220",
     ],
     effects: [],
     conditions: [
-      "Can only be executed while under the effect of Hawk's Eye or Barrage."
+      "Can only be executed while under the effect of Hawk's Eye or Barrage.",
     ],
     duration: null,
     max_charges: null,
     source_url: "FFXIV_Job_Guide_Raw_bard_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   Windbite: {
     id: "pve_action__09",
@@ -225,19 +225,19 @@ export const BardConfig = {
     tooltip: "Deals wind damage with a potency of 60.\nAdditional Effect: Wind damage over time\nPotency: 20\nDuration: 45s",
     potency: [
       "Deals wind damage with a potency of 60.",
-      "Potency: 20"
+      "Potency: 20",
     ],
     effects: [
-      "Additional Effect: Wind damage over time"
+      "Additional Effect: Wind damage over time",
     ],
     conditions: [],
     duration: {
-      seconds: 45
+      seconds: 45,
     },
     max_charges: null,
     source_url: "FFXIV_Job_Guide_Raw_bard_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   "Mage's Ballad": {
     id: "pve_action__10",
@@ -256,18 +256,18 @@ export const BardConfig = {
     effects: [
       "Additional Effect: 80% chance to grant Repertoire",
       "Repertoire Effect: Reduces the recast time of Heartbreak Shot and Rain of Death by 7.5s",
-      "Additional Effect: Grants Mage's Coda"
+      "Additional Effect: Grants Mage's Coda",
     ],
     conditions: [
-      "Can only be executed while in combat."
+      "Can only be executed while in combat.",
     ],
     duration: {
-      seconds: 45
+      seconds: 45,
     },
     max_charges: null,
     source_url: "FFXIV_Job_Guide_Raw_bard_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   "The Warden's Paean": {
     id: "pve_action__11",
@@ -286,12 +286,12 @@ export const BardConfig = {
     effects: [],
     conditions: [],
     duration: {
-      seconds: 30
+      seconds: 30,
     },
     max_charges: null,
     source_url: "FFXIV_Job_Guide_Raw_bard_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   Barrage: {
     id: "pve_action__12",
@@ -307,19 +307,19 @@ export const BardConfig = {
     radius: 0,
     tooltip: "Grants Barrage, allowing the use of Refulgent Arrow and Shadowbite. Upon execution, Refulgent Arrow will strike the selected target three times, while Shadowbite's potency will be increased to 300.\nDuration: 10s\nAdditional Effect: Grants Resonant Arrow Ready\nDuration: 30s",
     potency: [
-      "Grants Barrage, allowing the use of Refulgent Arrow and Shadowbite. Upon execution, Refulgent Arrow will strike the selected target three times, while Shadowbite's potency will be increased to 300."
+      "Grants Barrage, allowing the use of Refulgent Arrow and Shadowbite. Upon execution, Refulgent Arrow will strike the selected target three times, while Shadowbite's potency will be increased to 300.",
     ],
     effects: [
-      "Additional Effect: Grants Resonant Arrow Ready"
+      "Additional Effect: Grants Resonant Arrow Ready",
     ],
     conditions: [],
     duration: {
-      seconds: 30
+      seconds: 30,
     },
     max_charges: null,
     source_url: "FFXIV_Job_Guide_Raw_bard_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   "Army's Paeon": {
     id: "pve_action__13",
@@ -338,18 +338,18 @@ export const BardConfig = {
     effects: [
       "Additional Effect: 80% chance to grant Repertoire",
       "Repertoire Effect: Reduces weaponskill cast time and recast time, spell cast time and recast time, and auto-attack delay by 4%",
-      "Additional Effect: Grants Army's Coda"
+      "Additional Effect: Grants Army's Coda",
     ],
     conditions: [
-      "Can only be executed while in combat."
+      "Can only be executed while in combat.",
     ],
     duration: {
-      seconds: 45
+      seconds: 45,
     },
     max_charges: null,
     source_url: "FFXIV_Job_Guide_Raw_bard_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   "Rain of Death": {
     id: "pve_action__14",
@@ -365,17 +365,17 @@ export const BardConfig = {
     radius: 8,
     tooltip: "Delivers an attack with a potency of 100 to target and all enemies nearby it.\nMaximum Charges: 3\nShares a recast timer with Heartbreak Shot.",
     potency: [
-      "Delivers an attack with a potency of 100 to target and all enemies nearby it."
+      "Delivers an attack with a potency of 100 to target and all enemies nearby it.",
     ],
     effects: [],
     conditions: [
-      "Shares a recast timer with Heartbreak Shot."
+      "Shares a recast timer with Heartbreak Shot.",
     ],
     duration: null,
     max_charges: 3,
     source_url: "FFXIV_Job_Guide_Raw_bard_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   "Battle Voice": {
     id: "pve_action__15",
@@ -394,12 +394,12 @@ export const BardConfig = {
     effects: [],
     conditions: [],
     duration: {
-      seconds: 20
+      seconds: 20,
     },
     max_charges: null,
     source_url: "FFXIV_Job_Guide_Raw_bard_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   "The Wanderer's Minuet": {
     id: "pve_action__16",
@@ -418,18 +418,18 @@ export const BardConfig = {
     effects: [
       "Additional Effect: 80% chance to grant Repertoire",
       "Repertoire Effect: Allows execution of Pitch Perfect",
-      "Additional Effect: Grants Wanderer's Coda"
+      "Additional Effect: Grants Wanderer's Coda",
     ],
     conditions: [
-      "Can only be executed while in combat."
+      "Can only be executed while in combat.",
     ],
     duration: {
-      seconds: 45
+      seconds: 45,
     },
     max_charges: null,
     source_url: "FFXIV_Job_Guide_Raw_bard_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   "Pitch Perfect": {
     id: "pve_action__17",
@@ -445,17 +445,17 @@ export const BardConfig = {
     radius: 5,
     tooltip: "Delivers an attack to the target and all enemies nearby it. Potency varies with number of Repertoire stacks, dealing full damage for the first enemy, and 50% less for all remaining enemies.\n1 Repertoire Stack: 100\n2 Repertoire Stacks: 220\n3 Repertoire Stacks: 360\nCan only be executed when the Wanderer's Minuet is active and you have at least one stack of Repertoire.",
     potency: [
-      "Delivers an attack to the target and all enemies nearby it. Potency varies with number of Repertoire stacks, dealing full damage for the first enemy, and 50% less for all remaining enemies."
+      "Delivers an attack to the target and all enemies nearby it. Potency varies with number of Repertoire stacks, dealing full damage for the first enemy, and 50% less for all remaining enemies.",
     ],
     effects: [],
     conditions: [
-      "Can only be executed when the Wanderer's Minuet is active and you have at least one stack of Repertoire."
+      "Can only be executed when the Wanderer's Minuet is active and you have at least one stack of Repertoire.",
     ],
     duration: null,
     max_charges: null,
     source_url: "FFXIV_Job_Guide_Raw_bard_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   "Empyreal Arrow": {
     id: "pve_action__18",
@@ -471,7 +471,7 @@ export const BardConfig = {
     radius: 0,
     tooltip: "Delivers an attack with a potency of 260.",
     potency: [
-      "Delivers an attack with a potency of 260."
+      "Delivers an attack with a potency of 260.",
     ],
     effects: [],
     conditions: [],
@@ -479,7 +479,7 @@ export const BardConfig = {
     max_charges: null,
     source_url: "FFXIV_Job_Guide_Raw_bard_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   "Iron Jaws": {
     id: "pve_action__19",
@@ -495,20 +495,20 @@ export const BardConfig = {
     radius: 0,
     tooltip: "Delivers an attack with a potency of 100.\nAdditional Effect: If the target is suffering from a Caustic Bite or Stormbite effect inflicted by you, the effect timer is reset\nAdditional Effect: 35% chance of granting Hawk's Eye\nDuration: 30s",
     potency: [
-      "Delivers an attack with a potency of 100."
+      "Delivers an attack with a potency of 100.",
     ],
     effects: [
       "Additional Effect: If the target is suffering from a Caustic Bite or Stormbite effect inflicted by you, the effect timer is reset",
-      "Additional Effect: 35% chance of granting Hawk's Eye"
+      "Additional Effect: 35% chance of granting Hawk's Eye",
     ],
     conditions: [],
     duration: {
-      seconds: 30
+      seconds: 30,
     },
     max_charges: null,
     source_url: "FFXIV_Job_Guide_Raw_bard_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   Sidewinder: {
     id: "pve_action__20",
@@ -524,7 +524,7 @@ export const BardConfig = {
     radius: 0,
     tooltip: "Delivers an attack with a potency of 400.",
     potency: [
-      "Delivers an attack with a potency of 400."
+      "Delivers an attack with a potency of 400.",
     ],
     effects: [],
     conditions: [],
@@ -532,7 +532,7 @@ export const BardConfig = {
     max_charges: null,
     source_url: "FFXIV_Job_Guide_Raw_bard_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   Troubadour: {
     id: "pve_action__21",
@@ -551,12 +551,12 @@ export const BardConfig = {
     effects: [],
     conditions: [],
     duration: {
-      seconds: 15
+      seconds: 15,
     },
     max_charges: null,
     source_url: "FFXIV_Job_Guide_Raw_bard_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   "Caustic Bite": {
     id: "pve_action__22",
@@ -573,20 +573,20 @@ export const BardConfig = {
     tooltip: "Delivers an attack with a potency of 150.\nAdditional Effect: Poison\nPotency: 20\nDuration: 45s\nAdditional Effect: 35% chance of granting Hawk's Eye\nDuration: 30s",
     potency: [
       "Delivers an attack with a potency of 150.",
-      "Potency: 20"
+      "Potency: 20",
     ],
     effects: [
       "Additional Effect: Poison",
-      "Additional Effect: 35% chance of granting Hawk's Eye"
+      "Additional Effect: 35% chance of granting Hawk's Eye",
     ],
     conditions: [],
     duration: {
-      seconds: 30
+      seconds: 30,
     },
     max_charges: null,
     source_url: "FFXIV_Job_Guide_Raw_bard_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   Stormbite: {
     id: "pve_action__23",
@@ -603,20 +603,20 @@ export const BardConfig = {
     tooltip: "Deals wind damage with a potency of 100.\nAdditional Effect: Wind damage over time\nPotency: 25\nDuration: 45s\nAdditional Effect: 35% chance of granting Hawk's Eye\nDuration: 30s",
     potency: [
       "Deals wind damage with a potency of 100.",
-      "Potency: 25"
+      "Potency: 25",
     ],
     effects: [
       "Additional Effect: Wind damage over time",
-      "Additional Effect: 35% chance of granting Hawk's Eye"
+      "Additional Effect: 35% chance of granting Hawk's Eye",
     ],
     conditions: [],
     duration: {
-      seconds: 30
+      seconds: 30,
     },
     max_charges: null,
     source_url: "FFXIV_Job_Guide_Raw_bard_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   "Nature's Minne": {
     id: "pve_action__24",
@@ -635,12 +635,12 @@ export const BardConfig = {
     effects: [],
     conditions: [],
     duration: {
-      seconds: 15
+      seconds: 15,
     },
     max_charges: null,
     source_url: "FFXIV_Job_Guide_Raw_bard_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   "Refulgent Arrow": {
     id: "pve_action__25",
@@ -656,17 +656,17 @@ export const BardConfig = {
     radius: 0,
     tooltip: "Delivers an attack with a potency of 280.\nCan only be executed when under the effect of Hawk's Eye or Barrage.",
     potency: [
-      "Delivers an attack with a potency of 280."
+      "Delivers an attack with a potency of 280.",
     ],
     effects: [],
     conditions: [
-      "Can only be executed when under the effect of Hawk's Eye or Barrage."
+      "Can only be executed when under the effect of Hawk's Eye or Barrage.",
     ],
     duration: null,
     max_charges: null,
     source_url: "FFXIV_Job_Guide_Raw_bard_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   Shadowbite: {
     id: "pve_action__26",
@@ -683,17 +683,17 @@ export const BardConfig = {
     tooltip: "Delivers an attack with a potency of 200 to target and all enemies nearby it.\nBarrage Potency: 300\nCan only be executed when under the effect of Hawk's Eye or Barrage.",
     potency: [
       "Delivers an attack with a potency of 200 to target and all enemies nearby it.",
-      "Barrage Potency: 300"
+      "Barrage Potency: 300",
     ],
     effects: [],
     conditions: [
-      "Can only be executed when under the effect of Hawk's Eye or Barrage."
+      "Can only be executed when under the effect of Hawk's Eye or Barrage.",
     ],
     duration: null,
     max_charges: null,
     source_url: "FFXIV_Job_Guide_Raw_bard_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   "Burst Shot": {
     id: "pve_action__27",
@@ -709,19 +709,19 @@ export const BardConfig = {
     radius: 0,
     tooltip: "Delivers an attack with a potency of 220.\nAdditional Effect: 35% chance of granting Hawk's Eye\nDuration: 30s",
     potency: [
-      "Delivers an attack with a potency of 220."
+      "Delivers an attack with a potency of 220.",
     ],
     effects: [
-      "Additional Effect: 35% chance of granting Hawk's Eye"
+      "Additional Effect: 35% chance of granting Hawk's Eye",
     ],
     conditions: [],
     duration: {
-      seconds: 30
+      seconds: 30,
     },
     max_charges: null,
     source_url: "FFXIV_Job_Guide_Raw_bard_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   "Apex Arrow": {
     id: "pve_action__28",
@@ -738,19 +738,19 @@ export const BardConfig = {
     tooltip: "Delivers an attack with a potency of 120 to all enemies in a straight line before you.\nSoul Voice Gauge Cost: 20 \nPotency increases up to 600 as Soul Voice Gauge exceeds minimum cost.\nAdditional Effect: Grants Blast Arrow Ready upon execution while Soul Voice Gauge is 80 or higher\nDuration: 10s\nConsumes Soul Voice Gauge upon execution.",
     potency: [
       "Delivers an attack with a potency of 120 to all enemies in a straight line before you.",
-      "Potency increases up to 600 as Soul Voice Gauge exceeds minimum cost."
+      "Potency increases up to 600 as Soul Voice Gauge exceeds minimum cost.",
     ],
     effects: [
-      "Additional Effect: Grants Blast Arrow Ready upon execution while Soul Voice Gauge is 80 or higher"
+      "Additional Effect: Grants Blast Arrow Ready upon execution while Soul Voice Gauge is 80 or higher",
     ],
     conditions: [],
     duration: {
-      seconds: 10
+      seconds: 10,
     },
     max_charges: null,
     source_url: "FFXIV_Job_Guide_Raw_bard_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   Ladonsbite: {
     id: "pve_action__29",
@@ -766,19 +766,19 @@ export const BardConfig = {
     radius: 12,
     tooltip: "Delivers an attack with a potency of 140 to all enemies in a cone before you.\nAdditional Effect: 35% chance of granting Hawk's Eye\nDuration: 30s",
     potency: [
-      "Delivers an attack with a potency of 140 to all enemies in a cone before you."
+      "Delivers an attack with a potency of 140 to all enemies in a cone before you.",
     ],
     effects: [
-      "Additional Effect: 35% chance of granting Hawk's Eye"
+      "Additional Effect: 35% chance of granting Hawk's Eye",
     ],
     conditions: [],
     duration: {
-      seconds: 30
+      seconds: 30,
     },
     max_charges: null,
     source_url: "FFXIV_Job_Guide_Raw_bard_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   "Blast Arrow": {
     id: "pve_action__30",
@@ -794,18 +794,18 @@ export const BardConfig = {
     radius: 25,
     tooltip: "Delivers an attack to all enemies in a straight line before you with a potency of 600 for the first enemy, and 50% less for all remaining enemies.\nCan only be executed while under the effect of Blast Arrow Ready.\n\n※This action cannot be assigned to a hotbar.\n※Apex Arrow changes to Blast Arrow when requirements for execution are met.",
     potency: [
-      "Delivers an attack to all enemies in a straight line before you with a potency of 600 for the first enemy, and 50% less for all remaining enemies."
+      "Delivers an attack to all enemies in a straight line before you with a potency of 600 for the first enemy, and 50% less for all remaining enemies.",
     ],
     effects: [],
     conditions: [
       "Can only be executed while under the effect of Blast Arrow Ready.",
-      "※This action cannot be assigned to a hotbar."
+      "※This action cannot be assigned to a hotbar.",
     ],
     duration: null,
     max_charges: null,
     source_url: "FFXIV_Job_Guide_Raw_bard_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   "Radiant Finale": {
     id: "pve_action__31",
@@ -822,18 +822,18 @@ export const BardConfig = {
     tooltip: "Increases damage dealt by self and nearby party members.\nDuration: 20s\nEffectiveness is determined by the number of different Coda active in the Song Gauge.\n1 Coda: 2%\n2 Coda: 4%\n3 Coda: 6%\nAdditional Effect: Grants Radiant Encore Ready\nDuration: 30s\nCan only be executed when at least 1 coda is active.",
     potency: [],
     effects: [
-      "Additional Effect: Grants Radiant Encore Ready"
+      "Additional Effect: Grants Radiant Encore Ready",
     ],
     conditions: [
-      "Can only be executed when at least 1 coda is active."
+      "Can only be executed when at least 1 coda is active.",
     ],
     duration: {
-      seconds: 30
+      seconds: 30,
     },
     max_charges: null,
     source_url: "FFXIV_Job_Guide_Raw_bard_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   "Heartbreak Shot": {
     id: "pve_action__32",
@@ -849,17 +849,17 @@ export const BardConfig = {
     radius: 0,
     tooltip: "Delivers an attack with a potency of 180.\nMaximum Charges: 3\nShares a recast timer with Rain of Death.",
     potency: [
-      "Delivers an attack with a potency of 180."
+      "Delivers an attack with a potency of 180.",
     ],
     effects: [],
     conditions: [
-      "Shares a recast timer with Rain of Death."
+      "Shares a recast timer with Rain of Death.",
     ],
     duration: null,
     max_charges: 3,
     source_url: "FFXIV_Job_Guide_Raw_bard_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   "Resonant Arrow": {
     id: "pve_action__33",
@@ -875,17 +875,17 @@ export const BardConfig = {
     radius: 5,
     tooltip: "Delivers an attack to target and all enemies nearby it with a potency of 640 for the first enemy, and 50% less for all remaining enemies.\nCan only be executed while under the effect of Resonant Arrow Ready.",
     potency: [
-      "Delivers an attack to target and all enemies nearby it with a potency of 640 for the first enemy, and 50% less for all remaining enemies."
+      "Delivers an attack to target and all enemies nearby it with a potency of 640 for the first enemy, and 50% less for all remaining enemies.",
     ],
     effects: [],
     conditions: [
-      "Can only be executed while under the effect of Resonant Arrow Ready."
+      "Can only be executed while under the effect of Resonant Arrow Ready.",
     ],
     duration: null,
     max_charges: null,
     source_url: "FFXIV_Job_Guide_Raw_bard_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   "Radiant Encore": {
     id: "pve_action__34",
@@ -901,17 +901,17 @@ export const BardConfig = {
     radius: 5,
     tooltip: "Delivers an attack to target and all enemies nearby it.\nPotency is determined by the number of different Coda consumed in the Radiant Finale executed prior, dealing full damage for the first enemy, and 50% less for all remaining enemies.\n1 Coda: 600\n2 Coda: 700\n3 Coda: 1,000\nCan only be executed while under the effect of Radiant Encore Ready.",
     potency: [
-      "Potency is determined by the number of different Coda consumed in the Radiant Finale executed prior, dealing full damage for the first enemy, and 50% less for all remaining enemies."
+      "Potency is determined by the number of different Coda consumed in the Radiant Finale executed prior, dealing full damage for the first enemy, and 50% less for all remaining enemies.",
     ],
     effects: [],
     conditions: [
-      "Can only be executed while under the effect of Radiant Encore Ready."
+      "Can only be executed while under the effect of Radiant Encore Ready.",
     ],
     duration: null,
     max_charges: null,
     source_url: "FFXIV_Job_Guide_Raw_bard_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   "Leg Graze": {
     id: "prange_action__01",
@@ -930,12 +930,12 @@ export const BardConfig = {
     effects: [],
     conditions: [],
     duration: {
-      seconds: 10
+      seconds: 10,
     },
     max_charges: null,
     source_url: "FFXIV_Job_Guide_Raw_bard_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   "Second Wind": {
     id: "prange_action__02",
@@ -951,7 +951,7 @@ export const BardConfig = {
     radius: 0,
     tooltip: "Instantly restores own HP.\nCure Potency: 800",
     potency: [
-      "Cure Potency: 800"
+      "Cure Potency: 800",
     ],
     effects: [],
     conditions: [],
@@ -959,7 +959,7 @@ export const BardConfig = {
     max_charges: null,
     source_url: "FFXIV_Job_Guide_Raw_bard_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   "Foot Graze": {
     id: "prange_action__03",
@@ -978,12 +978,12 @@ export const BardConfig = {
     effects: [],
     conditions: [],
     duration: {
-      seconds: 10
+      seconds: 10,
     },
     max_charges: null,
     source_url: "FFXIV_Job_Guide_Raw_bard_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   Peloton: {
     id: "prange_action__04",
@@ -1002,12 +1002,12 @@ export const BardConfig = {
     effects: [],
     conditions: [],
     duration: {
-      seconds: 30
+      seconds: 30,
     },
     max_charges: null,
     source_url: "FFXIV_Job_Guide_Raw_bard_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   "Head Graze": {
     id: "prange_action__05",
@@ -1029,7 +1029,7 @@ export const BardConfig = {
     max_charges: null,
     source_url: "FFXIV_Job_Guide_Raw_bard_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   "Arm's Length": {
     id: "prange_action__06",
@@ -1046,17 +1046,17 @@ export const BardConfig = {
     tooltip: "Nullifies most knockback and draw-in effects.\nDuration: 6s\nAdditional Effect: When you are struck by a physical attack, the striker will be afflicted with Slow +20%\nDuration: 15s",
     potency: [],
     effects: [
-      "Additional Effect: When you are struck by a physical attack, the striker will be afflicted with Slow +20%"
+      "Additional Effect: When you are struck by a physical attack, the striker will be afflicted with Slow +20%",
     ],
     conditions: [],
     duration: {
-      seconds: 15
+      seconds: 15,
     },
     max_charges: null,
     source_url: "FFXIV_Job_Guide_Raw_bard_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
-  }
+    language: "en",
+  },
 },
   rotations: []
 };

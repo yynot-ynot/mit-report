@@ -10,13 +10,13 @@ export const WhitemageConfig = {
     cast: 1.5,
     recast: 2.5,
     cost: {
-      mp: 200
+      mp: 200,
     },
     range: 25,
     radius: 0,
     tooltip: "Deals earth damage with a potency of 140.",
     potency: [
-      "Deals earth damage with a potency of 140."
+      "Deals earth damage with a potency of 140.",
     ],
     effects: [],
     conditions: [],
@@ -24,7 +24,7 @@ export const WhitemageConfig = {
     max_charges: null,
     source_url: "FFXIV_Job_Guide_Raw_whitemage_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   Cure: {
     id: "pve_action__02",
@@ -36,25 +36,25 @@ export const WhitemageConfig = {
     cast: 1.5,
     recast: 2.5,
     cost: {
-      mp: 400
+      mp: 400,
     },
     range: 30,
     radius: 0,
     tooltip: "Restores target's HP.\nCure Potency: 500\nAdditional Effect: 15% chance next Cure II will cost no MP\nDuration: 15s",
     potency: [
-      "Cure Potency: 500"
+      "Cure Potency: 500",
     ],
     effects: [
-      "Additional Effect: 15% chance next Cure II will cost no MP"
+      "Additional Effect: 15% chance next Cure II will cost no MP",
     ],
     conditions: [],
     duration: {
-      seconds: 15
+      seconds: 15,
     },
     max_charges: null,
     source_url: "FFXIV_Job_Guide_Raw_whitemage_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   Aero: {
     id: "pve_action__03",
@@ -66,26 +66,26 @@ export const WhitemageConfig = {
     cast: 0.0,
     recast: 2.5,
     cost: {
-      mp: 200
+      mp: 200,
     },
     range: 25,
     radius: 0,
     tooltip: "Deals wind damage with a potency of 50.\nAdditional Effect: Wind damage over time\nPotency: 30\nDuration: 30s",
     potency: [
       "Deals wind damage with a potency of 50.",
-      "Potency: 30"
+      "Potency: 30",
     ],
     effects: [
-      "Additional Effect: Wind damage over time"
+      "Additional Effect: Wind damage over time",
     ],
     conditions: [],
     duration: {
-      seconds: 30
+      seconds: 30,
     },
     max_charges: null,
     source_url: "FFXIV_Job_Guide_Raw_whitemage_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   Medica: {
     id: "pve_action__04",
@@ -97,13 +97,13 @@ export const WhitemageConfig = {
     cast: 2.0,
     recast: 2.5,
     cost: {
-      mp: 900
+      mp: 900,
     },
     range: 0,
     radius: 20,
     tooltip: "Restores own HP and the HP of all nearby party members.\nCure Potency: 400",
     potency: [
-      "Cure Potency: 400"
+      "Cure Potency: 400",
     ],
     effects: [],
     conditions: [],
@@ -111,7 +111,7 @@ export const WhitemageConfig = {
     max_charges: null,
     source_url: "FFXIV_Job_Guide_Raw_whitemage_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   Raise: {
     id: "pve_action__05",
@@ -123,7 +123,7 @@ export const WhitemageConfig = {
     cast: 8.0,
     recast: 2.5,
     cost: {
-      mp: 2400
+      mp: 2400,
     },
     range: 30,
     radius: 0,
@@ -135,7 +135,7 @@ export const WhitemageConfig = {
     max_charges: null,
     source_url: "FFXIV_Job_Guide_Raw_whitemage_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   "Stone II": {
     id: "pve_action__06",
@@ -147,13 +147,13 @@ export const WhitemageConfig = {
     cast: 1.5,
     recast: 2.5,
     cost: {
-      mp: 200
+      mp: 200,
     },
     range: 25,
     radius: 0,
     tooltip: "Deals earth damage with a potency of 190.",
     potency: [
-      "Deals earth damage with a potency of 190."
+      "Deals earth damage with a potency of 190.",
     ],
     effects: [],
     conditions: [],
@@ -161,7 +161,7 @@ export const WhitemageConfig = {
     max_charges: null,
     source_url: "FFXIV_Job_Guide_Raw_whitemage_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   "Cure II": {
     id: "pve_action__07",
@@ -173,13 +173,13 @@ export const WhitemageConfig = {
     cast: 2.0,
     recast: 2.5,
     cost: {
-      mp: 1000
+      mp: 1000,
     },
     range: 30,
     radius: 0,
     tooltip: "Restores target's HP.\nCure Potency: 800",
     potency: [
-      "Cure Potency: 800"
+      "Cure Potency: 800",
     ],
     effects: [],
     conditions: [],
@@ -187,7 +187,7 @@ export const WhitemageConfig = {
     max_charges: null,
     source_url: "FFXIV_Job_Guide_Raw_whitemage_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   "Presence of Mind": {
     id: "pve_action__08",
@@ -204,16 +204,16 @@ export const WhitemageConfig = {
     tooltip: "Reduces spell cast time and recast time, and auto-attack delay by 20%.\nDuration: 15s\nAdditional Effect: Grants 3 stacks of Sacred Sight\nDuration: 30s",
     potency: [],
     effects: [
-      "Additional Effect: Grants 3 stacks of Sacred Sight"
+      "Additional Effect: Grants 3 stacks of Sacred Sight",
     ],
     conditions: [],
     duration: {
-      seconds: 30
+      seconds: 30,
     },
     max_charges: null,
     source_url: "FFXIV_Job_Guide_Raw_whitemage_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   Regen: {
     id: "pve_action__09",
@@ -225,23 +225,23 @@ export const WhitemageConfig = {
     cast: 0.0,
     recast: 2.5,
     cost: {
-      mp: 400
+      mp: 400,
     },
     range: 30,
     radius: 0,
     tooltip: "Grants healing over time effect to target.\nCure Potency: 250\nDuration: 18s",
     potency: [
-      "Cure Potency: 250"
+      "Cure Potency: 250",
     ],
     effects: [],
     conditions: [],
     duration: {
-      seconds: 18
+      seconds: 18,
     },
     max_charges: null,
     source_url: "FFXIV_Job_Guide_Raw_whitemage_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   "Cure III": {
     id: "pve_action__10",
@@ -253,13 +253,13 @@ export const WhitemageConfig = {
     cast: 2.0,
     recast: 2.5,
     cost: {
-      mp: 1500
+      mp: 1500,
     },
     range: 30,
     radius: 10,
     tooltip: "Restores own or target party member's HP and all party members nearby target.\nCure Potency: 600",
     potency: [
-      "Cure Potency: 600"
+      "Cure Potency: 600",
     ],
     effects: [],
     conditions: [],
@@ -267,7 +267,7 @@ export const WhitemageConfig = {
     max_charges: null,
     source_url: "FFXIV_Job_Guide_Raw_whitemage_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   "Aetherial Shift": {
     id: "pve_action__11",
@@ -289,7 +289,7 @@ export const WhitemageConfig = {
     max_charges: null,
     source_url: "FFXIV_Job_Guide_Raw_whitemage_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   Holy: {
     id: "pve_action__12",
@@ -301,25 +301,25 @@ export const WhitemageConfig = {
     cast: 1.5,
     recast: 2.5,
     cost: {
-      mp: 400
+      mp: 400,
     },
     range: 0,
     radius: 8,
     tooltip: "Deals unaspected damage with a potency of 140 to all nearby enemies.\nAdditional Effect: Stun\nDuration: 4s",
     potency: [
-      "Deals unaspected damage with a potency of 140 to all nearby enemies."
+      "Deals unaspected damage with a potency of 140 to all nearby enemies.",
     ],
     effects: [
-      "Additional Effect: Stun"
+      "Additional Effect: Stun",
     ],
     conditions: [],
     duration: {
-      seconds: 4
+      seconds: 4,
     },
     max_charges: null,
     source_url: "FFXIV_Job_Guide_Raw_whitemage_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   "Aero II": {
     id: "pve_action__13",
@@ -331,26 +331,26 @@ export const WhitemageConfig = {
     cast: 0.0,
     recast: 2.5,
     cost: {
-      mp: 200
+      mp: 200,
     },
     range: 25,
     radius: 0,
     tooltip: "Deals wind damage with a potency of 50.\nAdditional Effect: Wind damage over time\nPotency: 50\nDuration: 30s",
     potency: [
       "Deals wind damage with a potency of 50.",
-      "Potency: 50"
+      "Potency: 50",
     ],
     effects: [
-      "Additional Effect: Wind damage over time"
+      "Additional Effect: Wind damage over time",
     ],
     conditions: [],
     duration: {
-      seconds: 30
+      seconds: 30,
     },
     max_charges: null,
     source_url: "FFXIV_Job_Guide_Raw_whitemage_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   "Medica II": {
     id: "pve_action__14",
@@ -362,26 +362,26 @@ export const WhitemageConfig = {
     cast: 2.0,
     recast: 2.5,
     cost: {
-      mp: 1000
+      mp: 1000,
     },
     range: 0,
     radius: 20,
     tooltip: "Restores own HP and the HP of all nearby party members.\nCure Potency: 250\nAdditional Effect: Regen\nCure Potency: 150\nDuration: 15s",
     potency: [
       "Cure Potency: 250",
-      "Cure Potency: 150"
+      "Cure Potency: 150",
     ],
     effects: [
-      "Additional Effect: Regen"
+      "Additional Effect: Regen",
     ],
     conditions: [],
     duration: {
-      seconds: 15
+      seconds: 15,
     },
     max_charges: null,
     source_url: "FFXIV_Job_Guide_Raw_whitemage_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   Benediction: {
     id: "pve_action__15",
@@ -403,7 +403,7 @@ export const WhitemageConfig = {
     max_charges: null,
     source_url: "FFXIV_Job_Guide_Raw_whitemage_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   "Afflatus Solace": {
     id: "pve_action__16",
@@ -419,17 +419,17 @@ export const WhitemageConfig = {
     radius: 0,
     tooltip: "Restores target's HP.\nCure Potency: 800\nAdditional Effect: Nourishes the Blood Lily\nHealing Gauge Cost: 1 Lily",
     potency: [
-      "Cure Potency: 800"
+      "Cure Potency: 800",
     ],
     effects: [
-      "Additional Effect: Nourishes the Blood Lily"
+      "Additional Effect: Nourishes the Blood Lily",
     ],
     conditions: [],
     duration: null,
     max_charges: null,
     source_url: "FFXIV_Job_Guide_Raw_whitemage_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   Asylum: {
     id: "pve_action__17",
@@ -445,19 +445,19 @@ export const WhitemageConfig = {
     radius: 15,
     tooltip: "Envelops a designated area in a veil of succor, granting healing over time to self and any party members who enter.\nCure Potency: 100\nDuration: 24s \nAdditional Effect: Increases HP recovery via healing actions on party members in the designated area by 10%",
     potency: [
-      "Cure Potency: 100"
+      "Cure Potency: 100",
     ],
     effects: [
-      "Additional Effect: Increases HP recovery via healing actions on party members in the designated area by 10%"
+      "Additional Effect: Increases HP recovery via healing actions on party members in the designated area by 10%",
     ],
     conditions: [],
     duration: {
-      seconds: 24
+      seconds: 24,
     },
     max_charges: null,
     source_url: "FFXIV_Job_Guide_Raw_whitemage_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   "Stone III": {
     id: "pve_action__18",
@@ -469,13 +469,13 @@ export const WhitemageConfig = {
     cast: 1.5,
     recast: 2.5,
     cost: {
-      mp: 300
+      mp: 300,
     },
     range: 25,
     radius: 0,
     tooltip: "Deals earth damage with a potency of 220.",
     potency: [
-      "Deals earth damage with a potency of 220."
+      "Deals earth damage with a potency of 220.",
     ],
     effects: [],
     conditions: [],
@@ -483,7 +483,7 @@ export const WhitemageConfig = {
     max_charges: null,
     source_url: "FFXIV_Job_Guide_Raw_whitemage_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   Assize: {
     id: "pve_action__19",
@@ -500,18 +500,18 @@ export const WhitemageConfig = {
     tooltip: "Deals unaspected damage with a potency of 400 to all nearby enemies.\nAdditional Effect: Restores own HP and the HP of nearby party members\nCure Potency: 400\nAdditional Effect: Restores 5% of maximum MP",
     potency: [
       "Deals unaspected damage with a potency of 400 to all nearby enemies.",
-      "Cure Potency: 400"
+      "Cure Potency: 400",
     ],
     effects: [
       "Additional Effect: Restores own HP and the HP of nearby party members",
-      "Additional Effect: Restores 5% of maximum MP"
+      "Additional Effect: Restores 5% of maximum MP",
     ],
     conditions: [],
     duration: null,
     max_charges: null,
     source_url: "FFXIV_Job_Guide_Raw_whitemage_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   "Thin Air": {
     id: "pve_action__20",
@@ -530,12 +530,12 @@ export const WhitemageConfig = {
     effects: [],
     conditions: [],
     duration: {
-      seconds: 12
+      seconds: 12,
     },
     max_charges: 2,
     source_url: "FFXIV_Job_Guide_Raw_whitemage_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   Tetragrammaton: {
     id: "pve_action__21",
@@ -551,7 +551,7 @@ export const WhitemageConfig = {
     radius: 0,
     tooltip: "Restores target's HP.\nCure Potency: 700\nMaximum Charges: 2",
     potency: [
-      "Cure Potency: 700"
+      "Cure Potency: 700",
     ],
     effects: [],
     conditions: [],
@@ -559,7 +559,7 @@ export const WhitemageConfig = {
     max_charges: 2,
     source_url: "FFXIV_Job_Guide_Raw_whitemage_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   "Stone IV": {
     id: "pve_action__22",
@@ -571,13 +571,13 @@ export const WhitemageConfig = {
     cast: 1.5,
     recast: 2.5,
     cost: {
-      mp: 400
+      mp: 400,
     },
     range: 25,
     radius: 0,
     tooltip: "Deals earth damage with a potency of 260.",
     potency: [
-      "Deals earth damage with a potency of 260."
+      "Deals earth damage with a potency of 260.",
     ],
     effects: [],
     conditions: [],
@@ -585,7 +585,7 @@ export const WhitemageConfig = {
     max_charges: null,
     source_url: "FFXIV_Job_Guide_Raw_whitemage_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   "Divine Benison": {
     id: "pve_action__23",
@@ -601,17 +601,17 @@ export const WhitemageConfig = {
     radius: 0,
     tooltip: "Creates a barrier around self or target party member that absorbs damage equivalent to a heal of 500 potency.\nDuration: 15s\nMaximum Charges: 2",
     potency: [
-      "Creates a barrier around self or target party member that absorbs damage equivalent to a heal of 500 potency."
+      "Creates a barrier around self or target party member that absorbs damage equivalent to a heal of 500 potency.",
     ],
     effects: [],
     conditions: [],
     duration: {
-      seconds: 15
+      seconds: 15,
     },
     max_charges: 2,
     source_url: "FFXIV_Job_Guide_Raw_whitemage_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   "Plenary Indulgence": {
     id: "pve_action__24",
@@ -627,17 +627,17 @@ export const WhitemageConfig = {
     radius: 30,
     tooltip: "Grants Confession to self and nearby party members.\nDuration: 10s\nParty members under the effect of Confession will receive additional healing upon receiving HP recovery via Medica, Medica III, Cure III, or Afflatus Rapture.\nCure Potency: 200",
     potency: [
-      "Cure Potency: 200"
+      "Cure Potency: 200",
     ],
     effects: [],
     conditions: [],
     duration: {
-      seconds: 10
+      seconds: 10,
     },
     max_charges: null,
     source_url: "FFXIV_Job_Guide_Raw_whitemage_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   Dia: {
     id: "pve_action__25",
@@ -649,26 +649,26 @@ export const WhitemageConfig = {
     cast: 0.0,
     recast: 2.5,
     cost: {
-      mp: 400
+      mp: 400,
     },
     range: 25,
     radius: 0,
     tooltip: "Deals unaspected damage with a potency of 85.\nAdditional Effect: Unaspected damage over time\nPotency: 85\nDuration: 30s",
     potency: [
       "Deals unaspected damage with a potency of 85.",
-      "Potency: 85"
+      "Potency: 85",
     ],
     effects: [
-      "Additional Effect: Unaspected damage over time"
+      "Additional Effect: Unaspected damage over time",
     ],
     conditions: [],
     duration: {
-      seconds: 30
+      seconds: 30,
     },
     max_charges: null,
     source_url: "FFXIV_Job_Guide_Raw_whitemage_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   Glare: {
     id: "pve_action__26",
@@ -680,13 +680,13 @@ export const WhitemageConfig = {
     cast: 1.5,
     recast: 2.5,
     cost: {
-      mp: 400
+      mp: 400,
     },
     range: 25,
     radius: 0,
     tooltip: "Deals unaspected damage with a potency of 290.",
     potency: [
-      "Deals unaspected damage with a potency of 290."
+      "Deals unaspected damage with a potency of 290.",
     ],
     effects: [],
     conditions: [],
@@ -694,7 +694,7 @@ export const WhitemageConfig = {
     max_charges: null,
     source_url: "FFXIV_Job_Guide_Raw_whitemage_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   "Afflatus Misery": {
     id: "pve_action__27",
@@ -710,17 +710,17 @@ export const WhitemageConfig = {
     radius: 5,
     tooltip: "Deals unaspected damage to target and all enemies nearby it with a potency of 1,360 for the first enemy, and 50% less for all remaining enemies.\nCan only be executed when the Blood Lily is in full bloom.",
     potency: [
-      "Deals unaspected damage to target and all enemies nearby it with a potency of 1,360 for the first enemy, and 50% less for all remaining enemies."
+      "Deals unaspected damage to target and all enemies nearby it with a potency of 1,360 for the first enemy, and 50% less for all remaining enemies.",
     ],
     effects: [],
     conditions: [
-      "Can only be executed when the Blood Lily is in full bloom."
+      "Can only be executed when the Blood Lily is in full bloom.",
     ],
     duration: null,
     max_charges: null,
     source_url: "FFXIV_Job_Guide_Raw_whitemage_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   "Afflatus Rapture": {
     id: "pve_action__28",
@@ -736,17 +736,17 @@ export const WhitemageConfig = {
     radius: 20,
     tooltip: "Restores own HP and the HP of all nearby party members.\nCure Potency: 400\nAdditional Effect: Nourishes the Blood Lily\nHealing Gauge Cost: 1 Lily",
     potency: [
-      "Cure Potency: 400"
+      "Cure Potency: 400",
     ],
     effects: [
-      "Additional Effect: Nourishes the Blood Lily"
+      "Additional Effect: Nourishes the Blood Lily",
     ],
     conditions: [],
     duration: null,
     max_charges: null,
     source_url: "FFXIV_Job_Guide_Raw_whitemage_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   Temperance: {
     id: "pve_action__29",
@@ -762,19 +762,19 @@ export const WhitemageConfig = {
     radius: 0,
     tooltip: "Increases healing magic potency by 20%, while reducing damage taken by self and all party members within a radius of 50 yalms by 10%.\nDuration: 20s\nAdditional Effect: Grants Divine Grace\nDuration: 30s",
     potency: [
-      "Increases healing magic potency by 20%, while reducing damage taken by self and all party members within a radius of 50 yalms by 10%."
+      "Increases healing magic potency by 20%, while reducing damage taken by self and all party members within a radius of 50 yalms by 10%.",
     ],
     effects: [
-      "Additional Effect: Grants Divine Grace"
+      "Additional Effect: Grants Divine Grace",
     ],
     conditions: [],
     duration: {
-      seconds: 30
+      seconds: 30,
     },
     max_charges: null,
     source_url: "FFXIV_Job_Guide_Raw_whitemage_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   "Glare III": {
     id: "pve_action__30",
@@ -786,13 +786,13 @@ export const WhitemageConfig = {
     cast: 1.5,
     recast: 2.5,
     cost: {
-      mp: 400
+      mp: 400,
     },
     range: 25,
     radius: 0,
     tooltip: "Deals unaspected damage with a potency of 340.",
     potency: [
-      "Deals unaspected damage with a potency of 340."
+      "Deals unaspected damage with a potency of 340.",
     ],
     effects: [],
     conditions: [],
@@ -800,7 +800,7 @@ export const WhitemageConfig = {
     max_charges: null,
     source_url: "FFXIV_Job_Guide_Raw_whitemage_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   "Holy III": {
     id: "pve_action__31",
@@ -812,25 +812,25 @@ export const WhitemageConfig = {
     cast: 1.5,
     recast: 2.5,
     cost: {
-      mp: 400
+      mp: 400,
     },
     range: 0,
     radius: 8,
     tooltip: "Deals unaspected damage with a potency of 150 to all nearby enemies.\nAdditional Effect: Stun\nDuration: 4s",
     potency: [
-      "Deals unaspected damage with a potency of 150 to all nearby enemies."
+      "Deals unaspected damage with a potency of 150 to all nearby enemies.",
     ],
     effects: [
-      "Additional Effect: Stun"
+      "Additional Effect: Stun",
     ],
     conditions: [],
     duration: {
-      seconds: 4
+      seconds: 4,
     },
     max_charges: null,
     source_url: "FFXIV_Job_Guide_Raw_whitemage_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   Aquaveil: {
     id: "pve_action__32",
@@ -849,12 +849,12 @@ export const WhitemageConfig = {
     effects: [],
     conditions: [],
     duration: {
-      seconds: 8
+      seconds: 8,
     },
     max_charges: null,
     source_url: "FFXIV_Job_Guide_Raw_whitemage_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   "Liturgy of the Bell": {
     id: "pve_action__33",
@@ -871,17 +871,17 @@ export const WhitemageConfig = {
     tooltip: "Places a healing blossom at the designated location and grants 5 stacks of Liturgy of the Bell to self.\nDuration: 20s\nTaking damage will expend 1 stack of Liturgy of the Bell to heal self and all party members within a radius of 20 yalms.\nCure Potency: 400\nThe effect of this action can only be triggered once per second.\nAny remaining stacks of Liturgy of the Bell will trigger an additional healing effect when time expires or upon executing this action a second time.\nCure Potency: 200 for every remaining stack of Liturgy of the Bell\nThis action does not share a recast timer with any other actions.",
     potency: [
       "Cure Potency: 400",
-      "Cure Potency: 200 for every remaining stack of Liturgy of the Bell"
+      "Cure Potency: 200 for every remaining stack of Liturgy of the Bell",
     ],
     effects: [],
     conditions: [],
     duration: {
-      seconds: 20
+      seconds: 20,
     },
     max_charges: null,
     source_url: "FFXIV_Job_Guide_Raw_whitemage_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   "Glare IV": {
     id: "pve_action__34",
@@ -897,17 +897,17 @@ export const WhitemageConfig = {
     radius: 5,
     tooltip: "Deals unaspected damage to target and all enemies nearby it with a potency of 640 for the first enemy, and 40% less for all remaining enemies.\nCan only be executed while Sacred Sight is active.",
     potency: [
-      "Deals unaspected damage to target and all enemies nearby it with a potency of 640 for the first enemy, and 40% less for all remaining enemies."
+      "Deals unaspected damage to target and all enemies nearby it with a potency of 640 for the first enemy, and 40% less for all remaining enemies.",
     ],
     effects: [],
     conditions: [
-      "Can only be executed while Sacred Sight is active."
+      "Can only be executed while Sacred Sight is active.",
     ],
     duration: null,
     max_charges: null,
     source_url: "FFXIV_Job_Guide_Raw_whitemage_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   "Medica III": {
     id: "pve_action__35",
@@ -919,26 +919,26 @@ export const WhitemageConfig = {
     cast: 2.0,
     recast: 2.5,
     cost: {
-      mp: 1000
+      mp: 1000,
     },
     range: 0,
     radius: 20,
     tooltip: "Restores own HP and the HP of all nearby party members.\nCure Potency: 250\nAdditional Effect: Regen\nCure Potency: 175\nDuration: 15s",
     potency: [
       "Cure Potency: 250",
-      "Cure Potency: 175"
+      "Cure Potency: 175",
     ],
     effects: [
-      "Additional Effect: Regen"
+      "Additional Effect: Regen",
     ],
     conditions: [],
     duration: {
-      seconds: 15
+      seconds: 15,
     },
     max_charges: null,
     source_url: "FFXIV_Job_Guide_Raw_whitemage_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   "Divine Caress": {
     id: "pve_action__36",
@@ -955,22 +955,22 @@ export const WhitemageConfig = {
     tooltip: "Creates a barrier around self and all party members near you that absorbs damage equivalent to a heal of 400 potency.\nDuration: 10s\nAdditional Effect: Grants Divine Aura when barrier effect expires\nDivine Aura Effect: Healing over time\nCure Potency: 200\nDuration: 15s\nCan only be executed while Divine Grace is active.",
     potency: [
       "Creates a barrier around self and all party members near you that absorbs damage equivalent to a heal of 400 potency.",
-      "Cure Potency: 200"
+      "Cure Potency: 200",
     ],
     effects: [
       "Additional Effect: Grants Divine Aura when barrier effect expires",
-      "Divine Aura Effect: Healing over time"
+      "Divine Aura Effect: Healing over time",
     ],
     conditions: [
-      "Can only be executed while Divine Grace is active."
+      "Can only be executed while Divine Grace is active.",
     ],
     duration: {
-      seconds: 15
+      seconds: 15,
     },
     max_charges: null,
     source_url: "FFXIV_Job_Guide_Raw_whitemage_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   Repose: {
     id: "healer_action__01",
@@ -982,7 +982,7 @@ export const WhitemageConfig = {
     cast: 2.5,
     recast: 2.5,
     cost: {
-      mp: 600
+      mp: 600,
     },
     range: 30,
     radius: 0,
@@ -991,12 +991,12 @@ export const WhitemageConfig = {
     effects: [],
     conditions: [],
     duration: {
-      seconds: 30
+      seconds: 30,
     },
     max_charges: null,
     source_url: "FFXIV_Job_Guide_Raw_whitemage_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   Esuna: {
     id: "healer_action__02",
@@ -1008,7 +1008,7 @@ export const WhitemageConfig = {
     cast: 0.0,
     recast: 2.5,
     cost: {
-      mp: 400
+      mp: 400,
     },
     range: 30,
     radius: 0,
@@ -1020,7 +1020,7 @@ export const WhitemageConfig = {
     max_charges: null,
     source_url: "FFXIV_Job_Guide_Raw_whitemage_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   "Lucid Dreaming": {
     id: "healer_action__03",
@@ -1036,17 +1036,17 @@ export const WhitemageConfig = {
     radius: 0,
     tooltip: "Gradually restores own MP.\nPotency: 55\nDuration: 21s",
     potency: [
-      "Potency: 55"
+      "Potency: 55",
     ],
     effects: [],
     conditions: [],
     duration: {
-      seconds: 21
+      seconds: 21,
     },
     max_charges: null,
     source_url: "FFXIV_Job_Guide_Raw_whitemage_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   Swiftcast: {
     id: "healer_action__04",
@@ -1065,12 +1065,12 @@ export const WhitemageConfig = {
     effects: [],
     conditions: [],
     duration: {
-      seconds: 10
+      seconds: 10,
     },
     max_charges: null,
     source_url: "FFXIV_Job_Guide_Raw_whitemage_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   Surecast: {
     id: "healer_action__05",
@@ -1087,16 +1087,16 @@ export const WhitemageConfig = {
     tooltip: "Spells can be cast without interruption.\nAdditional Effect: Nullifies most knockback and draw-in effects\nDuration: 6s",
     potency: [],
     effects: [
-      "Additional Effect: Nullifies most knockback and draw-in effects"
+      "Additional Effect: Nullifies most knockback and draw-in effects",
     ],
     conditions: [],
     duration: {
-      seconds: 6
+      seconds: 6,
     },
     max_charges: null,
     source_url: "FFXIV_Job_Guide_Raw_whitemage_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   Rescue: {
     id: "healer_action__06",
@@ -1118,8 +1118,8 @@ export const WhitemageConfig = {
     max_charges: null,
     source_url: "FFXIV_Job_Guide_Raw_whitemage_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
-  }
+    language: "en",
+  },
 },
   rotations: []
 };

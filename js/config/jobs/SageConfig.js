@@ -10,24 +10,24 @@ export const SageConfig = {
     cast: 1.5,
     recast: 2.5,
     cost: {
-      mp: 300
+      mp: 300,
     },
     range: 25,
     radius: 0,
     tooltip: "Deals unaspected damage with a potency of 300.\nAdditional Effect: Restores HP to targets under the effect of Kardion granted by you\nCure Potency: 170",
     potency: [
       "Deals unaspected damage with a potency of 300.",
-      "Cure Potency: 170"
+      "Cure Potency: 170",
     ],
     effects: [
-      "Additional Effect: Restores HP to targets under the effect of Kardion granted by you"
+      "Additional Effect: Restores HP to targets under the effect of Kardion granted by you",
     ],
     conditions: [],
     duration: null,
     max_charges: null,
     source_url: "FFXIV_Job_Guide_Raw_sage_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   Diagnosis: {
     id: "pve_action__02",
@@ -39,13 +39,13 @@ export const SageConfig = {
     cast: 1.5,
     recast: 2.5,
     cost: {
-      mp: 400
+      mp: 400,
     },
     range: 30,
     radius: 0,
     tooltip: "Restores target's HP.\nCure Potency: 450",
     potency: [
-      "Cure Potency: 450"
+      "Cure Potency: 450",
     ],
     effects: [],
     conditions: [],
@@ -53,7 +53,7 @@ export const SageConfig = {
     max_charges: null,
     source_url: "FFXIV_Job_Guide_Raw_sage_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   Kardia: {
     id: "pve_action__03",
@@ -69,7 +69,7 @@ export const SageConfig = {
     radius: 0,
     tooltip: "Grants self the effect of Kardia and a selected party member or self the effect of Kardion, restoring HP after landing certain magic attacks.\nCure Potency: 170",
     potency: [
-      "Cure Potency: 170"
+      "Cure Potency: 170",
     ],
     effects: [],
     conditions: [],
@@ -77,7 +77,7 @@ export const SageConfig = {
     max_charges: null,
     source_url: "FFXIV_Job_Guide_Raw_sage_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   Prognosis: {
     id: "pve_action__04",
@@ -89,13 +89,13 @@ export const SageConfig = {
     cast: 2.0,
     recast: 2.5,
     cost: {
-      mp: 700
+      mp: 700,
     },
     range: 0,
     radius: 20,
     tooltip: "Restores own HP and the HP of all nearby party members.\nCure Potency: 300",
     potency: [
-      "Cure Potency: 300"
+      "Cure Potency: 300",
     ],
     effects: [],
     conditions: [],
@@ -103,7 +103,7 @@ export const SageConfig = {
     max_charges: null,
     source_url: "FFXIV_Job_Guide_Raw_sage_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   Egeiro: {
     id: "pve_action__05",
@@ -115,7 +115,7 @@ export const SageConfig = {
     cast: 8.0,
     recast: 2.5,
     cost: {
-      mp: 2400
+      mp: 2400,
     },
     range: 30,
     radius: 0,
@@ -127,7 +127,7 @@ export const SageConfig = {
     max_charges: null,
     source_url: "FFXIV_Job_Guide_Raw_sage_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   Physis: {
     id: "pve_action__06",
@@ -143,17 +143,17 @@ export const SageConfig = {
     radius: 20,
     tooltip: "Gradually restores own HP and the HP of all nearby party members.\nCure Potency: 100\nDuration: 15s",
     potency: [
-      "Cure Potency: 100"
+      "Cure Potency: 100",
     ],
     effects: [],
     conditions: [],
     duration: {
-      seconds: 15
+      seconds: 15,
     },
     max_charges: null,
     source_url: "FFXIV_Job_Guide_Raw_sage_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   Phlegma: {
     id: "pve_action__07",
@@ -165,24 +165,24 @@ export const SageConfig = {
     cast: 0.0,
     recast: 40.0,
     cost: {
-      mp: 400
+      mp: 400,
     },
     range: 6,
     radius: 5,
     tooltip: "Deals unaspected damage to target and all enemies nearby it with a potency of 400 for the first enemy, and 30% less for all remaining enemies.\nAdditional Effect: Restores HP to targets under the effect of Kardion granted by you\nCure Potency: 170\nMaximum Charges: 2\nRecast timer cannot be affected by status effects or gear attributes.",
     potency: [
       "Deals unaspected damage to target and all enemies nearby it with a potency of 400 for the first enemy, and 30% less for all remaining enemies.",
-      "Cure Potency: 170"
+      "Cure Potency: 170",
     ],
     effects: [
-      "Additional Effect: Restores HP to targets under the effect of Kardion granted by you"
+      "Additional Effect: Restores HP to targets under the effect of Kardion granted by you",
     ],
     conditions: [],
     duration: null,
     max_charges: 2,
     source_url: "FFXIV_Job_Guide_Raw_sage_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   Eukrasia: {
     id: "pve_action__08",
@@ -204,7 +204,7 @@ export const SageConfig = {
     max_charges: null,
     source_url: "FFXIV_Job_Guide_Raw_sage_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   "Eukrasian Diagnosis": {
     id: "pve_action__09",
@@ -216,28 +216,28 @@ export const SageConfig = {
     cast: 0.0,
     recast: 1.5,
     cost: {
-      mp: 800
+      mp: 800,
     },
     range: 30,
     radius: 0,
     tooltip: "Restores target's HP.\nCure Potency: 300\nAdditional Effect: Erects a magicked barrier which nullifies damage equaling 180％ of the amount of HP restored. When critical HP is restored, also grants Differential Diagnosis, nullifying damage equaling 180% the amount of HP restored.\nDuration: 30s\nEffect cannot be stacked with Eukrasian Prognosis or scholar's Galvanize.\nCan only be executed while under the effect of Eukrasia.\n\n※This action cannot be assigned to a hotbar.\n※Diagnosis changes to Eukrasian Diagnosis when requirements for execution are met.",
     potency: [
-      "Cure Potency: 300"
+      "Cure Potency: 300",
     ],
     effects: [
-      "Additional Effect: Erects a magicked barrier which nullifies damage equaling 180％ of the amount of HP restored. When critical HP is restored, also grants Differential Diagnosis, nullifying damage equaling 180% the amount of HP restored."
+      "Additional Effect: Erects a magicked barrier which nullifies damage equaling 180％ of the amount of HP restored. When critical HP is restored, also grants Differential Diagnosis, nullifying damage equaling 180% the amount of HP restored.",
     ],
     conditions: [
       "Can only be executed while under the effect of Eukrasia.",
-      "※This action cannot be assigned to a hotbar."
+      "※This action cannot be assigned to a hotbar.",
     ],
     duration: {
-      seconds: 30
+      seconds: 30,
     },
     max_charges: null,
     source_url: "FFXIV_Job_Guide_Raw_sage_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   "Eukrasian Prognosis": {
     id: "pve_action__10",
@@ -249,28 +249,28 @@ export const SageConfig = {
     cast: 0.0,
     recast: 1.5,
     cost: {
-      mp: 800
+      mp: 800,
     },
     range: 0,
     radius: 20,
     tooltip: "Restores own HP and the HP of all nearby party members.\nCure Potency: 100\nAdditional Effect: Erects a magicked barrier which nullifies damage equaling 320% of the amount of HP restored\nDuration: 30s\nEffect cannot be stacked with those of Eukrasian Diagnosis or scholar's Galvanize.\nCan only be executed while under the effect of Eukrasia.\n\n※This action cannot be assigned to a hotbar.\n※Prognosis changes to Eukrasian Prognosis when requirements for execution are met.",
     potency: [
-      "Cure Potency: 100"
+      "Cure Potency: 100",
     ],
     effects: [
-      "Additional Effect: Erects a magicked barrier which nullifies damage equaling 320% of the amount of HP restored"
+      "Additional Effect: Erects a magicked barrier which nullifies damage equaling 320% of the amount of HP restored",
     ],
     conditions: [
       "Can only be executed while under the effect of Eukrasia.",
-      "※This action cannot be assigned to a hotbar."
+      "※This action cannot be assigned to a hotbar.",
     ],
     duration: {
-      seconds: 30
+      seconds: 30,
     },
     max_charges: null,
     source_url: "FFXIV_Job_Guide_Raw_sage_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   "Eukrasian Dosis": {
     id: "pve_action__11",
@@ -282,29 +282,29 @@ export const SageConfig = {
     cast: 0.0,
     recast: 1.5,
     cost: {
-      mp: 400
+      mp: 400,
     },
     range: 25,
     radius: 0,
     tooltip: "Deals unaspected damage over time.\nPotency: 40\nDuration: 30s\nAdditional Effect: Restores HP to targets under the effect of Kardion granted by you\nCure Potency: 170\nCan only be executed while under the effect of Eukrasia.\n\n※This action cannot be assigned to a hotbar.\n※Dosis changes to Eukrasian Dosis when requirements for execution are met.",
     potency: [
       "Potency: 40",
-      "Cure Potency: 170"
+      "Cure Potency: 170",
     ],
     effects: [
-      "Additional Effect: Restores HP to targets under the effect of Kardion granted by you"
+      "Additional Effect: Restores HP to targets under the effect of Kardion granted by you",
     ],
     conditions: [
       "Can only be executed while under the effect of Eukrasia.",
-      "※This action cannot be assigned to a hotbar."
+      "※This action cannot be assigned to a hotbar.",
     ],
     duration: {
-      seconds: 30
+      seconds: 30,
     },
     max_charges: null,
     source_url: "FFXIV_Job_Guide_Raw_sage_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   Soteria: {
     id: "pve_action__12",
@@ -320,17 +320,17 @@ export const SageConfig = {
     radius: 0,
     tooltip: "Grants 4 stacks of Soteria, each stack increasing the cure potency of Kardion effects granted by you by 70%.\nDuration: 15s",
     potency: [
-      "Grants 4 stacks of Soteria, each stack increasing the cure potency of Kardion effects granted by you by 70%."
+      "Grants 4 stacks of Soteria, each stack increasing the cure potency of Kardion effects granted by you by 70%.",
     ],
     effects: [],
     conditions: [],
     duration: {
-      seconds: 15
+      seconds: 15,
     },
     max_charges: null,
     source_url: "FFXIV_Job_Guide_Raw_sage_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   Icarus: {
     id: "pve_action__13",
@@ -352,7 +352,7 @@ export const SageConfig = {
     max_charges: null,
     source_url: "FFXIV_Job_Guide_Raw_sage_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   Druochole: {
     id: "pve_action__14",
@@ -368,17 +368,17 @@ export const SageConfig = {
     radius: 0,
     tooltip: "Restores target's HP.\nCure Potency: 600\nAdditional Effect: Restores 7% of maximum MP\nAddersgall Cost: 1",
     potency: [
-      "Cure Potency: 600"
+      "Cure Potency: 600",
     ],
     effects: [
-      "Additional Effect: Restores 7% of maximum MP"
+      "Additional Effect: Restores 7% of maximum MP",
     ],
     conditions: [],
     duration: null,
     max_charges: null,
     source_url: "FFXIV_Job_Guide_Raw_sage_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   Dyskrasia: {
     id: "pve_action__15",
@@ -390,24 +390,24 @@ export const SageConfig = {
     cast: 0.0,
     recast: 2.5,
     cost: {
-      mp: 400
+      mp: 400,
     },
     range: 0,
     radius: 5,
     tooltip: "Deals unaspected damage with a potency of 160 to all nearby enemies.\nAdditional Effect: Restores HP to targets under the effect of Kardion granted by you\nCure Potency: 170",
     potency: [
       "Deals unaspected damage with a potency of 160 to all nearby enemies.",
-      "Cure Potency: 170"
+      "Cure Potency: 170",
     ],
     effects: [
-      "Additional Effect: Restores HP to targets under the effect of Kardion granted by you"
+      "Additional Effect: Restores HP to targets under the effect of Kardion granted by you",
     ],
     conditions: [],
     duration: null,
     max_charges: null,
     source_url: "FFXIV_Job_Guide_Raw_sage_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   Kerachole: {
     id: "pve_action__16",
@@ -423,20 +423,20 @@ export const SageConfig = {
     radius: 30,
     tooltip: "Reduces damage taken by self and nearby party members by 10%.\nDuration: 15s\nEffect cannot be stacked with Taurochole.\nAdditional Effect: Regen\nCure Potency: 100\nDuration: 15s\nAdditional Effect: Restores 7% of maximum MP\nAddersgall Cost: 1",
     potency: [
-      "Cure Potency: 100"
+      "Cure Potency: 100",
     ],
     effects: [
       "Additional Effect: Regen",
-      "Additional Effect: Restores 7% of maximum MP"
+      "Additional Effect: Restores 7% of maximum MP",
     ],
     conditions: [],
     duration: {
-      seconds: 15
+      seconds: 15,
     },
     max_charges: null,
     source_url: "FFXIV_Job_Guide_Raw_sage_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   Ixochole: {
     id: "pve_action__17",
@@ -452,17 +452,17 @@ export const SageConfig = {
     radius: 20,
     tooltip: "Restores own HP and the HP of all nearby party members.\nCure Potency: 400\nAdditional Effect: Restores 7% of maximum MP\nAddersgall Cost: 1",
     potency: [
-      "Cure Potency: 400"
+      "Cure Potency: 400",
     ],
     effects: [
-      "Additional Effect: Restores 7% of maximum MP"
+      "Additional Effect: Restores 7% of maximum MP",
     ],
     conditions: [],
     duration: null,
     max_charges: null,
     source_url: "FFXIV_Job_Guide_Raw_sage_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   Zoe: {
     id: "pve_action__18",
@@ -478,17 +478,17 @@ export const SageConfig = {
     radius: 0,
     tooltip: "Increases healing magic potency of your next healing spell by 50%.\nDuration: 30s",
     potency: [
-      "Increases healing magic potency of your next healing spell by 50%."
+      "Increases healing magic potency of your next healing spell by 50%.",
     ],
     effects: [],
     conditions: [],
     duration: {
-      seconds: 30
+      seconds: 30,
     },
     max_charges: null,
     source_url: "FFXIV_Job_Guide_Raw_sage_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   Pepsis: {
     id: "pve_action__19",
@@ -505,7 +505,7 @@ export const SageConfig = {
     tooltip: "Restores own HP and the HP of nearby party members by removing Eukrasian Diagnosis and Eukrasian Prognosis effects granted by you.\nEukrasian Diagnosis Cure Potency: 450\nEukrasian Prognosis Cure Potency: 350\nTargets not under the effect of Eukrasian Diagnosis or Eukrasian Prognosis will not be healed.",
     potency: [
       "Eukrasian Diagnosis Cure Potency: 450",
-      "Eukrasian Prognosis Cure Potency: 350"
+      "Eukrasian Prognosis Cure Potency: 350",
     ],
     effects: [],
     conditions: [],
@@ -513,7 +513,7 @@ export const SageConfig = {
     max_charges: null,
     source_url: "FFXIV_Job_Guide_Raw_sage_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   "Physis II": {
     id: "pve_action__20",
@@ -529,19 +529,19 @@ export const SageConfig = {
     radius: 30,
     tooltip: "Gradually restores own HP and the HP of all nearby party members.\nCure Potency: 130\nDuration: 15s\nAdditional Effect: Increases HP recovered by healing actions by 10%\nDuration: 15s",
     potency: [
-      "Cure Potency: 130"
+      "Cure Potency: 130",
     ],
     effects: [
-      "Additional Effect: Increases HP recovered by healing actions by 10%"
+      "Additional Effect: Increases HP recovered by healing actions by 10%",
     ],
     conditions: [],
     duration: {
-      seconds: 15
+      seconds: 15,
     },
     max_charges: null,
     source_url: "FFXIV_Job_Guide_Raw_sage_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   Taurochole: {
     id: "pve_action__21",
@@ -557,20 +557,20 @@ export const SageConfig = {
     radius: 0,
     tooltip: "Restores own or target party member's HP.\nCure Potency: 700\nAdditional Effect: Reduces target's damage taken by 10%\nDuration: 15s\nEffect cannot be stacked with Kerachole.\nAdditional Effect: Restores 7% of maximum MP\nAddersgall Cost: 1",
     potency: [
-      "Cure Potency: 700"
+      "Cure Potency: 700",
     ],
     effects: [
       "Additional Effect: Reduces target's damage taken by 10%",
-      "Additional Effect: Restores 7% of maximum MP"
+      "Additional Effect: Restores 7% of maximum MP",
     ],
     conditions: [],
     duration: {
-      seconds: 15
+      seconds: 15,
     },
     max_charges: null,
     source_url: "FFXIV_Job_Guide_Raw_sage_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   Toxikon: {
     id: "pve_action__22",
@@ -587,17 +587,17 @@ export const SageConfig = {
     tooltip: "Deals unaspected damage to target and all enemies nearby it with a potency of 300 for the first enemy, and 50% less for all remaining enemies.\nAdditional Effect: Restores HP to targets under the effect of Kardion granted by you\nCure Potency: 170\nAddersting Cost: 1",
     potency: [
       "Deals unaspected damage to target and all enemies nearby it with a potency of 300 for the first enemy, and 50% less for all remaining enemies.",
-      "Cure Potency: 170"
+      "Cure Potency: 170",
     ],
     effects: [
-      "Additional Effect: Restores HP to targets under the effect of Kardion granted by you"
+      "Additional Effect: Restores HP to targets under the effect of Kardion granted by you",
     ],
     conditions: [],
     duration: null,
     max_charges: null,
     source_url: "FFXIV_Job_Guide_Raw_sage_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   Haima: {
     id: "pve_action__23",
@@ -614,19 +614,19 @@ export const SageConfig = {
     tooltip: "Erects a magicked barrier around self or target party member that absorbs damage equivalent to a heal of 300 potency.\nAdditional Effect: Grants 5 stacks of Haimatinon\nDuration: 15s\nWhen the barrier is completely absorbed, a stack of Haimatinon is consumed and a new barrier is applied.\nWhen the effect duration expires, a healing effect is then applied.\nCure Potency: 150 per remaining stack of Haimatinon",
     potency: [
       "Erects a magicked barrier around self or target party member that absorbs damage equivalent to a heal of 300 potency.",
-      "Cure Potency: 150 per remaining stack of Haimatinon"
+      "Cure Potency: 150 per remaining stack of Haimatinon",
     ],
     effects: [
-      "Additional Effect: Grants 5 stacks of Haimatinon"
+      "Additional Effect: Grants 5 stacks of Haimatinon",
     ],
     conditions: [],
     duration: {
-      seconds: 15
+      seconds: 15,
     },
     max_charges: null,
     source_url: "FFXIV_Job_Guide_Raw_sage_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   "Dosis II": {
     id: "pve_action__24",
@@ -638,24 +638,24 @@ export const SageConfig = {
     cast: 1.5,
     recast: 2.5,
     cost: {
-      mp: 400
+      mp: 400,
     },
     range: 25,
     radius: 0,
     tooltip: "Deals unaspected damage with a potency of 320.\nAdditional Effect: Restores HP to targets under the effect of Kardion granted by you\nCure Potency: 170",
     potency: [
       "Deals unaspected damage with a potency of 320.",
-      "Cure Potency: 170"
+      "Cure Potency: 170",
     ],
     effects: [
-      "Additional Effect: Restores HP to targets under the effect of Kardion granted by you"
+      "Additional Effect: Restores HP to targets under the effect of Kardion granted by you",
     ],
     conditions: [],
     duration: null,
     max_charges: null,
     source_url: "FFXIV_Job_Guide_Raw_sage_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   "Phlegma II": {
     id: "pve_action__25",
@@ -667,24 +667,24 @@ export const SageConfig = {
     cast: 0.0,
     recast: 40.0,
     cost: {
-      mp: 400
+      mp: 400,
     },
     range: 6,
     radius: 5,
     tooltip: "Deals unaspected damage to target and all enemies nearby it with a potency of 490 for the first enemy, and 50% less for all remaining enemies.\nAdditional Effect: Restores HP to targets under the effect of Kardion granted by you\nCure Potency: 170\nMaximum Charges: 2\nRecast timer cannot be affected by status effects or gear attributes.",
     potency: [
       "Deals unaspected damage to target and all enemies nearby it with a potency of 490 for the first enemy, and 50% less for all remaining enemies.",
-      "Cure Potency: 170"
+      "Cure Potency: 170",
     ],
     effects: [
-      "Additional Effect: Restores HP to targets under the effect of Kardion granted by you"
+      "Additional Effect: Restores HP to targets under the effect of Kardion granted by you",
     ],
     conditions: [],
     duration: null,
     max_charges: 2,
     source_url: "FFXIV_Job_Guide_Raw_sage_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   "Eukrasian Dosis II": {
     id: "pve_action__26",
@@ -696,29 +696,29 @@ export const SageConfig = {
     cast: 0.0,
     recast: 1.5,
     cost: {
-      mp: 400
+      mp: 400,
     },
     range: 25,
     radius: 0,
     tooltip: "Deals unaspected damage over time.\nPotency: 60\nDuration: 30s\nAdditional Effect: Restores HP to targets under the effect of Kardion granted by you\nCure Potency: 170\nCan only be executed while under the effect of Eukrasia.\n\n※This action cannot be assigned to a hotbar.\n※Dosis II changes to Eukrasian Dosis II when requirements for execution are met.",
     potency: [
       "Potency: 60",
-      "Cure Potency: 170"
+      "Cure Potency: 170",
     ],
     effects: [
-      "Additional Effect: Restores HP to targets under the effect of Kardion granted by you"
+      "Additional Effect: Restores HP to targets under the effect of Kardion granted by you",
     ],
     conditions: [
       "Can only be executed while under the effect of Eukrasia.",
-      "※This action cannot be assigned to a hotbar."
+      "※This action cannot be assigned to a hotbar.",
     ],
     duration: {
-      seconds: 30
+      seconds: 30,
     },
     max_charges: null,
     source_url: "FFXIV_Job_Guide_Raw_sage_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   Rhizomata: {
     id: "pve_action__27",
@@ -740,7 +740,7 @@ export const SageConfig = {
     max_charges: null,
     source_url: "FFXIV_Job_Guide_Raw_sage_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   Holos: {
     id: "pve_action__28",
@@ -756,20 +756,20 @@ export const SageConfig = {
     radius: 30,
     tooltip: "Restores own HP and the HP of all nearby party members.\nCure Potency: 300\nAdditional Effect: Erects a magicked barrier which nullifies damage equaling the amount of HP restored\nDuration: 30s\nAdditional Effect: Reduces damage taken by self and nearby party members by 10%\nDuration: 20s",
     potency: [
-      "Cure Potency: 300"
+      "Cure Potency: 300",
     ],
     effects: [
       "Additional Effect: Erects a magicked barrier which nullifies damage equaling the amount of HP restored",
-      "Additional Effect: Reduces damage taken by self and nearby party members by 10%"
+      "Additional Effect: Reduces damage taken by self and nearby party members by 10%",
     ],
     conditions: [],
     duration: {
-      seconds: 20
+      seconds: 20,
     },
     max_charges: null,
     source_url: "FFXIV_Job_Guide_Raw_sage_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   Panhaima: {
     id: "pve_action__29",
@@ -786,19 +786,19 @@ export const SageConfig = {
     tooltip: "Erects a magicked barrier around self and all party members near you that absorbs damage equivalent to a heal of 200 potency.\nAdditional Effect: Grants 5 stacks of Panhaimatinon\nDuration: 15s\nWhen the barrier is completely absorbed, a stack of Panhaimatinon is consumed and a new barrier is applied.\nWhen the effect duration expires, a healing effect is then applied.\nCure Potency: 100 per remaining stack of Panhaimatinon",
     potency: [
       "Erects a magicked barrier around self and all party members near you that absorbs damage equivalent to a heal of 200 potency.",
-      "Cure Potency: 100 per remaining stack of Panhaimatinon"
+      "Cure Potency: 100 per remaining stack of Panhaimatinon",
     ],
     effects: [
-      "Additional Effect: Grants 5 stacks of Panhaimatinon"
+      "Additional Effect: Grants 5 stacks of Panhaimatinon",
     ],
     conditions: [],
     duration: {
-      seconds: 15
+      seconds: 15,
     },
     max_charges: null,
     source_url: "FFXIV_Job_Guide_Raw_sage_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   "Dosis III": {
     id: "pve_action__30",
@@ -810,24 +810,24 @@ export const SageConfig = {
     cast: 1.5,
     recast: 2.5,
     cost: {
-      mp: 400
+      mp: 400,
     },
     range: 25,
     radius: 0,
     tooltip: "Deals unaspected damage with a potency of 380.\nAdditional Effect: Restores HP to targets under the effect of Kardion granted by you\nCure Potency: 170",
     potency: [
       "Deals unaspected damage with a potency of 380.",
-      "Cure Potency: 170"
+      "Cure Potency: 170",
     ],
     effects: [
-      "Additional Effect: Restores HP to targets under the effect of Kardion granted by you"
+      "Additional Effect: Restores HP to targets under the effect of Kardion granted by you",
     ],
     conditions: [],
     duration: null,
     max_charges: null,
     source_url: "FFXIV_Job_Guide_Raw_sage_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   "Phlegma III": {
     id: "pve_action__31",
@@ -839,24 +839,24 @@ export const SageConfig = {
     cast: 0.0,
     recast: 40.0,
     cost: {
-      mp: 400
+      mp: 400,
     },
     range: 6,
     radius: 5,
     tooltip: "Deals unaspected damage to target and all enemies nearby it with a potency of 600 for the first enemy, and 50% less for all remaining enemies.\nAdditional Effect: Restores HP to targets under the effect of Kardion granted by you\nCure Potency: 170\nMaximum Charges: 2\nRecast timer cannot be affected by status effects or gear attributes.",
     potency: [
       "Deals unaspected damage to target and all enemies nearby it with a potency of 600 for the first enemy, and 50% less for all remaining enemies.",
-      "Cure Potency: 170"
+      "Cure Potency: 170",
     ],
     effects: [
-      "Additional Effect: Restores HP to targets under the effect of Kardion granted by you"
+      "Additional Effect: Restores HP to targets under the effect of Kardion granted by you",
     ],
     conditions: [],
     duration: null,
     max_charges: 2,
     source_url: "FFXIV_Job_Guide_Raw_sage_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   "Eukrasian Dosis III": {
     id: "pve_action__32",
@@ -868,29 +868,29 @@ export const SageConfig = {
     cast: 0.0,
     recast: 1.5,
     cost: {
-      mp: 400
+      mp: 400,
     },
     range: 25,
     radius: 0,
     tooltip: "Deals unaspected damage over time.\nPotency: 80\nDuration: 30s\nEffect cannot be stacked with Eukrasian Dyskrasia.\nAdditional Effect: Restores HP to targets under the effect of Kardion granted by you\nCure Potency: 170\nCan only be executed while under the effect of Eukrasia.\n\n※This action cannot be assigned to a hotbar.\n※Dosis III changes to Eukrasian Dosis III when requirements for execution are met.",
     potency: [
       "Potency: 80",
-      "Cure Potency: 170"
+      "Cure Potency: 170",
     ],
     effects: [
-      "Additional Effect: Restores HP to targets under the effect of Kardion granted by you"
+      "Additional Effect: Restores HP to targets under the effect of Kardion granted by you",
     ],
     conditions: [
       "Can only be executed while under the effect of Eukrasia.",
-      "※This action cannot be assigned to a hotbar."
+      "※This action cannot be assigned to a hotbar.",
     ],
     duration: {
-      seconds: 30
+      seconds: 30,
     },
     max_charges: null,
     source_url: "FFXIV_Job_Guide_Raw_sage_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   "Dyskrasia II": {
     id: "pve_action__33",
@@ -902,24 +902,24 @@ export const SageConfig = {
     cast: 0.0,
     recast: 2.5,
     cost: {
-      mp: 400
+      mp: 400,
     },
     range: 0,
     radius: 5,
     tooltip: "Deals unaspected damage with a potency of 170 to all nearby enemies.\nAdditional Effect: Restores HP to targets under the effect of Kardion granted by you\nCure Potency: 170",
     potency: [
       "Deals unaspected damage with a potency of 170 to all nearby enemies.",
-      "Cure Potency: 170"
+      "Cure Potency: 170",
     ],
     effects: [
-      "Additional Effect: Restores HP to targets under the effect of Kardion granted by you"
+      "Additional Effect: Restores HP to targets under the effect of Kardion granted by you",
     ],
     conditions: [],
     duration: null,
     max_charges: null,
     source_url: "FFXIV_Job_Guide_Raw_sage_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   "Eukrasian Dyskrasia": {
     id: "pve_action__34",
@@ -931,29 +931,29 @@ export const SageConfig = {
     cast: 0.0,
     recast: 1.5,
     cost: {
-      mp: 400
+      mp: 400,
     },
     range: 0,
     radius: 5,
     tooltip: "Deals unaspected damage over time to all nearby enemies.\nPotency: 40\nDuration: 30s\nEffect cannot be stacked with Eukrasian Dosis III.\nAdditional Effect: Restores HP to targets under the effect of Kardion granted by you\nCure Potency: 170\nCan only be executed while under the effect of Eukrasia.\n\n※This action cannot be assigned to a hotbar.\n※Dyskrasia II changes to Eukrasian Dyskrasia when requirements for execution are met.",
     potency: [
       "Potency: 40",
-      "Cure Potency: 170"
+      "Cure Potency: 170",
     ],
     effects: [
-      "Additional Effect: Restores HP to targets under the effect of Kardion granted by you"
+      "Additional Effect: Restores HP to targets under the effect of Kardion granted by you",
     ],
     conditions: [
       "Can only be executed while under the effect of Eukrasia.",
-      "※This action cannot be assigned to a hotbar."
+      "※This action cannot be assigned to a hotbar.",
     ],
     duration: {
-      seconds: 30
+      seconds: 30,
     },
     max_charges: null,
     source_url: "FFXIV_Job_Guide_Raw_sage_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   "Toxikon II": {
     id: "pve_action__35",
@@ -970,17 +970,17 @@ export const SageConfig = {
     tooltip: "Deals unaspected damage to target and all enemies nearby it with a potency of 380 for the first enemy, and 50% less for all remaining enemies.\nAdditional Effect: Restores HP to targets under the effect of Kardion granted by you\nCure Potency: 170\nAddersting Cost: 1",
     potency: [
       "Deals unaspected damage to target and all enemies nearby it with a potency of 380 for the first enemy, and 50% less for all remaining enemies.",
-      "Cure Potency: 170"
+      "Cure Potency: 170",
     ],
     effects: [
-      "Additional Effect: Restores HP to targets under the effect of Kardion granted by you"
+      "Additional Effect: Restores HP to targets under the effect of Kardion granted by you",
     ],
     conditions: [],
     duration: null,
     max_charges: null,
     source_url: "FFXIV_Job_Guide_Raw_sage_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   Krasis: {
     id: "pve_action__36",
@@ -999,12 +999,12 @@ export const SageConfig = {
     effects: [],
     conditions: [],
     duration: {
-      seconds: 10
+      seconds: 10,
     },
     max_charges: null,
     source_url: "FFXIV_Job_Guide_Raw_sage_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   Pneuma: {
     id: "pve_action__37",
@@ -1016,7 +1016,7 @@ export const SageConfig = {
     cast: 1.5,
     recast: 120.0,
     cost: {
-      mp: 700
+      mp: 700,
     },
     range: 25,
     radius: 25,
@@ -1024,18 +1024,18 @@ export const SageConfig = {
     potency: [
       "Deals unaspected damage to all enemies in a straight line before you with a potency of 380 for the first enemy, and 40% less for all remaining enemies.",
       "Cure Potency: 600",
-      "Cure Potency: 170"
+      "Cure Potency: 170",
     ],
     effects: [
       "Additional Effect: Restores own HP and the HP of all party members within a radius of 20 yalms",
-      "Additional Effect: Restores HP to targets under the effect of Kardion granted by you"
+      "Additional Effect: Restores HP to targets under the effect of Kardion granted by you",
     ],
     conditions: [],
     duration: null,
     max_charges: null,
     source_url: "FFXIV_Job_Guide_Raw_sage_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   Psyche: {
     id: "pve_action__38",
@@ -1051,7 +1051,7 @@ export const SageConfig = {
     radius: 5,
     tooltip: "Deals unaspected damage to target and all enemies nearby it with a potency of 600 for the first enemy, and 50% less for all remaining enemies.",
     potency: [
-      "Deals unaspected damage to target and all enemies nearby it with a potency of 600 for the first enemy, and 50% less for all remaining enemies."
+      "Deals unaspected damage to target and all enemies nearby it with a potency of 600 for the first enemy, and 50% less for all remaining enemies.",
     ],
     effects: [],
     conditions: [],
@@ -1059,7 +1059,7 @@ export const SageConfig = {
     max_charges: null,
     source_url: "FFXIV_Job_Guide_Raw_sage_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   "Eukrasian Prognosis II": {
     id: "pve_action__39",
@@ -1071,28 +1071,28 @@ export const SageConfig = {
     cast: 0.0,
     recast: 1.5,
     cost: {
-      mp: 800
+      mp: 800,
     },
     range: 0,
     radius: 20,
     tooltip: "Restores own HP and the HP of all nearby party members.\nCure Potency: 100\nAdditional Effect: Erects a magicked barrier which nullifies damage equaling 360% of the amount of HP restored\nDuration: 30s\nEffect cannot be stacked with those of Eukrasian Diagnosis or scholar's Galvanize.\nCan only be executed while under the effect of Eukrasia.\n\n※This action cannot be assigned to a hotbar.\n※Prognosis changes to Eukrasian Prognosis II when requirements for execution are met.",
     potency: [
-      "Cure Potency: 100"
+      "Cure Potency: 100",
     ],
     effects: [
-      "Additional Effect: Erects a magicked barrier which nullifies damage equaling 360% of the amount of HP restored"
+      "Additional Effect: Erects a magicked barrier which nullifies damage equaling 360% of the amount of HP restored",
     ],
     conditions: [
       "Can only be executed while under the effect of Eukrasia.",
-      "※This action cannot be assigned to a hotbar."
+      "※This action cannot be assigned to a hotbar.",
     ],
     duration: {
-      seconds: 30
+      seconds: 30,
     },
     max_charges: null,
     source_url: "FFXIV_Job_Guide_Raw_sage_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   Philosophia: {
     id: "pve_action__40",
@@ -1109,19 +1109,19 @@ export const SageConfig = {
     tooltip: "Increases healing magic potency by 20%.\nDuration: 20s\nAdditional Effect: Grants self and nearby party members the effect of Eudaimonia, restoring HP after landing spells\nCure Potency: 150\nDuration: 20s",
     potency: [
       "Increases healing magic potency by 20%.",
-      "Cure Potency: 150"
+      "Cure Potency: 150",
     ],
     effects: [
-      "Additional Effect: Grants self and nearby party members the effect of Eudaimonia, restoring HP after landing spells"
+      "Additional Effect: Grants self and nearby party members the effect of Eudaimonia, restoring HP after landing spells",
     ],
     conditions: [],
     duration: {
-      seconds: 20
+      seconds: 20,
     },
     max_charges: null,
     source_url: "FFXIV_Job_Guide_Raw_sage_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   Repose: {
     id: "healer_action__01",
@@ -1133,7 +1133,7 @@ export const SageConfig = {
     cast: 2.5,
     recast: 2.5,
     cost: {
-      mp: 600
+      mp: 600,
     },
     range: 30,
     radius: 0,
@@ -1142,12 +1142,12 @@ export const SageConfig = {
     effects: [],
     conditions: [],
     duration: {
-      seconds: 30
+      seconds: 30,
     },
     max_charges: null,
     source_url: "FFXIV_Job_Guide_Raw_sage_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   Esuna: {
     id: "healer_action__02",
@@ -1159,7 +1159,7 @@ export const SageConfig = {
     cast: 0.0,
     recast: 2.5,
     cost: {
-      mp: 400
+      mp: 400,
     },
     range: 30,
     radius: 0,
@@ -1171,7 +1171,7 @@ export const SageConfig = {
     max_charges: null,
     source_url: "FFXIV_Job_Guide_Raw_sage_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   "Lucid Dreaming": {
     id: "healer_action__03",
@@ -1187,17 +1187,17 @@ export const SageConfig = {
     radius: 0,
     tooltip: "Gradually restores own MP.\nPotency: 55\nDuration: 21s",
     potency: [
-      "Potency: 55"
+      "Potency: 55",
     ],
     effects: [],
     conditions: [],
     duration: {
-      seconds: 21
+      seconds: 21,
     },
     max_charges: null,
     source_url: "FFXIV_Job_Guide_Raw_sage_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   Swiftcast: {
     id: "healer_action__04",
@@ -1216,12 +1216,12 @@ export const SageConfig = {
     effects: [],
     conditions: [],
     duration: {
-      seconds: 10
+      seconds: 10,
     },
     max_charges: null,
     source_url: "FFXIV_Job_Guide_Raw_sage_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   Surecast: {
     id: "healer_action__05",
@@ -1238,16 +1238,16 @@ export const SageConfig = {
     tooltip: "Spells can be cast without interruption.\nAdditional Effect: Nullifies most knockback and draw-in effects\nDuration: 6s",
     potency: [],
     effects: [
-      "Additional Effect: Nullifies most knockback and draw-in effects"
+      "Additional Effect: Nullifies most knockback and draw-in effects",
     ],
     conditions: [],
     duration: {
-      seconds: 6
+      seconds: 6,
     },
     max_charges: null,
     source_url: "FFXIV_Job_Guide_Raw_sage_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   Rescue: {
     id: "healer_action__06",
@@ -1269,8 +1269,8 @@ export const SageConfig = {
     max_charges: null,
     source_url: "FFXIV_Job_Guide_Raw_sage_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
-  }
+    language: "en",
+  },
 },
   rotations: []
 };

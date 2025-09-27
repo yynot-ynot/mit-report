@@ -15,19 +15,19 @@ export const MonkConfig = {
     tooltip: "Delivers an attack with a potency of 220.\nOpo-opo's Fury Potency: 420\nOpo-opo Form Bonus: Guarantees a critical hit\nDamage dealt is increased when under an effect that raises critical hit rate.\nAdditional Effect: Changes form to raptor\nDuration: 30s",
     potency: [
       "Delivers an attack with a potency of 220.",
-      "Opo-opo's Fury Potency: 420"
+      "Opo-opo's Fury Potency: 420",
     ],
     effects: [
-      "Additional Effect: Changes form to raptor"
+      "Additional Effect: Changes form to raptor",
     ],
     conditions: [],
     duration: {
-      seconds: 30
+      seconds: 30,
     },
     max_charges: null,
     source_url: "FFXIV_Job_Guide_Raw_monk_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   "True Strike": {
     id: "pve_action__02",
@@ -44,21 +44,21 @@ export const MonkConfig = {
     tooltip: "Delivers an attack with a potency of 300.\nRaptor's Fury Potency: 500\nCan only be executed when in raptor form.\nAdditional Effect: Changes form to coeurl\nDuration: 30s",
     potency: [
       "Delivers an attack with a potency of 300.",
-      "Raptor's Fury Potency: 500"
+      "Raptor's Fury Potency: 500",
     ],
     effects: [
-      "Additional Effect: Changes form to coeurl"
+      "Additional Effect: Changes form to coeurl",
     ],
     conditions: [
-      "Can only be executed when in raptor form."
+      "Can only be executed when in raptor form.",
     ],
     duration: {
-      seconds: 30
+      seconds: 30,
     },
     max_charges: null,
     source_url: "FFXIV_Job_Guide_Raw_monk_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   "Snap Punch": {
     id: "pve_action__03",
@@ -76,21 +76,21 @@ export const MonkConfig = {
     potency: [
       "Delivers an attack with a potency of 270.",
       "Coeurl's Fury Potency: 420",
-      "Flank Coeurl's Fury Potency: 480"
+      "Flank Coeurl's Fury Potency: 480",
     ],
     effects: [
-      "Additional Effect: Changes form to opo-opo"
+      "Additional Effect: Changes form to opo-opo",
     ],
     conditions: [
-      "Can only be executed when in coeurl form."
+      "Can only be executed when in coeurl form.",
     ],
     duration: {
-      seconds: 30
+      seconds: 30,
     },
     max_charges: null,
     source_url: "FFXIV_Job_Guide_Raw_monk_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   "Steeled Meditation": {
     id: "pve_action__04",
@@ -108,13 +108,13 @@ export const MonkConfig = {
     potency: [],
     effects: [],
     conditions: [
-      "Can only be executed while less than five chakra are open."
+      "Can only be executed while less than five chakra are open.",
     ],
     duration: null,
     max_charges: null,
     source_url: "FFXIV_Job_Guide_Raw_monk_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   "Steel Peak": {
     id: "pve_action__05",
@@ -130,17 +130,17 @@ export const MonkConfig = {
     radius: 0,
     tooltip: "Delivers an attack with a potency of 180.\nCan only be executed while in combat and under the effect of five Chakra. Five chakra close upon execution.",
     potency: [
-      "Delivers an attack with a potency of 180."
+      "Delivers an attack with a potency of 180.",
     ],
     effects: [],
     conditions: [
-      "Can only be executed while in combat and under the effect of five Chakra. Five chakra close upon execution."
+      "Can only be executed while in combat and under the effect of five Chakra. Five chakra close upon execution.",
     ],
     duration: null,
     max_charges: null,
     source_url: "FFXIV_Job_Guide_Raw_monk_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   "Twin Snakes": {
     id: "pve_action__06",
@@ -157,23 +157,23 @@ export const MonkConfig = {
     tooltip: "Delivers an attack with a potency of 420.\nCan only be executed when in raptor form.\nAdditional Effect: Grants a stack of Raptor's Fury\nRaptor's Fury Effect: Increases potency of Rising Raptor by 200\nAdditional Effect: Changes form to coeurl\nDuration: 30s",
     potency: [
       "Delivers an attack with a potency of 420.",
-      "Raptor's Fury Effect: Increases potency of Rising Raptor by 200"
+      "Raptor's Fury Effect: Increases potency of Rising Raptor by 200",
     ],
     effects: [
       "Additional Effect: Grants a stack of Raptor's Fury",
       "Raptor's Fury Effect: Increases potency of Rising Raptor by 200",
-      "Additional Effect: Changes form to coeurl"
+      "Additional Effect: Changes form to coeurl",
     ],
     conditions: [
-      "Can only be executed when in raptor form."
+      "Can only be executed when in raptor form.",
     ],
     duration: {
-      seconds: 30
+      seconds: 30,
     },
     max_charges: null,
     source_url: "FFXIV_Job_Guide_Raw_monk_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   "Arm of the Destroyer": {
     id: "pve_action__07",
@@ -190,19 +190,19 @@ export const MonkConfig = {
     tooltip: "Delivers an attack with a potency of 110 to all nearby targets.\nOpo-opo Form Potency: 120\nAdditional Effect: Changes form to raptor\nDuration: 30s",
     potency: [
       "Delivers an attack with a potency of 110 to all nearby targets.",
-      "Opo-opo Form Potency: 120"
+      "Opo-opo Form Potency: 120",
     ],
     effects: [
-      "Additional Effect: Changes form to raptor"
+      "Additional Effect: Changes form to raptor",
     ],
     conditions: [],
     duration: {
-      seconds: 30
+      seconds: 30,
     },
     max_charges: null,
     source_url: "FFXIV_Job_Guide_Raw_monk_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   Demolish: {
     id: "pve_action__08",
@@ -219,23 +219,23 @@ export const MonkConfig = {
     tooltip: "Delivers an attack with a potency of 360.\n420 when executed from a target's rear.\nCan only be executed when in coeurl form.\nAdditional Effect: Grants 2 stacks of Coeurl's Fury\nCoeurl's Fury Effect: Increases potency of Pouncing Coeurl by 150\nAdditional Effect: Changes form to opo-opo\nDuration: 30s",
     potency: [
       "Delivers an attack with a potency of 360.",
-      "Coeurl's Fury Effect: Increases potency of Pouncing Coeurl by 150"
+      "Coeurl's Fury Effect: Increases potency of Pouncing Coeurl by 150",
     ],
     effects: [
       "Additional Effect: Grants 2 stacks of Coeurl's Fury",
       "Coeurl's Fury Effect: Increases potency of Pouncing Coeurl by 150",
-      "Additional Effect: Changes form to opo-opo"
+      "Additional Effect: Changes form to opo-opo",
     ],
     conditions: [
-      "Can only be executed when in coeurl form."
+      "Can only be executed when in coeurl form.",
     ],
     duration: {
-      seconds: 30
+      seconds: 30,
     },
     max_charges: null,
     source_url: "FFXIV_Job_Guide_Raw_monk_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   Rockbreaker: {
     id: "pve_action__09",
@@ -251,21 +251,21 @@ export const MonkConfig = {
     radius: 5,
     tooltip: "Delivers an attack with a potency of 150 to all nearby enemies.\nCan only be executed when in coeurl form.\nAdditional Effect: Changes form to opo-opo\nDuration: 30s",
     potency: [
-      "Delivers an attack with a potency of 150 to all nearby enemies."
+      "Delivers an attack with a potency of 150 to all nearby enemies.",
     ],
     effects: [
-      "Additional Effect: Changes form to opo-opo"
+      "Additional Effect: Changes form to opo-opo",
     ],
     conditions: [
-      "Can only be executed when in coeurl form."
+      "Can only be executed when in coeurl form.",
     ],
     duration: {
-      seconds: 30
+      seconds: 30,
     },
     max_charges: null,
     source_url: "FFXIV_Job_Guide_Raw_monk_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   Thunderclap: {
     id: "pve_action__10",
@@ -287,7 +287,7 @@ export const MonkConfig = {
     max_charges: 3,
     source_url: "FFXIV_Job_Guide_Raw_monk_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   "Inspirited Meditation": {
     id: "pve_action__11",
@@ -305,13 +305,13 @@ export const MonkConfig = {
     potency: [],
     effects: [],
     conditions: [
-      "Can only be executed while less than five chakra are open."
+      "Can only be executed while less than five chakra are open.",
     ],
     duration: null,
     max_charges: null,
     source_url: "FFXIV_Job_Guide_Raw_monk_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   "Howling Fist": {
     id: "pve_action__12",
@@ -327,17 +327,17 @@ export const MonkConfig = {
     radius: 10,
     tooltip: "Delivers an attack with a potency of 100 to all enemies in a straight line before you.\nCan only be executed while in combat and under the effect of five Chakra. Five chakra close upon execution.",
     potency: [
-      "Delivers an attack with a potency of 100 to all enemies in a straight line before you."
+      "Delivers an attack with a potency of 100 to all enemies in a straight line before you.",
     ],
     effects: [],
     conditions: [
-      "Can only be executed while in combat and under the effect of five Chakra. Five chakra close upon execution."
+      "Can only be executed while in combat and under the effect of five Chakra. Five chakra close upon execution.",
     ],
     duration: null,
     max_charges: null,
     source_url: "FFXIV_Job_Guide_Raw_monk_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   Mantra: {
     id: "pve_action__13",
@@ -356,12 +356,12 @@ export const MonkConfig = {
     effects: [],
     conditions: [],
     duration: {
-      seconds: 15
+      seconds: 15,
     },
     max_charges: null,
     source_url: "FFXIV_Job_Guide_Raw_monk_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   "Four-point Fury": {
     id: "pve_action__14",
@@ -377,21 +377,21 @@ export const MonkConfig = {
     radius: 5,
     tooltip: "Delivers an attack with a potency of 140 to all nearby enemies.\nCan only be executed when in raptor form.\nAdditional Effect: Changes form to coeurl\nDuration: 30s",
     potency: [
-      "Delivers an attack with a potency of 140 to all nearby enemies."
+      "Delivers an attack with a potency of 140 to all nearby enemies.",
     ],
     effects: [
-      "Additional Effect: Changes form to coeurl"
+      "Additional Effect: Changes form to coeurl",
     ],
     conditions: [
-      "Can only be executed when in raptor form."
+      "Can only be executed when in raptor form.",
     ],
     duration: {
-      seconds: 30
+      seconds: 30,
     },
     max_charges: null,
     source_url: "FFXIV_Job_Guide_Raw_monk_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   "Dragon Kick": {
     id: "pve_action__15",
@@ -408,20 +408,20 @@ export const MonkConfig = {
     tooltip: "Delivers an attack with a potency of 320.\nOpo-opo Form Bonus: Grants a stack of Opo-opo's Fury\nOpo-opo's Fury Effect: Increases potency of Leaping Opo by 200\nAdditional Effect: Changes form to raptor\nDuration: 30s",
     potency: [
       "Delivers an attack with a potency of 320.",
-      "Opo-opo's Fury Effect: Increases potency of Leaping Opo by 200"
+      "Opo-opo's Fury Effect: Increases potency of Leaping Opo by 200",
     ],
     effects: [
       "Opo-opo's Fury Effect: Increases potency of Leaping Opo by 200",
-      "Additional Effect: Changes form to raptor"
+      "Additional Effect: Changes form to raptor",
     ],
     conditions: [],
     duration: {
-      seconds: 30
+      seconds: 30,
     },
     max_charges: null,
     source_url: "FFXIV_Job_Guide_Raw_monk_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   "Perfect Balance": {
     id: "pve_action__16",
@@ -438,19 +438,19 @@ export const MonkConfig = {
     tooltip: "Grants 3 stacks of Perfect Balance, each stack allowing the execution of a weaponskill that requires a certain form, without being in that form.\nDuration: 20s\nAdditional Effect: Grants Opo-opo Chakra, Coeurl Chakra, or Raptor Chakra depending on the form changed to upon executing actions\nChanging to Opo-opo Form grants Coeurl Chakra.\nChanging to Raptor Form grants Opo-opo Chakra.\nChanging to Coeurl Form grants Raptor Chakra.\nMaximum Charges: 2\nCan only be executed while in combat and when not under the effect of any Beast Chakra.",
     potency: [],
     effects: [
-      "Additional Effect: Grants Opo-opo Chakra, Coeurl Chakra, or Raptor Chakra depending on the form changed to upon executing actions"
+      "Additional Effect: Grants Opo-opo Chakra, Coeurl Chakra, or Raptor Chakra depending on the form changed to upon executing actions",
     ],
     conditions: [
       "Grants 3 stacks of Perfect Balance, each stack allowing the execution of a weaponskill that requires a certain form, without being in that form.",
-      "Can only be executed while in combat and when not under the effect of any Beast Chakra."
+      "Can only be executed while in combat and when not under the effect of any Beast Chakra.",
     ],
     duration: {
-      seconds: 20
+      seconds: 20,
     },
     max_charges: 2,
     source_url: "FFXIV_Job_Guide_Raw_monk_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   "Form Shift": {
     id: "pve_action__17",
@@ -467,18 +467,18 @@ export const MonkConfig = {
     tooltip: "Grants Formless Fist to self, allowing the execution of a weaponskill that requires a certain form, without being in that form.\nDuration: 30s\nAny additional effects associated with the executed action will also be applied.",
     potency: [],
     effects: [
-      "Any additional effects associated with the executed action will also be applied."
+      "Any additional effects associated with the executed action will also be applied.",
     ],
     conditions: [
-      "Grants Formless Fist to self, allowing the execution of a weaponskill that requires a certain form, without being in that form."
+      "Grants Formless Fist to self, allowing the execution of a weaponskill that requires a certain form, without being in that form.",
     ],
     duration: {
-      seconds: 30
+      seconds: 30,
     },
     max_charges: null,
     source_url: "FFXIV_Job_Guide_Raw_monk_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   "Forbidden Meditation": {
     id: "pve_action__18",
@@ -496,13 +496,13 @@ export const MonkConfig = {
     potency: [],
     effects: [],
     conditions: [
-      "Can only be executed while less than five chakra are open."
+      "Can only be executed while less than five chakra are open.",
     ],
     duration: null,
     max_charges: null,
     source_url: "FFXIV_Job_Guide_Raw_monk_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   "The Forbidden Chakra": {
     id: "pve_action__19",
@@ -518,17 +518,17 @@ export const MonkConfig = {
     radius: 0,
     tooltip: "Delivers an attack with a potency of 400.\nCan only be executed while in combat and under the effect of five Chakra. Five chakra close upon execution.",
     potency: [
-      "Delivers an attack with a potency of 400."
+      "Delivers an attack with a potency of 400.",
     ],
     effects: [],
     conditions: [
-      "Can only be executed while in combat and under the effect of five Chakra. Five chakra close upon execution."
+      "Can only be executed while in combat and under the effect of five Chakra. Five chakra close upon execution.",
     ],
     duration: null,
     max_charges: null,
     source_url: "FFXIV_Job_Guide_Raw_monk_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   "Masterful Blitz": {
     id: "pve_action__20",
@@ -550,7 +550,7 @@ export const MonkConfig = {
     max_charges: null,
     source_url: "FFXIV_Job_Guide_Raw_monk_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   "Tornado Kick": {
     id: "pve_action__21",
@@ -566,24 +566,24 @@ export const MonkConfig = {
     radius: 5,
     tooltip: "Delivers an attack to target and all enemies nearby it with a potency of 1,200 for the first enemy, and 35% less for all remaining enemies.\nAdditional Effect: Grants Formless Fist, allowing the execution of a weaponskill that requires a certain form, without being in that form\nDuration: 30s\nAny additional effects associated with the executed action will also be applied.\nCan only be executed while under the effect of Lunar Nadi and Solar Nadi, as well as three Beast Chakra.\n\n※This action cannot be assigned to a hotbar.\n※Masterful Blitz changes to Tornado Kick when requirements for execution are met.",
     potency: [
-      "Delivers an attack to target and all enemies nearby it with a potency of 1,200 for the first enemy, and 35% less for all remaining enemies."
+      "Delivers an attack to target and all enemies nearby it with a potency of 1,200 for the first enemy, and 35% less for all remaining enemies.",
     ],
     effects: [
       "Additional Effect: Grants Formless Fist, allowing the execution of a weaponskill that requires a certain form, without being in that form",
-      "Any additional effects associated with the executed action will also be applied."
+      "Any additional effects associated with the executed action will also be applied.",
     ],
     conditions: [
       "Additional Effect: Grants Formless Fist, allowing the execution of a weaponskill that requires a certain form, without being in that form",
       "Can only be executed while under the effect of Lunar Nadi and Solar Nadi, as well as three Beast Chakra.",
-      "※This action cannot be assigned to a hotbar."
+      "※This action cannot be assigned to a hotbar.",
     ],
     duration: {
-      seconds: 30
+      seconds: 30,
     },
     max_charges: null,
     source_url: "FFXIV_Job_Guide_Raw_monk_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   "Elixir Field": {
     id: "pve_action__22",
@@ -599,25 +599,25 @@ export const MonkConfig = {
     radius: 5,
     tooltip: "Delivers an attack to all nearby enemies with a potency of 800 for the first enemy, and 35% less for all remaining enemies.\nAdditional Effect: Opens the Lunar Nadi\nAdditional Effect: Grants Formless Fist, allowing the execution of a weaponskill that requires a certain form, without being in that form\nDuration: 30s\nAny additional effects associated with the executed action will also be applied.\nCan only be executed while under the effect of three of the same Beast Chakra.\n\n※This action cannot be assigned to a hotbar.\n※Masterful Blitz changes to Elixir Field when requirements for execution are met.",
     potency: [
-      "Delivers an attack to all nearby enemies with a potency of 800 for the first enemy, and 35% less for all remaining enemies."
+      "Delivers an attack to all nearby enemies with a potency of 800 for the first enemy, and 35% less for all remaining enemies.",
     ],
     effects: [
       "Additional Effect: Opens the Lunar Nadi",
       "Additional Effect: Grants Formless Fist, allowing the execution of a weaponskill that requires a certain form, without being in that form",
-      "Any additional effects associated with the executed action will also be applied."
+      "Any additional effects associated with the executed action will also be applied.",
     ],
     conditions: [
       "Additional Effect: Grants Formless Fist, allowing the execution of a weaponskill that requires a certain form, without being in that form",
       "Can only be executed while under the effect of three of the same Beast Chakra.",
-      "※This action cannot be assigned to a hotbar."
+      "※This action cannot be assigned to a hotbar.",
     ],
     duration: {
-      seconds: 30
+      seconds: 30,
     },
     max_charges: null,
     source_url: "FFXIV_Job_Guide_Raw_monk_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   "Celestial Revolution": {
     id: "pve_action__23",
@@ -633,25 +633,25 @@ export const MonkConfig = {
     radius: 0,
     tooltip: "Delivers an attack with a potency of 600.\nAdditional Effect: Opens the Lunar Nadi\nIf the Lunar Nadi is already open, opens the Solar Nadi instead.\nAdditional Effect: Grants Formless Fist, allowing the execution of a weaponskill that requires a certain form, without being in that form\nDuration: 30s\nAny additional effects associated with the executed action will also be applied.\nCan only be executed while under the effect of three Beast Chakra.\n\n※This action cannot be assigned to a hotbar.\n※Masterful Blitz changes to Celestial Revolution when requirements for execution are met.",
     potency: [
-      "Delivers an attack with a potency of 600."
+      "Delivers an attack with a potency of 600.",
     ],
     effects: [
       "Additional Effect: Opens the Lunar Nadi",
       "Additional Effect: Grants Formless Fist, allowing the execution of a weaponskill that requires a certain form, without being in that form",
-      "Any additional effects associated with the executed action will also be applied."
+      "Any additional effects associated with the executed action will also be applied.",
     ],
     conditions: [
       "Additional Effect: Grants Formless Fist, allowing the execution of a weaponskill that requires a certain form, without being in that form",
       "Can only be executed while under the effect of three Beast Chakra.",
-      "※This action cannot be assigned to a hotbar."
+      "※This action cannot be assigned to a hotbar.",
     ],
     duration: {
-      seconds: 30
+      seconds: 30,
     },
     max_charges: null,
     source_url: "FFXIV_Job_Guide_Raw_monk_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   "Flint Strike": {
     id: "pve_action__24",
@@ -667,25 +667,25 @@ export const MonkConfig = {
     radius: 5,
     tooltip: "Delivers an attack to all nearby enemies with a potency of 800 for the first enemy, and 35% less for all remaining enemies.\nAdditional Effect: Opens the Solar Nadi\nAdditional Effect: Grants Formless Fist, allowing the execution of a weaponskill that requires a certain form, without being in that form\nDuration: 30s\nAny additional effects associated with the executed action will also be applied.\nCan only be executed while under the effect of three distinct Beast Chakra.\n\n※This action cannot be assigned to a hotbar.\n※Masterful Blitz changes to Flint Strike when requirements for execution are met.",
     potency: [
-      "Delivers an attack to all nearby enemies with a potency of 800 for the first enemy, and 35% less for all remaining enemies."
+      "Delivers an attack to all nearby enemies with a potency of 800 for the first enemy, and 35% less for all remaining enemies.",
     ],
     effects: [
       "Additional Effect: Opens the Solar Nadi",
       "Additional Effect: Grants Formless Fist, allowing the execution of a weaponskill that requires a certain form, without being in that form",
-      "Any additional effects associated with the executed action will also be applied."
+      "Any additional effects associated with the executed action will also be applied.",
     ],
     conditions: [
       "Additional Effect: Grants Formless Fist, allowing the execution of a weaponskill that requires a certain form, without being in that form",
       "Can only be executed while under the effect of three distinct Beast Chakra.",
-      "※This action cannot be assigned to a hotbar."
+      "※This action cannot be assigned to a hotbar.",
     ],
     duration: {
-      seconds: 30
+      seconds: 30,
     },
     max_charges: null,
     source_url: "FFXIV_Job_Guide_Raw_monk_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   "Riddle of Earth": {
     id: "pve_action__25",
@@ -701,21 +701,21 @@ export const MonkConfig = {
     radius: 0,
     tooltip: "Reduces damage taken by 20%.\nDuration: 10s\nAdditional Effect: Grants Earth's Resolve upon taking damage\nEarth's Resolve Effect: Gradually restores HP\nCure Potency: 100\nDuration: 15s\nAdditional Effect: Grants Earth's Rumination\nDuration: 30s",
     potency: [
-      "Cure Potency: 100"
+      "Cure Potency: 100",
     ],
     effects: [
       "Additional Effect: Grants Earth's Resolve upon taking damage",
       "Earth's Resolve Effect: Gradually restores HP",
-      "Additional Effect: Grants Earth's Rumination"
+      "Additional Effect: Grants Earth's Rumination",
     ],
     conditions: [],
     duration: {
-      seconds: 30
+      seconds: 30,
     },
     max_charges: null,
     source_url: "FFXIV_Job_Guide_Raw_monk_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   "Earth's Reply": {
     id: "pve_action__26",
@@ -732,17 +732,17 @@ export const MonkConfig = {
     tooltip: "Restores own HP and the HP of all nearby party members.\nCure Potency: 300\nEarth's Resolve Potency: 500\nCan only be executed while under the effect of Earth's Rumination.",
     potency: [
       "Cure Potency: 300",
-      "Earth's Resolve Potency: 500"
+      "Earth's Resolve Potency: 500",
     ],
     effects: [],
     conditions: [
-      "Can only be executed while under the effect of Earth's Rumination."
+      "Can only be executed while under the effect of Earth's Rumination.",
     ],
     duration: null,
     max_charges: null,
     source_url: "FFXIV_Job_Guide_Raw_monk_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   "Riddle of Fire": {
     id: "pve_action__27",
@@ -759,16 +759,16 @@ export const MonkConfig = {
     tooltip: "Increases damage dealt by 15%.\nDuration: 20s\nAdditional Effect: Grants Fire's Rumination\nDuration: 20s",
     potency: [],
     effects: [
-      "Additional Effect: Grants Fire's Rumination"
+      "Additional Effect: Grants Fire's Rumination",
     ],
     conditions: [],
     duration: {
-      seconds: 20
+      seconds: 20,
     },
     max_charges: null,
     source_url: "FFXIV_Job_Guide_Raw_monk_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   Brotherhood: {
     id: "pve_action__28",
@@ -788,16 +788,16 @@ export const MonkConfig = {
       "Brotherhood Effect: Increases damage dealt by 5%",
       "Additional Effect: Allows the opening of up to ten chakra",
       "Additional Effect: Grants Meditative Brotherhood to self and all nearby party members",
-      "Meditative Brotherhood Effect: 20% chance you open a chakra when party members under this effect successfully land a weaponskill or cast a spell"
+      "Meditative Brotherhood Effect: 20% chance you open a chakra when party members under this effect successfully land a weaponskill or cast a spell",
     ],
     conditions: [],
     duration: {
-      seconds: 20
+      seconds: 20,
     },
     max_charges: null,
     source_url: "FFXIV_Job_Guide_Raw_monk_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   "Riddle of Wind": {
     id: "pve_action__29",
@@ -814,16 +814,16 @@ export const MonkConfig = {
     tooltip: "Reduces auto-attack delay by 50%.\nDuration: 15s\nAdditional Effect: Grants Wind's Rumination\nDuration: 15s",
     potency: [],
     effects: [
-      "Additional Effect: Grants Wind's Rumination"
+      "Additional Effect: Grants Wind's Rumination",
     ],
     conditions: [],
     duration: {
-      seconds: 15
+      seconds: 15,
     },
     max_charges: null,
     source_url: "FFXIV_Job_Guide_Raw_monk_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   "Enlightened Meditation": {
     id: "pve_action__30",
@@ -841,13 +841,13 @@ export const MonkConfig = {
     potency: [],
     effects: [],
     conditions: [
-      "Can only be executed while less than five chakra are open."
+      "Can only be executed while less than five chakra are open.",
     ],
     duration: null,
     max_charges: null,
     source_url: "FFXIV_Job_Guide_Raw_monk_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   Enlightenment: {
     id: "pve_action__31",
@@ -863,17 +863,17 @@ export const MonkConfig = {
     radius: 10,
     tooltip: "Delivers an attack with a potency of 160 to all enemies in a straight line before you.\nCan only be executed while in combat and under the effect of five Chakra. Five chakra close upon execution.",
     potency: [
-      "Delivers an attack with a potency of 160 to all enemies in a straight line before you."
+      "Delivers an attack with a potency of 160 to all enemies in a straight line before you.",
     ],
     effects: [],
     conditions: [
-      "Can only be executed while in combat and under the effect of five Chakra. Five chakra close upon execution."
+      "Can only be executed while in combat and under the effect of five Chakra. Five chakra close upon execution.",
     ],
     duration: null,
     max_charges: null,
     source_url: "FFXIV_Job_Guide_Raw_monk_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   "Six-sided Star": {
     id: "pve_action__32",
@@ -889,19 +889,19 @@ export const MonkConfig = {
     radius: 0,
     tooltip: "Delivers an attack with a potency of 780. Potency increases by 80 for each Chakra open.\nCloses all chakra upon execution.\nAdditional Effect: Increases movement speed\nDuration: 5s\nCritical hits with this weaponskill will not open a chakra.\nThis weaponskill does not share a recast timer with any other actions. Upon execution, the recast timer for this action will be applied to all other weaponskills and magic actions.",
     potency: [
-      "Delivers an attack with a potency of 780. Potency increases by 80 for each Chakra open."
+      "Delivers an attack with a potency of 780. Potency increases by 80 for each Chakra open.",
     ],
     effects: [
-      "Additional Effect: Increases movement speed"
+      "Additional Effect: Increases movement speed",
     ],
     conditions: [],
     duration: {
-      seconds: 5
+      seconds: 5,
     },
     max_charges: null,
     source_url: "FFXIV_Job_Guide_Raw_monk_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   "Shadow of the Destroyer": {
     id: "pve_action__33",
@@ -917,19 +917,19 @@ export const MonkConfig = {
     radius: 5,
     tooltip: "Delivers an attack with a potency of 120 to all nearby enemies.\nOpo-opo Form Bonus: Guarantees a critical hit\nDamage dealt is increased when under an effect that raises critical hit rate.\nAdditional Effect: Changes form to raptor\nDuration: 30s",
     potency: [
-      "Delivers an attack with a potency of 120 to all nearby enemies."
+      "Delivers an attack with a potency of 120 to all nearby enemies.",
     ],
     effects: [
-      "Additional Effect: Changes form to raptor"
+      "Additional Effect: Changes form to raptor",
     ],
     conditions: [],
     duration: {
-      seconds: 30
+      seconds: 30,
     },
     max_charges: null,
     source_url: "FFXIV_Job_Guide_Raw_monk_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   "Rising Phoenix": {
     id: "pve_action__34",
@@ -945,25 +945,25 @@ export const MonkConfig = {
     radius: 5,
     tooltip: "Deals physical fire damage to all nearby enemies with a potency of 900 for the first enemy, and 35% less for all remaining enemies.\nAdditional Effect: Opens the Solar Nadi\nAdditional Effect: Grants Formless Fist, allowing the execution of a weaponskill that requires a certain form, without being in that form\nDuration: 30s\nAny additional effects associated with the executed action will also be applied.\nCan only be executed while under the effect of three distinct Beast Chakra.\n\n※This action cannot be assigned to a hotbar.\n※Masterful Blitz changes to Rising Phoenix when requirements for execution are met.",
     potency: [
-      "Deals physical fire damage to all nearby enemies with a potency of 900 for the first enemy, and 35% less for all remaining enemies."
+      "Deals physical fire damage to all nearby enemies with a potency of 900 for the first enemy, and 35% less for all remaining enemies.",
     ],
     effects: [
       "Additional Effect: Opens the Solar Nadi",
       "Additional Effect: Grants Formless Fist, allowing the execution of a weaponskill that requires a certain form, without being in that form",
-      "Any additional effects associated with the executed action will also be applied."
+      "Any additional effects associated with the executed action will also be applied.",
     ],
     conditions: [
       "Additional Effect: Grants Formless Fist, allowing the execution of a weaponskill that requires a certain form, without being in that form",
       "Can only be executed while under the effect of three distinct Beast Chakra.",
-      "※This action cannot be assigned to a hotbar."
+      "※This action cannot be assigned to a hotbar.",
     ],
     duration: {
-      seconds: 30
+      seconds: 30,
     },
     max_charges: null,
     source_url: "FFXIV_Job_Guide_Raw_monk_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   "Phantom Rush": {
     id: "pve_action__35",
@@ -979,24 +979,24 @@ export const MonkConfig = {
     radius: 5,
     tooltip: "Delivers an attack to target and all enemies nearby it with a potency of 1,500 for the first enemy, and 35% less for all remaining enemies.\nAdditional Effect: Grants Formless Fist, allowing the execution of a weaponskill that requires a certain form, without being in that form\nDuration: 30s\nAny additional effects associated with the executed action will also be applied.\nCan only be executed while under the effect of Lunar Nadi and Solar Nadi, as well as three Beast Chakra.\n\n※This action cannot be assigned to a hotbar.\n※Masterful Blitz changes to Phantom Rush when requirements for execution are met.",
     potency: [
-      "Delivers an attack to target and all enemies nearby it with a potency of 1,500 for the first enemy, and 35% less for all remaining enemies."
+      "Delivers an attack to target and all enemies nearby it with a potency of 1,500 for the first enemy, and 35% less for all remaining enemies.",
     ],
     effects: [
       "Additional Effect: Grants Formless Fist, allowing the execution of a weaponskill that requires a certain form, without being in that form",
-      "Any additional effects associated with the executed action will also be applied."
+      "Any additional effects associated with the executed action will also be applied.",
     ],
     conditions: [
       "Additional Effect: Grants Formless Fist, allowing the execution of a weaponskill that requires a certain form, without being in that form",
       "Can only be executed while under the effect of Lunar Nadi and Solar Nadi, as well as three Beast Chakra.",
-      "※This action cannot be assigned to a hotbar."
+      "※This action cannot be assigned to a hotbar.",
     ],
     duration: {
-      seconds: 30
+      seconds: 30,
     },
     max_charges: null,
     source_url: "FFXIV_Job_Guide_Raw_monk_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   "Leaping Opo": {
     id: "pve_action__36",
@@ -1013,19 +1013,19 @@ export const MonkConfig = {
     tooltip: "Delivers an attack with a potency of 260.\nOpo-opo's Fury Potency: 460\nOpo-opo Form Bonus: Guarantees a critical hit\nDamage dealt is increased when under an effect that raises critical hit rate.\nAdditional Effect: Changes form to raptor\nDuration: 30s",
     potency: [
       "Delivers an attack with a potency of 260.",
-      "Opo-opo's Fury Potency: 460"
+      "Opo-opo's Fury Potency: 460",
     ],
     effects: [
-      "Additional Effect: Changes form to raptor"
+      "Additional Effect: Changes form to raptor",
     ],
     conditions: [],
     duration: {
-      seconds: 30
+      seconds: 30,
     },
     max_charges: null,
     source_url: "FFXIV_Job_Guide_Raw_monk_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   "Rising Raptor": {
     id: "pve_action__37",
@@ -1042,21 +1042,21 @@ export const MonkConfig = {
     tooltip: "Delivers an attack with a potency of 340.\nRaptor's Fury Potency: 540\nCan only be executed when in raptor form.\nAdditional Effect: Changes form to coeurl\nDuration: 30s",
     potency: [
       "Delivers an attack with a potency of 340.",
-      "Raptor's Fury Potency: 540"
+      "Raptor's Fury Potency: 540",
     ],
     effects: [
-      "Additional Effect: Changes form to coeurl"
+      "Additional Effect: Changes form to coeurl",
     ],
     conditions: [
-      "Can only be executed when in raptor form."
+      "Can only be executed when in raptor form.",
     ],
     duration: {
-      seconds: 30
+      seconds: 30,
     },
     max_charges: null,
     source_url: "FFXIV_Job_Guide_Raw_monk_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   "Pouncing Coeurl": {
     id: "pve_action__38",
@@ -1074,21 +1074,21 @@ export const MonkConfig = {
     potency: [
       "Delivers an attack with a potency of 310.",
       "Coeurl's Fury Potency: 460",
-      "Flank Coeurl's Fury Potency: 520"
+      "Flank Coeurl's Fury Potency: 520",
     ],
     effects: [
-      "Additional Effect: Changes form to opo-opo"
+      "Additional Effect: Changes form to opo-opo",
     ],
     conditions: [
-      "Can only be executed when in coeurl form."
+      "Can only be executed when in coeurl form.",
     ],
     duration: {
-      seconds: 30
+      seconds: 30,
     },
     max_charges: null,
     source_url: "FFXIV_Job_Guide_Raw_monk_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   "Elixir Burst": {
     id: "pve_action__39",
@@ -1104,25 +1104,25 @@ export const MonkConfig = {
     radius: 5,
     tooltip: "Delivers an attack to all nearby enemies with a potency of 900 for the first enemy, and 35% less for all remaining enemies.\nAdditional Effect: Opens the Lunar Nadi\nAdditional Effect: Grants Formless Fist, allowing the execution of a weaponskill that requires a certain form, without being in that form\nDuration: 30s\nAny additional effects associated with the executed action will also be applied.\nCan only be executed while under the effect of three of the same Beast Chakra.\n\n※This action cannot be assigned to a hotbar.\n※Masterful Blitz changes to Elixir Burst when requirements for execution are met.",
     potency: [
-      "Delivers an attack to all nearby enemies with a potency of 900 for the first enemy, and 35% less for all remaining enemies."
+      "Delivers an attack to all nearby enemies with a potency of 900 for the first enemy, and 35% less for all remaining enemies.",
     ],
     effects: [
       "Additional Effect: Opens the Lunar Nadi",
       "Additional Effect: Grants Formless Fist, allowing the execution of a weaponskill that requires a certain form, without being in that form",
-      "Any additional effects associated with the executed action will also be applied."
+      "Any additional effects associated with the executed action will also be applied.",
     ],
     conditions: [
       "Additional Effect: Grants Formless Fist, allowing the execution of a weaponskill that requires a certain form, without being in that form",
       "Can only be executed while under the effect of three of the same Beast Chakra.",
-      "※This action cannot be assigned to a hotbar."
+      "※This action cannot be assigned to a hotbar.",
     ],
     duration: {
-      seconds: 30
+      seconds: 30,
     },
     max_charges: null,
     source_url: "FFXIV_Job_Guide_Raw_monk_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   "Wind's Reply": {
     id: "pve_action__40",
@@ -1138,17 +1138,17 @@ export const MonkConfig = {
     radius: 10,
     tooltip: "Delivers an attack to all enemies in a straight line before you with a potency of 1,040 for the first enemy, and 35% less for all remaining enemies.\nCan only be executed while under the effect of Wind's Rumination.",
     potency: [
-      "Delivers an attack to all enemies in a straight line before you with a potency of 1,040 for the first enemy, and 35% less for all remaining enemies."
+      "Delivers an attack to all enemies in a straight line before you with a potency of 1,040 for the first enemy, and 35% less for all remaining enemies.",
     ],
     effects: [],
     conditions: [
-      "Can only be executed while under the effect of Wind's Rumination."
+      "Can only be executed while under the effect of Wind's Rumination.",
     ],
     duration: null,
     max_charges: null,
     source_url: "FFXIV_Job_Guide_Raw_monk_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   "Fire's Reply": {
     id: "pve_action__41",
@@ -1164,23 +1164,23 @@ export const MonkConfig = {
     radius: 5,
     tooltip: "Deals damage to all nearby enemies with a potency of 1,400 for the first enemy, and 35% less for all remaining enemies.\nAdditional Effect: Grants Formless Fist, allowing the execution of a weaponskill that requires a certain form, without being in that form\nDuration: 30s\nAny additional effects associated with the executed action will also be applied.\nCan only be executed while under the effect of Fire's Rumination.",
     potency: [
-      "Deals damage to all nearby enemies with a potency of 1,400 for the first enemy, and 35% less for all remaining enemies."
+      "Deals damage to all nearby enemies with a potency of 1,400 for the first enemy, and 35% less for all remaining enemies.",
     ],
     effects: [
       "Additional Effect: Grants Formless Fist, allowing the execution of a weaponskill that requires a certain form, without being in that form",
-      "Any additional effects associated with the executed action will also be applied."
+      "Any additional effects associated with the executed action will also be applied.",
     ],
     conditions: [
       "Additional Effect: Grants Formless Fist, allowing the execution of a weaponskill that requires a certain form, without being in that form",
-      "Can only be executed while under the effect of Fire's Rumination."
+      "Can only be executed while under the effect of Fire's Rumination.",
     ],
     duration: {
-      seconds: 30
+      seconds: 30,
     },
     max_charges: null,
     source_url: "FFXIV_Job_Guide_Raw_monk_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   "Second Wind": {
     id: "melee_action__01",
@@ -1196,7 +1196,7 @@ export const MonkConfig = {
     radius: 0,
     tooltip: "Instantly restores own HP.\nCure Potency: 800",
     potency: [
-      "Cure Potency: 800"
+      "Cure Potency: 800",
     ],
     effects: [],
     conditions: [],
@@ -1204,7 +1204,7 @@ export const MonkConfig = {
     max_charges: null,
     source_url: "FFXIV_Job_Guide_Raw_monk_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   "Leg Sweep": {
     id: "melee_action__02",
@@ -1223,12 +1223,12 @@ export const MonkConfig = {
     effects: [],
     conditions: [],
     duration: {
-      seconds: 3
+      seconds: 3,
     },
     max_charges: null,
     source_url: "FFXIV_Job_Guide_Raw_monk_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   Bloodbath: {
     id: "melee_action__03",
@@ -1247,12 +1247,12 @@ export const MonkConfig = {
     effects: [],
     conditions: [],
     duration: {
-      seconds: 20
+      seconds: 20,
     },
     max_charges: null,
     source_url: "FFXIV_Job_Guide_Raw_monk_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   Feint: {
     id: "melee_action__04",
@@ -1271,12 +1271,12 @@ export const MonkConfig = {
     effects: [],
     conditions: [],
     duration: {
-      seconds: 15
+      seconds: 15,
     },
     max_charges: null,
     source_url: "FFXIV_Job_Guide_Raw_monk_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   "Arm's Length": {
     id: "melee_action__05",
@@ -1293,16 +1293,16 @@ export const MonkConfig = {
     tooltip: "Nullifies most knockback and draw-in effects.\nDuration: 6s\nAdditional Effect: When you are struck by a physical attack, the striker will be afflicted with Slow +20%\nDuration: 15s",
     potency: [],
     effects: [
-      "Additional Effect: When you are struck by a physical attack, the striker will be afflicted with Slow +20%"
+      "Additional Effect: When you are struck by a physical attack, the striker will be afflicted with Slow +20%",
     ],
     conditions: [],
     duration: {
-      seconds: 15
+      seconds: 15,
     },
     max_charges: null,
     source_url: "FFXIV_Job_Guide_Raw_monk_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   "True North": {
     id: "melee_action__06",
@@ -1321,13 +1321,13 @@ export const MonkConfig = {
     effects: [],
     conditions: [],
     duration: {
-      seconds: 10
+      seconds: 10,
     },
     max_charges: 2,
     source_url: "FFXIV_Job_Guide_Raw_monk_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
-  }
+    language: "en",
+  },
 },
   rotations: []
 };

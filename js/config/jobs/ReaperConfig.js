@@ -14,17 +14,17 @@ export const ReaperConfig = {
     radius: 0,
     tooltip: "Delivers an attack with a potency of 420.\nAdditional Effect: Increases Soul Gauge by 10",
     potency: [
-      "Delivers an attack with a potency of 420."
+      "Delivers an attack with a potency of 420.",
     ],
     effects: [
-      "Additional Effect: Increases Soul Gauge by 10"
+      "Additional Effect: Increases Soul Gauge by 10",
     ],
     conditions: [],
     duration: null,
     max_charges: null,
     source_url: "FFXIV_Job_Guide_Raw_reaper_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   "Waxing Slice": {
     id: "pve_action__02",
@@ -41,17 +41,17 @@ export const ReaperConfig = {
     tooltip: "Delivers an attack with a potency of 260.\nCombo Action: Slice\nCombo Potency: 500\nCombo Bonus: Increases Soul Gauge by 10",
     potency: [
       "Delivers an attack with a potency of 260.",
-      "Combo Potency: 500"
+      "Combo Potency: 500",
     ],
     effects: [
-      "Combo Bonus: Increases Soul Gauge by 10"
+      "Combo Bonus: Increases Soul Gauge by 10",
     ],
     conditions: [],
     duration: null,
     max_charges: null,
     source_url: "FFXIV_Job_Guide_Raw_reaper_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   "Shadow of Death": {
     id: "pve_action__03",
@@ -67,20 +67,20 @@ export const ReaperConfig = {
     radius: 0,
     tooltip: "Delivers an attack with a potency of 300.\nAdditional Effect: Afflicts target with Death's Design, increasing damage you deal target by 10%\nDuration: 30s\nExtends duration of Death's Design by 30s to a maximum of 60s.\nAdditional Effect: Increases Soul Gauge by 10 if target is KO'd before effect expires",
     potency: [
-      "Delivers an attack with a potency of 300."
+      "Delivers an attack with a potency of 300.",
     ],
     effects: [
       "Additional Effect: Afflicts target with Death's Design, increasing damage you deal target by 10%",
-      "Additional Effect: Increases Soul Gauge by 10 if target is KO'd before effect expires"
+      "Additional Effect: Increases Soul Gauge by 10 if target is KO'd before effect expires",
     ],
     conditions: [],
     duration: {
-      seconds: 30
+      seconds: 30,
     },
     max_charges: null,
     source_url: "FFXIV_Job_Guide_Raw_reaper_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   Harpe: {
     id: "pve_action__04",
@@ -96,17 +96,17 @@ export const ReaperConfig = {
     radius: 0,
     tooltip: "Deals unaspected damage with a potency of 300.\nAdditional Effect: Increases Soul Gauge by 10",
     potency: [
-      "Deals unaspected damage with a potency of 300."
+      "Deals unaspected damage with a potency of 300.",
     ],
     effects: [
-      "Additional Effect: Increases Soul Gauge by 10"
+      "Additional Effect: Increases Soul Gauge by 10",
     ],
     conditions: [],
     duration: null,
     max_charges: null,
     source_url: "FFXIV_Job_Guide_Raw_reaper_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   "Hell's Ingress": {
     id: "pve_action__05",
@@ -125,18 +125,18 @@ export const ReaperConfig = {
     effects: [
       "Additional Effect: Grants Enhanced Harpe",
       "Enhanced Harpe Effect: Next Harpe can be cast immediately and will reduce recast timer of Hell's Ingress by 5s upon execution",
-      "Additional Effect: Leaves behind a Hellsgate at point of origin, and grants Threshold to self"
+      "Additional Effect: Leaves behind a Hellsgate at point of origin, and grants Threshold to self",
     ],
     conditions: [
-      "Shares a recast timer with Hell's Egress."
+      "Shares a recast timer with Hell's Egress.",
     ],
     duration: {
-      seconds: 10
+      seconds: 10,
     },
     max_charges: null,
     source_url: "FFXIV_Job_Guide_Raw_reaper_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   "Hell's Egress": {
     id: "pve_action__06",
@@ -155,18 +155,18 @@ export const ReaperConfig = {
     effects: [
       "Additional Effect: Grants Enhanced Harpe",
       "Enhanced Harpe Effect: Next Harpe can be cast immediately and will reduce recast timer of Hell's Egress by 5s upon execution",
-      "Additional Effect: Leaves behind a Hellsgate at point of origin, and grants Threshold to self"
+      "Additional Effect: Leaves behind a Hellsgate at point of origin, and grants Threshold to self",
     ],
     conditions: [
-      "Shares a recast timer with Hell's Ingress."
+      "Shares a recast timer with Hell's Ingress.",
     ],
     duration: {
-      seconds: 10
+      seconds: 10,
     },
     max_charges: null,
     source_url: "FFXIV_Job_Guide_Raw_reaper_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   "Spinning Scythe": {
     id: "pve_action__07",
@@ -182,17 +182,17 @@ export const ReaperConfig = {
     radius: 5,
     tooltip: "Delivers an attack with a potency of 140 to all nearby enemies.\nAdditional Effect: Increases Soul Gauge by 10",
     potency: [
-      "Delivers an attack with a potency of 140 to all nearby enemies."
+      "Delivers an attack with a potency of 140 to all nearby enemies.",
     ],
     effects: [
-      "Additional Effect: Increases Soul Gauge by 10"
+      "Additional Effect: Increases Soul Gauge by 10",
     ],
     conditions: [],
     duration: null,
     max_charges: null,
     source_url: "FFXIV_Job_Guide_Raw_reaper_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   "Infernal Slice": {
     id: "pve_action__08",
@@ -209,17 +209,17 @@ export const ReaperConfig = {
     tooltip: "Delivers an attack with a potency of 280.\nCombo Action: Waxing Slice\nCombo Potency: 600\nCombo Bonus: Increases Soul Gauge by 10",
     potency: [
       "Delivers an attack with a potency of 280.",
-      "Combo Potency: 600"
+      "Combo Potency: 600",
     ],
     effects: [
-      "Combo Bonus: Increases Soul Gauge by 10"
+      "Combo Bonus: Increases Soul Gauge by 10",
     ],
     conditions: [],
     duration: null,
     max_charges: null,
     source_url: "FFXIV_Job_Guide_Raw_reaper_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   "Whorl of Death": {
     id: "pve_action__09",
@@ -235,20 +235,20 @@ export const ReaperConfig = {
     radius: 5,
     tooltip: "Delivers an attack with a potency of 100 to all nearby enemies.\nAdditional Effect: Afflicts target with Death's Design, increasing damage you deal target by 10%\nDuration: 30s\nExtends duration of Death's Design by 30s to a maximum of 60s.\nAdditional Effect: Increases Soul Gauge by 10 if target is KO'd before effect expires",
     potency: [
-      "Delivers an attack with a potency of 100 to all nearby enemies."
+      "Delivers an attack with a potency of 100 to all nearby enemies.",
     ],
     effects: [
       "Additional Effect: Afflicts target with Death's Design, increasing damage you deal target by 10%",
-      "Additional Effect: Increases Soul Gauge by 10 if target is KO'd before effect expires"
+      "Additional Effect: Increases Soul Gauge by 10 if target is KO'd before effect expires",
     ],
     conditions: [],
     duration: {
-      seconds: 30
+      seconds: 30,
     },
     max_charges: null,
     source_url: "FFXIV_Job_Guide_Raw_reaper_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   "Arcane Crest": {
     id: "pve_action__10",
@@ -264,19 +264,19 @@ export const ReaperConfig = {
     radius: 0,
     tooltip: "Grants Crest of Time Borrowed to self, creating a barrier that nullifies damage totaling up to 10% of maximum HP.\nDuration: 5s\nGrants Crest of Time Returned to self and nearby party members within a radius of 15 yalms when barrier is completely absorbed.\nCrest of Time Returned Effect: Gradually restores HP\nCure Potency: 50\nDuration: 15s",
     potency: [
-      "Cure Potency: 50"
+      "Cure Potency: 50",
     ],
     effects: [
-      "Crest of Time Returned Effect: Gradually restores HP"
+      "Crest of Time Returned Effect: Gradually restores HP",
     ],
     conditions: [],
     duration: {
-      seconds: 15
+      seconds: 15,
     },
     max_charges: null,
     source_url: "FFXIV_Job_Guide_Raw_reaper_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   "Nightmare Scythe": {
     id: "pve_action__11",
@@ -293,17 +293,17 @@ export const ReaperConfig = {
     tooltip: "Delivers an attack with a potency of 120 to all nearby enemies.\nCombo Action: Spinning Scythe\nCombo Potency: 180\nCombo Bonus: Increases Soul Gauge by 10",
     potency: [
       "Delivers an attack with a potency of 120 to all nearby enemies.",
-      "Combo Potency: 180"
+      "Combo Potency: 180",
     ],
     effects: [
-      "Combo Bonus: Increases Soul Gauge by 10"
+      "Combo Bonus: Increases Soul Gauge by 10",
     ],
     conditions: [],
     duration: null,
     max_charges: null,
     source_url: "FFXIV_Job_Guide_Raw_reaper_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   "Blood Stalk": {
     id: "pve_action__12",
@@ -319,21 +319,21 @@ export const ReaperConfig = {
     radius: 0,
     tooltip: "Summons your avatar to deliver an attack with a potency of 340.\nAdditional Effect: Grants Soul Reaver\nDuration: 30s\nStack count will be reduced to 1 when already under the effect of Soul Reaver.\nEffect cannot be stacked with Executioner.\nSoul Gauge Cost: 50\nShares a recast timer with all avatar attacks except Gluttony.",
     potency: [
-      "Summons your avatar to deliver an attack with a potency of 340."
+      "Summons your avatar to deliver an attack with a potency of 340.",
     ],
     effects: [
-      "Additional Effect: Grants Soul Reaver"
+      "Additional Effect: Grants Soul Reaver",
     ],
     conditions: [
-      "Shares a recast timer with all avatar attacks except Gluttony."
+      "Shares a recast timer with all avatar attacks except Gluttony.",
     ],
     duration: {
-      seconds: 30
+      seconds: 30,
     },
     max_charges: null,
     source_url: "FFXIV_Job_Guide_Raw_reaper_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   "Grim Swathe": {
     id: "pve_action__13",
@@ -349,21 +349,21 @@ export const ReaperConfig = {
     radius: 8,
     tooltip: "Summons your avatar to deliver an attack with a potency of 140 to all enemies in a cone before you.\nAdditional Effect: Grants Soul Reaver\nDuration: 30s\nStack count will be reduced to 1 when already under the effect of Soul Reaver.\nEffect cannot be stacked with Executioner.\nSoul Gauge Cost: 50\nShares a recast timer with all avatar attacks except Gluttony.",
     potency: [
-      "Summons your avatar to deliver an attack with a potency of 140 to all enemies in a cone before you."
+      "Summons your avatar to deliver an attack with a potency of 140 to all enemies in a cone before you.",
     ],
     effects: [
-      "Additional Effect: Grants Soul Reaver"
+      "Additional Effect: Grants Soul Reaver",
     ],
     conditions: [
-      "Shares a recast timer with all avatar attacks except Gluttony."
+      "Shares a recast timer with all avatar attacks except Gluttony.",
     ],
     duration: {
-      seconds: 30
+      seconds: 30,
     },
     max_charges: null,
     source_url: "FFXIV_Job_Guide_Raw_reaper_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   "Soul Slice": {
     id: "pve_action__14",
@@ -379,19 +379,19 @@ export const ReaperConfig = {
     radius: 0,
     tooltip: "Delivers an attack with a potency of 520.\nAdditional Effect: Increases Soul Gauge by 50\nMaximum Charges: 2\nShares a recast timer with Soul Scythe.\nRecast timer cannot be affected by status effects or gear attributes.",
     potency: [
-      "Delivers an attack with a potency of 520."
+      "Delivers an attack with a potency of 520.",
     ],
     effects: [
-      "Additional Effect: Increases Soul Gauge by 50"
+      "Additional Effect: Increases Soul Gauge by 50",
     ],
     conditions: [
-      "Shares a recast timer with Soul Scythe."
+      "Shares a recast timer with Soul Scythe.",
     ],
     duration: null,
     max_charges: 2,
     source_url: "FFXIV_Job_Guide_Raw_reaper_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   "Soul Scythe": {
     id: "pve_action__15",
@@ -407,19 +407,19 @@ export const ReaperConfig = {
     radius: 5,
     tooltip: "Delivers an attack with a potency of 180 to all nearby enemies.\nAdditional Effect: Increases Soul Gauge by 50\nMaximum Charges: 2\nShares a recast timer with Soul Slice.\nRecast timer cannot be affected by status effects or gear attributes.",
     potency: [
-      "Delivers an attack with a potency of 180 to all nearby enemies."
+      "Delivers an attack with a potency of 180 to all nearby enemies.",
     ],
     effects: [
-      "Additional Effect: Increases Soul Gauge by 50"
+      "Additional Effect: Increases Soul Gauge by 50",
     ],
     conditions: [
-      "Shares a recast timer with Soul Slice."
+      "Shares a recast timer with Soul Slice.",
     ],
     duration: null,
     max_charges: 2,
     source_url: "FFXIV_Job_Guide_Raw_reaper_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   Gibbet: {
     id: "pve_action__16",
@@ -437,22 +437,22 @@ export const ReaperConfig = {
     potency: [
       "Delivers an attack with a potency of 500.",
       "Enhanced Gibbet Potency: 560",
-      "Flank Enhanced Potency: 620"
+      "Flank Enhanced Potency: 620",
     ],
     effects: [
       "Additional Effect: Grants Enhanced Gallows",
-      "Additional Effect: Increases Shroud Gauge by 10"
+      "Additional Effect: Increases Shroud Gauge by 10",
     ],
     conditions: [
-      "Can only be executed while under the effect of Soul Reaver."
+      "Can only be executed while under the effect of Soul Reaver.",
     ],
     duration: {
-      seconds: 60
+      seconds: 60,
     },
     max_charges: null,
     source_url: "FFXIV_Job_Guide_Raw_reaper_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   Gallows: {
     id: "pve_action__17",
@@ -470,22 +470,22 @@ export const ReaperConfig = {
     potency: [
       "Delivers an attack with a potency of 500.",
       "Enhanced Gallows Potency: 560",
-      "Rear Enhanced Potency: 620"
+      "Rear Enhanced Potency: 620",
     ],
     effects: [
       "Additional Effect: Grants Enhanced Gibbet",
-      "Additional Effect: Increases Shroud Gauge by 10"
+      "Additional Effect: Increases Shroud Gauge by 10",
     ],
     conditions: [
-      "Can only be executed while under the effect of Soul Reaver."
+      "Can only be executed while under the effect of Soul Reaver.",
     ],
     duration: {
-      seconds: 60
+      seconds: 60,
     },
     max_charges: null,
     source_url: "FFXIV_Job_Guide_Raw_reaper_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   Guillotine: {
     id: "pve_action__18",
@@ -501,19 +501,19 @@ export const ReaperConfig = {
     radius: 8,
     tooltip: "Delivers an attack with a potency of 200 to all enemies in a cone before you.\nAdditional Effect: Increases Shroud Gauge by 10\nCan only be executed while under the effect of Soul Reaver.",
     potency: [
-      "Delivers an attack with a potency of 200 to all enemies in a cone before you."
+      "Delivers an attack with a potency of 200 to all enemies in a cone before you.",
     ],
     effects: [
-      "Additional Effect: Increases Shroud Gauge by 10"
+      "Additional Effect: Increases Shroud Gauge by 10",
     ],
     conditions: [
-      "Can only be executed while under the effect of Soul Reaver."
+      "Can only be executed while under the effect of Soul Reaver.",
     ],
     duration: null,
     max_charges: null,
     source_url: "FFXIV_Job_Guide_Raw_reaper_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   "Unveiled Gibbet": {
     id: "pve_action__19",
@@ -529,23 +529,23 @@ export const ReaperConfig = {
     radius: 0,
     tooltip: "Summons your avatar to deliver an attack with a potency of 440.\nAdditional Effect: Grants Soul Reaver\nDuration: 30s\nStack count will be reduced to 1 when already under the effect of Soul Reaver.\nEffect cannot be stacked with Executioner.\nSoul Gauge Cost: 50\nCan only be executed while under the effect of Enhanced Gibbet.\nShares a recast timer with all avatar attacks except Gluttony.\n\n※This action cannot be assigned to a hotbar.\n※Blood Stalk changes to Unveiled Gibbet when under the effect of Enhanced Gibbet.",
     potency: [
-      "Summons your avatar to deliver an attack with a potency of 440."
+      "Summons your avatar to deliver an attack with a potency of 440.",
     ],
     effects: [
-      "Additional Effect: Grants Soul Reaver"
+      "Additional Effect: Grants Soul Reaver",
     ],
     conditions: [
       "Can only be executed while under the effect of Enhanced Gibbet.",
       "Shares a recast timer with all avatar attacks except Gluttony.",
-      "※This action cannot be assigned to a hotbar."
+      "※This action cannot be assigned to a hotbar.",
     ],
     duration: {
-      seconds: 30
+      seconds: 30,
     },
     max_charges: null,
     source_url: "FFXIV_Job_Guide_Raw_reaper_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   "Unveiled Gallows": {
     id: "pve_action__20",
@@ -561,23 +561,23 @@ export const ReaperConfig = {
     radius: 0,
     tooltip: "Summons your avatar to deliver an attack with a potency of 440.\nAdditional Effect: Grants Soul Reaver\nDuration: 30s\nStack count will be reduced to 1 when already under the effect of Soul Reaver.\nEffect cannot be stacked with Executioner.\nSoul Gauge Cost: 50\nCan only be executed while under the effect of Enhanced Gallows.\nShares a recast timer with all avatar attacks except Gluttony.\n\n※This action cannot be assigned to a hotbar.\n※Blood Stalk changes to Unveiled Gallows while under the effect of Enhanced Gallows.",
     potency: [
-      "Summons your avatar to deliver an attack with a potency of 440."
+      "Summons your avatar to deliver an attack with a potency of 440.",
     ],
     effects: [
-      "Additional Effect: Grants Soul Reaver"
+      "Additional Effect: Grants Soul Reaver",
     ],
     conditions: [
       "Can only be executed while under the effect of Enhanced Gallows.",
       "Shares a recast timer with all avatar attacks except Gluttony.",
-      "※This action cannot be assigned to a hotbar."
+      "※This action cannot be assigned to a hotbar.",
     ],
     duration: {
-      seconds: 30
+      seconds: 30,
     },
     max_charges: null,
     source_url: "FFXIV_Job_Guide_Raw_reaper_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   "Arcane Circle": {
     id: "pve_action__21",
@@ -597,16 +597,16 @@ export const ReaperConfig = {
       "Additional Effect: Grants Circle of Sacrifice to self and nearby party members",
       "Additional Effect: Grants Bloodsown Circle to self",
       "Circle of Sacrifice Effect: When you or party members under this effect successfully land a weaponskill or ability, or cast a spell, the reaper who applied it may be granted a stack of Immortal Sacrifice, up to a maximum of 8",
-      "Bloodsown Circle Effect: Allows you to accumulate stacks of Immortal Sacrifice from party members under the effect of your Circle of Sacrifice"
+      "Bloodsown Circle Effect: Allows you to accumulate stacks of Immortal Sacrifice from party members under the effect of your Circle of Sacrifice",
     ],
     conditions: [],
     duration: {
-      seconds: 30
+      seconds: 30,
     },
     max_charges: null,
     source_url: "FFXIV_Job_Guide_Raw_reaper_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   Regress: {
     id: "pve_action__22",
@@ -625,13 +625,13 @@ export const ReaperConfig = {
     effects: [],
     conditions: [
       "Can only be executed while under the effect of Threshold.",
-      "※This action cannot be assigned to a hotbar."
+      "※This action cannot be assigned to a hotbar.",
     ],
     duration: null,
     max_charges: null,
     source_url: "FFXIV_Job_Guide_Raw_reaper_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   Gluttony: {
     id: "pve_action__23",
@@ -647,19 +647,19 @@ export const ReaperConfig = {
     radius: 5,
     tooltip: "Summons your avatar to deal unaspected damage to target and all enemies nearby it with a potency of 520 for the first enemy, and 25% less for all remaining enemies.\nAdditional Effect: Grants 2 stacks of Executioner\nDuration: 30s\nEffect cannot be stacked with Soul Reaver.\nSoul Gauge Cost: 50",
     potency: [
-      "Summons your avatar to deal unaspected damage to target and all enemies nearby it with a potency of 520 for the first enemy, and 25% less for all remaining enemies."
+      "Summons your avatar to deal unaspected damage to target and all enemies nearby it with a potency of 520 for the first enemy, and 25% less for all remaining enemies.",
     ],
     effects: [
-      "Additional Effect: Grants 2 stacks of Executioner"
+      "Additional Effect: Grants 2 stacks of Executioner",
     ],
     conditions: [],
     duration: {
-      seconds: 30
+      seconds: 30,
     },
     max_charges: null,
     source_url: "FFXIV_Job_Guide_Raw_reaper_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   Enshroud: {
     id: "pve_action__24",
@@ -676,16 +676,16 @@ export const ReaperConfig = {
     tooltip: "Offers your flesh as a vessel to your avatar, gaining maximum stacks of Lemure Shroud.\nDuration: 30s\nCertain actions cannot be executed while playing host to your avatar.\nAdditional Effect: Grants Oblatio\nDuration: 30s\nShroud Gauge Cost: 50",
     potency: [],
     effects: [
-      "Additional Effect: Grants Oblatio"
+      "Additional Effect: Grants Oblatio",
     ],
     conditions: [],
     duration: {
-      seconds: 30
+      seconds: 30,
     },
     max_charges: null,
     source_url: "FFXIV_Job_Guide_Raw_reaper_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   "Void Reaping": {
     id: "pve_action__25",
@@ -702,23 +702,23 @@ export const ReaperConfig = {
     tooltip: "Delivers an attack with a potency of 540.\nEnhanced Void Reaping Potency: 600\nAdditional Effect: Grants Enhanced Cross Reaping\nDuration: 30s\nAdditional Effect: Grants Void Shroud\nCan only be executed while under the effect of Enshrouded.\nRecast timer cannot be affected by status effects or gear attributes.\nLemure Shroud Cost: 1\nThis action does not share a recast timer with any other actions. Upon execution, the recast timer for this action will be applied to all other weaponskills and magic actions.\n\n※This action cannot be assigned to a hotbar.\n※Gibbet changes to Void Reaping when requirements for execution are met.",
     potency: [
       "Delivers an attack with a potency of 540.",
-      "Enhanced Void Reaping Potency: 600"
+      "Enhanced Void Reaping Potency: 600",
     ],
     effects: [
       "Additional Effect: Grants Enhanced Cross Reaping",
-      "Additional Effect: Grants Void Shroud"
+      "Additional Effect: Grants Void Shroud",
     ],
     conditions: [
       "Can only be executed while under the effect of Enshrouded.",
-      "※This action cannot be assigned to a hotbar."
+      "※This action cannot be assigned to a hotbar.",
     ],
     duration: {
-      seconds: 30
+      seconds: 30,
     },
     max_charges: null,
     source_url: "FFXIV_Job_Guide_Raw_reaper_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   "Cross Reaping": {
     id: "pve_action__26",
@@ -735,23 +735,23 @@ export const ReaperConfig = {
     tooltip: "Delivers an attack with a potency of 540.\nEnhanced Cross Reaping Potency: 600\nAdditional Effect: Grants Enhanced Void Reaping\nDuration: 30s\nAdditional Effect: Grants Void Shroud\nCan only be executed while under the effect of Lemure Shroud.\nLemure Shroud Cost: 1\nThis action does not share a recast timer with any other actions. Upon execution, the recast timer for this action will be applied to all other weaponskills and magic actions.\n\n※This action cannot be assigned to a hotbar.\n※Gallows changes to Cross Reaping when requirements for execution are met.",
     potency: [
       "Delivers an attack with a potency of 540.",
-      "Enhanced Cross Reaping Potency: 600"
+      "Enhanced Cross Reaping Potency: 600",
     ],
     effects: [
       "Additional Effect: Grants Enhanced Void Reaping",
-      "Additional Effect: Grants Void Shroud"
+      "Additional Effect: Grants Void Shroud",
     ],
     conditions: [
       "Can only be executed while under the effect of Lemure Shroud.",
-      "※This action cannot be assigned to a hotbar."
+      "※This action cannot be assigned to a hotbar.",
     ],
     duration: {
-      seconds: 30
+      seconds: 30,
     },
     max_charges: null,
     source_url: "FFXIV_Job_Guide_Raw_reaper_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   "Grim Reaping": {
     id: "pve_action__27",
@@ -767,20 +767,20 @@ export const ReaperConfig = {
     radius: 8,
     tooltip: "Delivers an attack with a potency of 200 to all enemies in a cone before you.\nAdditional Effect: Grants Void Shroud\nCan only be executed while under the effect of Enshrouded.\nLemure Shroud Cost: 1\nThis action does not share a recast timer with any other actions. Upon execution, the recast timer for this action will be applied to all other weaponskills and magic actions.\n\n※This action cannot be assigned to a hotbar.\n※Guillotine changes to Grim Reaping when requirements for execution are met.",
     potency: [
-      "Delivers an attack with a potency of 200 to all enemies in a cone before you."
+      "Delivers an attack with a potency of 200 to all enemies in a cone before you.",
     ],
     effects: [
-      "Additional Effect: Grants Void Shroud"
+      "Additional Effect: Grants Void Shroud",
     ],
     conditions: [
       "Can only be executed while under the effect of Enshrouded.",
-      "※This action cannot be assigned to a hotbar."
+      "※This action cannot be assigned to a hotbar.",
     ],
     duration: null,
     max_charges: null,
     source_url: "FFXIV_Job_Guide_Raw_reaper_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   Soulsow: {
     id: "pve_action__28",
@@ -802,7 +802,7 @@ export const ReaperConfig = {
     max_charges: null,
     source_url: "FFXIV_Job_Guide_Raw_reaper_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   "Harvest Moon": {
     id: "pve_action__29",
@@ -818,20 +818,20 @@ export const ReaperConfig = {
     radius: 5,
     tooltip: "Deals unaspected damage to target and all enemies nearby it with a potency of 800 for the first enemy, and 40% less for all remaining enemies.\nAdditional Effect: Increases Soul Gauge by 10\nCan only be executed while under the effect of Soulsow.\n\n※This action cannot be assigned to a hotbar.\n※Soulsow changes to Harvest Moon when requirements for execution are met.",
     potency: [
-      "Deals unaspected damage to target and all enemies nearby it with a potency of 800 for the first enemy, and 40% less for all remaining enemies."
+      "Deals unaspected damage to target and all enemies nearby it with a potency of 800 for the first enemy, and 40% less for all remaining enemies.",
     ],
     effects: [
-      "Additional Effect: Increases Soul Gauge by 10"
+      "Additional Effect: Increases Soul Gauge by 10",
     ],
     conditions: [
       "Can only be executed while under the effect of Soulsow.",
-      "※This action cannot be assigned to a hotbar."
+      "※This action cannot be assigned to a hotbar.",
     ],
     duration: null,
     max_charges: null,
     source_url: "FFXIV_Job_Guide_Raw_reaper_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   "Lemure's Slice": {
     id: "pve_action__30",
@@ -847,18 +847,18 @@ export const ReaperConfig = {
     radius: 0,
     tooltip: "Delivers an attack with a potency of 280.\nVoid Shroud Cost: 2\nShares a recast timer with Lemure's Scythe.\n\n※This action cannot be assigned to a hotbar.\n※Blood Stalk changes to Lemure's Slice while under the effect of Enshrouded.",
     potency: [
-      "Delivers an attack with a potency of 280."
+      "Delivers an attack with a potency of 280.",
     ],
     effects: [],
     conditions: [
       "Shares a recast timer with Lemure's Scythe.",
-      "※This action cannot be assigned to a hotbar."
+      "※This action cannot be assigned to a hotbar.",
     ],
     duration: null,
     max_charges: null,
     source_url: "FFXIV_Job_Guide_Raw_reaper_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   "Lemure's Scythe": {
     id: "pve_action__31",
@@ -874,18 +874,18 @@ export const ReaperConfig = {
     radius: 8,
     tooltip: "Delivers an attack with a potency of 100 to all enemies in a cone before you.\nVoid Shroud Cost: 2\nShares a recast timer with Lemure's Slice.\n\n※This action cannot be assigned to a hotbar.\n※Grim Swathe changes to Lemure's Scythe while under the effect of Enshrouded.",
     potency: [
-      "Delivers an attack with a potency of 100 to all enemies in a cone before you."
+      "Delivers an attack with a potency of 100 to all enemies in a cone before you.",
     ],
     effects: [],
     conditions: [
       "Shares a recast timer with Lemure's Slice.",
-      "※This action cannot be assigned to a hotbar."
+      "※This action cannot be assigned to a hotbar.",
     ],
     duration: null,
     max_charges: null,
     source_url: "FFXIV_Job_Guide_Raw_reaper_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   "Plentiful Harvest": {
     id: "pve_action__32",
@@ -902,21 +902,21 @@ export const ReaperConfig = {
     tooltip: "Delivers an attack to all enemies in a straight line before you with a potency of 720 for the first enemy, and 20% less for all remaining enemies.\nImmortal Sacrifice Cost: 1 stack\nPotency increases up to 1,000 as stacks of Immortal Sacrifice exceed minimum cost.\nAdditional Effect: Grants Ideal Host\nDuration: 30s\nAdditional Effect: Grants Perfectio Occulta\nPerfectio Occulta Effect: Grants Perfectio Parata upon executing Communio\nDuration: 30s\nCannot be executed while under the effect of Bloodsown Circle.\nConsumes all stacks of Immortal Sacrifice upon execution.",
     potency: [
       "Delivers an attack to all enemies in a straight line before you with a potency of 720 for the first enemy, and 20% less for all remaining enemies.",
-      "Potency increases up to 1,000 as stacks of Immortal Sacrifice exceed minimum cost."
+      "Potency increases up to 1,000 as stacks of Immortal Sacrifice exceed minimum cost.",
     ],
     effects: [
       "Additional Effect: Grants Ideal Host",
       "Additional Effect: Grants Perfectio Occulta",
-      "Perfectio Occulta Effect: Grants Perfectio Parata upon executing Communio"
+      "Perfectio Occulta Effect: Grants Perfectio Parata upon executing Communio",
     ],
     conditions: [],
     duration: {
-      seconds: 30
+      seconds: 30,
     },
     max_charges: null,
     source_url: "FFXIV_Job_Guide_Raw_reaper_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   Communio: {
     id: "pve_action__33",
@@ -932,21 +932,21 @@ export const ReaperConfig = {
     radius: 5,
     tooltip: "Deals unaspected damage to target and all enemies nearby it with a potency of 1,100 for the first enemy, and 20% less for all remaining enemies.\nAdditional Effect: Grants Perfectio Parata when executed while Perfectio Occulta is active\nDuration: 30s\nEnshrouded effect expires upon execution.\nRequires at least one stack of Lemure Shroud to execute.",
     potency: [
-      "Deals unaspected damage to target and all enemies nearby it with a potency of 1,100 for the first enemy, and 20% less for all remaining enemies."
+      "Deals unaspected damage to target and all enemies nearby it with a potency of 1,100 for the first enemy, and 20% less for all remaining enemies.",
     ],
     effects: [
-      "Additional Effect: Grants Perfectio Parata when executed while Perfectio Occulta is active"
+      "Additional Effect: Grants Perfectio Parata when executed while Perfectio Occulta is active",
     ],
     conditions: [
-      "Requires at least one stack of Lemure Shroud to execute."
+      "Requires at least one stack of Lemure Shroud to execute.",
     ],
     duration: {
-      seconds: 30
+      seconds: 30,
     },
     max_charges: null,
     source_url: "FFXIV_Job_Guide_Raw_reaper_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   Sacrificium: {
     id: "pve_action__34",
@@ -962,18 +962,18 @@ export const ReaperConfig = {
     radius: 5,
     tooltip: "Deals unaspected damage to target and all enemies nearby it with a potency of 600 for the first enemy, and 20% less for all remaining enemies.\nCan only be executed while under the effect of Enshrouded and Oblatio.\n\n※This action cannot be assigned to a hotbar.\n※Gluttony changes to Sacrificium when requirements for execution are met.",
     potency: [
-      "Deals unaspected damage to target and all enemies nearby it with a potency of 600 for the first enemy, and 20% less for all remaining enemies."
+      "Deals unaspected damage to target and all enemies nearby it with a potency of 600 for the first enemy, and 20% less for all remaining enemies.",
     ],
     effects: [],
     conditions: [
       "Can only be executed while under the effect of Enshrouded and Oblatio.",
-      "※This action cannot be assigned to a hotbar."
+      "※This action cannot be assigned to a hotbar.",
     ],
     duration: null,
     max_charges: null,
     source_url: "FFXIV_Job_Guide_Raw_reaper_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   "Executioner's Gibbet": {
     id: "pve_action__35",
@@ -991,23 +991,23 @@ export const ReaperConfig = {
     potency: [
       "Delivers an attack with a potency of 700.",
       "Enhanced Gibbet Potency: 760",
-      "Flank Enhanced Potency: 820"
+      "Flank Enhanced Potency: 820",
     ],
     effects: [
       "Additional Effect: Grants Enhanced Gallows",
-      "Additional Effect: Increases Shroud Gauge by 10"
+      "Additional Effect: Increases Shroud Gauge by 10",
     ],
     conditions: [
       "Can only be executed while under the effect of Executioner.",
-      "※This action cannot be assigned to a hotbar."
+      "※This action cannot be assigned to a hotbar.",
     ],
     duration: {
-      seconds: 60
+      seconds: 60,
     },
     max_charges: null,
     source_url: "FFXIV_Job_Guide_Raw_reaper_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   "Executioner's Gallows": {
     id: "pve_action__36",
@@ -1025,23 +1025,23 @@ export const ReaperConfig = {
     potency: [
       "Delivers an attack with a potency of 700.",
       "Enhanced Gallows Potency: 760",
-      "Rear Enhanced Potency: 820"
+      "Rear Enhanced Potency: 820",
     ],
     effects: [
       "Additional Effect: Grants Enhanced Gibbet",
-      "Additional Effect: Increases Shroud Gauge by 10"
+      "Additional Effect: Increases Shroud Gauge by 10",
     ],
     conditions: [
       "Can only be executed while under the effect of Executioner.",
-      "※This action cannot be assigned to a hotbar."
+      "※This action cannot be assigned to a hotbar.",
     ],
     duration: {
-      seconds: 60
+      seconds: 60,
     },
     max_charges: null,
     source_url: "FFXIV_Job_Guide_Raw_reaper_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   "Executioner's Guillotine": {
     id: "pve_action__37",
@@ -1057,20 +1057,20 @@ export const ReaperConfig = {
     radius: 8,
     tooltip: "Delivers an attack with a potency of 260 to all enemies in a cone before you.\nAdditional Effect: Increases Shroud Gauge by 10\nCan only be executed while under the effect of Executioner.\n\n※This action cannot be assigned to a hotbar.\n※Guillotine changes to Executioner's Guillotine when requirements for execution are met.",
     potency: [
-      "Delivers an attack with a potency of 260 to all enemies in a cone before you."
+      "Delivers an attack with a potency of 260 to all enemies in a cone before you.",
     ],
     effects: [
-      "Additional Effect: Increases Shroud Gauge by 10"
+      "Additional Effect: Increases Shroud Gauge by 10",
     ],
     conditions: [
       "Can only be executed while under the effect of Executioner.",
-      "※This action cannot be assigned to a hotbar."
+      "※This action cannot be assigned to a hotbar.",
     ],
     duration: null,
     max_charges: null,
     source_url: "FFXIV_Job_Guide_Raw_reaper_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   Perfectio: {
     id: "pve_action__38",
@@ -1086,18 +1086,18 @@ export const ReaperConfig = {
     radius: 5,
     tooltip: "Delivers an attack to target and all enemies nearby it with a potency of 1,300 for the first enemy, and 20% less for all remaining enemies.\nCan only be executed while under the effect of Perfectio Parata.\n\n※This action cannot be assigned to a hotbar.\n※Communio changes to Perfectio when requirements for execution are met.",
     potency: [
-      "Delivers an attack to target and all enemies nearby it with a potency of 1,300 for the first enemy, and 20% less for all remaining enemies."
+      "Delivers an attack to target and all enemies nearby it with a potency of 1,300 for the first enemy, and 20% less for all remaining enemies.",
     ],
     effects: [],
     conditions: [
       "Can only be executed while under the effect of Perfectio Parata.",
-      "※This action cannot be assigned to a hotbar."
+      "※This action cannot be assigned to a hotbar.",
     ],
     duration: null,
     max_charges: null,
     source_url: "FFXIV_Job_Guide_Raw_reaper_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   "Second Wind": {
     id: "melee_action__01",
@@ -1113,7 +1113,7 @@ export const ReaperConfig = {
     radius: 0,
     tooltip: "Instantly restores own HP.\nCure Potency: 800",
     potency: [
-      "Cure Potency: 800"
+      "Cure Potency: 800",
     ],
     effects: [],
     conditions: [],
@@ -1121,7 +1121,7 @@ export const ReaperConfig = {
     max_charges: null,
     source_url: "FFXIV_Job_Guide_Raw_reaper_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   "Leg Sweep": {
     id: "melee_action__02",
@@ -1140,12 +1140,12 @@ export const ReaperConfig = {
     effects: [],
     conditions: [],
     duration: {
-      seconds: 3
+      seconds: 3,
     },
     max_charges: null,
     source_url: "FFXIV_Job_Guide_Raw_reaper_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   Bloodbath: {
     id: "melee_action__03",
@@ -1164,12 +1164,12 @@ export const ReaperConfig = {
     effects: [],
     conditions: [],
     duration: {
-      seconds: 20
+      seconds: 20,
     },
     max_charges: null,
     source_url: "FFXIV_Job_Guide_Raw_reaper_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   Feint: {
     id: "melee_action__04",
@@ -1188,12 +1188,12 @@ export const ReaperConfig = {
     effects: [],
     conditions: [],
     duration: {
-      seconds: 15
+      seconds: 15,
     },
     max_charges: null,
     source_url: "FFXIV_Job_Guide_Raw_reaper_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   "Arm's Length": {
     id: "melee_action__05",
@@ -1210,16 +1210,16 @@ export const ReaperConfig = {
     tooltip: "Nullifies most knockback and draw-in effects.\nDuration: 6s\nAdditional Effect: When you are struck by a physical attack, the striker will be afflicted with Slow +20%\nDuration: 15s",
     potency: [],
     effects: [
-      "Additional Effect: When you are struck by a physical attack, the striker will be afflicted with Slow +20%"
+      "Additional Effect: When you are struck by a physical attack, the striker will be afflicted with Slow +20%",
     ],
     conditions: [],
     duration: {
-      seconds: 15
+      seconds: 15,
     },
     max_charges: null,
     source_url: "FFXIV_Job_Guide_Raw_reaper_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   "True North": {
     id: "melee_action__06",
@@ -1238,13 +1238,13 @@ export const ReaperConfig = {
     effects: [],
     conditions: [],
     duration: {
-      seconds: 10
+      seconds: 10,
     },
     max_charges: 2,
     source_url: "FFXIV_Job_Guide_Raw_reaper_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
-  }
+    language: "en",
+  },
 },
   rotations: []
 };

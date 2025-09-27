@@ -14,17 +14,17 @@ export const MachinistConfig = {
     radius: 0,
     tooltip: "Delivers an attack with a potency of 140.\nAdditional Effect: Increases Heat Gauge by 5",
     potency: [
-      "Delivers an attack with a potency of 140."
+      "Delivers an attack with a potency of 140.",
     ],
     effects: [
-      "Additional Effect: Increases Heat Gauge by 5"
+      "Additional Effect: Increases Heat Gauge by 5",
     ],
     conditions: [],
     duration: null,
     max_charges: null,
     source_url: "FFXIV_Job_Guide_Raw_machinist_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   "Slug Shot": {
     id: "pve_action__02",
@@ -41,17 +41,17 @@ export const MachinistConfig = {
     tooltip: "Delivers an attack with a potency of 100.\nCombo Action: Split Shot or Heated Split Shot\nCombo Potency: 210\nCombo Bonus: Increases Heat Gauge by 5",
     potency: [
       "Delivers an attack with a potency of 100.",
-      "Combo Potency: 210"
+      "Combo Potency: 210",
     ],
     effects: [
-      "Combo Bonus: Increases Heat Gauge by 5"
+      "Combo Bonus: Increases Heat Gauge by 5",
     ],
     conditions: [],
     duration: null,
     max_charges: null,
     source_url: "FFXIV_Job_Guide_Raw_machinist_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   "Hot Shot": {
     id: "pve_action__03",
@@ -67,17 +67,17 @@ export const MachinistConfig = {
     radius: 0,
     tooltip: "Delivers an attack with a potency of 240.\nAdditional Effect: Increases Battery Gauge by 20\nThis weaponskill does not share a recast timer with any other actions.",
     potency: [
-      "Delivers an attack with a potency of 240."
+      "Delivers an attack with a potency of 240.",
     ],
     effects: [
-      "Additional Effect: Increases Battery Gauge by 20"
+      "Additional Effect: Increases Battery Gauge by 20",
     ],
     conditions: [],
     duration: null,
     max_charges: null,
     source_url: "FFXIV_Job_Guide_Raw_machinist_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   Reassemble: {
     id: "pve_action__04",
@@ -96,12 +96,12 @@ export const MachinistConfig = {
     effects: [],
     conditions: [],
     duration: {
-      seconds: 5
+      seconds: 5,
     },
     max_charges: 2,
     source_url: "FFXIV_Job_Guide_Raw_machinist_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   "Gauss Round": {
     id: "pve_action__05",
@@ -117,7 +117,7 @@ export const MachinistConfig = {
     radius: 0,
     tooltip: "Delivers an attack with a potency of 130.\nMaximum Charges: 3",
     potency: [
-      "Delivers an attack with a potency of 130."
+      "Delivers an attack with a potency of 130.",
     ],
     effects: [],
     conditions: [],
@@ -125,7 +125,7 @@ export const MachinistConfig = {
     max_charges: 3,
     source_url: "FFXIV_Job_Guide_Raw_machinist_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   "Spread Shot": {
     id: "pve_action__06",
@@ -141,17 +141,17 @@ export const MachinistConfig = {
     radius: 12,
     tooltip: "Delivers an attack with a potency of 110 to all enemies in a cone before you.\nAdditional Effect: Increases Heat Gauge by 5",
     potency: [
-      "Delivers an attack with a potency of 110 to all enemies in a cone before you."
+      "Delivers an attack with a potency of 110 to all enemies in a cone before you.",
     ],
     effects: [
-      "Additional Effect: Increases Heat Gauge by 5"
+      "Additional Effect: Increases Heat Gauge by 5",
     ],
     conditions: [],
     duration: null,
     max_charges: null,
     source_url: "FFXIV_Job_Guide_Raw_machinist_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   "Clean Shot": {
     id: "pve_action__07",
@@ -168,18 +168,18 @@ export const MachinistConfig = {
     tooltip: "Delivers an attack with a potency of 100.\nCombo Action: Slug Shot or Heated Slug Shot\nCombo Potency: 270\nCombo Bonus: Increases Heat Gauge by 5\nCombo Bonus: Increases Battery Gauge by 10",
     potency: [
       "Delivers an attack with a potency of 100.",
-      "Combo Potency: 270"
+      "Combo Potency: 270",
     ],
     effects: [
       "Combo Bonus: Increases Heat Gauge by 5",
-      "Combo Bonus: Increases Battery Gauge by 10"
+      "Combo Bonus: Increases Battery Gauge by 10",
     ],
     conditions: [],
     duration: null,
     max_charges: null,
     source_url: "FFXIV_Job_Guide_Raw_machinist_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   Hypercharge: {
     id: "pve_action__08",
@@ -195,19 +195,19 @@ export const MachinistConfig = {
     radius: 0,
     tooltip: "Grants 5 stacks of Overheated, each stack allowing the execution of Blazing Shot or Auto Crossbow.\nDuration: 10s\nOverheated Effect: Increases the potency of single-target weaponskills by 20\nHeat Gauge Cost: 50\nOverheated effect only applicable to machinist job actions.",
     potency: [
-      "Overheated Effect: Increases the potency of single-target weaponskills by 20"
+      "Overheated Effect: Increases the potency of single-target weaponskills by 20",
     ],
     effects: [
-      "Overheated Effect: Increases the potency of single-target weaponskills by 20"
+      "Overheated Effect: Increases the potency of single-target weaponskills by 20",
     ],
     conditions: [],
     duration: {
-      seconds: 10
+      seconds: 10,
     },
     max_charges: null,
     source_url: "FFXIV_Job_Guide_Raw_machinist_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   "Heat Blast": {
     id: "pve_action__09",
@@ -223,19 +223,19 @@ export const MachinistConfig = {
     radius: 0,
     tooltip: "Delivers an attack with a potency of 200.\nAdditional Effect: Reduces the recast time of both Gauss Round and Ricochet by 15s\nCan only be executed when firearm is Overheated.\nThis weaponskill does not share a recast timer with any other actions. Upon execution, the recast timer for this action will be applied to all other weaponskills and magic actions.",
     potency: [
-      "Delivers an attack with a potency of 200."
+      "Delivers an attack with a potency of 200.",
     ],
     effects: [
-      "Additional Effect: Reduces the recast time of both Gauss Round and Ricochet by 15s"
+      "Additional Effect: Reduces the recast time of both Gauss Round and Ricochet by 15s",
     ],
     conditions: [
-      "Can only be executed when firearm is Overheated."
+      "Can only be executed when firearm is Overheated.",
     ],
     duration: null,
     max_charges: null,
     source_url: "FFXIV_Job_Guide_Raw_machinist_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   "Rook Autoturret": {
     id: "pve_action__10",
@@ -252,19 +252,19 @@ export const MachinistConfig = {
     tooltip: "Deploys a single-target battle turret which attacks using Volley Fire, dealing damage with a potency of 35.\nPotency increases as Battery Gauge exceeds required cost at time of deployment, up to a maximum of 75.\nBattery Gauge Cost: 50\nDuration: 9s\nConsumes Battery Gauge upon execution.\nShuts down when time expires or upon execution of Rook Overdrive.\nShares a recast timer with Rook Overdrive.",
     potency: [
       "Deploys a single-target battle turret which attacks using Volley Fire, dealing damage with a potency of 35.",
-      "Potency increases as Battery Gauge exceeds required cost at time of deployment, up to a maximum of 75."
+      "Potency increases as Battery Gauge exceeds required cost at time of deployment, up to a maximum of 75.",
     ],
     effects: [],
     conditions: [
-      "Shares a recast timer with Rook Overdrive."
+      "Shares a recast timer with Rook Overdrive.",
     ],
     duration: {
-      seconds: 9
+      seconds: 9,
     },
     max_charges: null,
     source_url: "FFXIV_Job_Guide_Raw_machinist_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   "Rook Overdrive": {
     id: "pve_action__11",
@@ -281,17 +281,17 @@ export const MachinistConfig = {
     tooltip: "Orders the rook autoturret to use Rook Overload.\nRook Overload Potency: 160\nPotency increases as Battery Gauge exceeds required cost at time of deployment, up to a maximum of 320.\nThe rook autoturret shuts down after execution. If this action is not used manually while the rook autoturret is active, it will be triggered automatically immediately before shutting down.\nShares a recast timer with Rook Autoturret.",
     potency: [
       "Rook Overload Potency: 160",
-      "Potency increases as Battery Gauge exceeds required cost at time of deployment, up to a maximum of 320."
+      "Potency increases as Battery Gauge exceeds required cost at time of deployment, up to a maximum of 320.",
     ],
     effects: [],
     conditions: [
-      "Shares a recast timer with Rook Autoturret."
+      "Shares a recast timer with Rook Autoturret.",
     ],
     duration: null,
     max_charges: null,
     source_url: "FFXIV_Job_Guide_Raw_machinist_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   "Rook Overload": {
     id: "pve_action__12",
@@ -308,17 +308,17 @@ export const MachinistConfig = {
     tooltip: "Delivers an attack with a potency of 160.\nPotency increases as Battery Gauge exceeds required cost at time of deployment, up to a maximum of 320.\nThe rook autoturret shuts down after execution. If this action is not used manually while the rook autoturret is active, it will be triggered automatically immediately before shutting down.\n\n※This action cannot be assigned to a hotbar.",
     potency: [
       "Delivers an attack with a potency of 160.",
-      "Potency increases as Battery Gauge exceeds required cost at time of deployment, up to a maximum of 320."
+      "Potency increases as Battery Gauge exceeds required cost at time of deployment, up to a maximum of 320.",
     ],
     effects: [],
     conditions: [
-      "※This action cannot be assigned to a hotbar."
+      "※This action cannot be assigned to a hotbar.",
     ],
     duration: null,
     max_charges: null,
     source_url: "FFXIV_Job_Guide_Raw_machinist_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   Wildfire: {
     id: "pve_action__13",
@@ -334,17 +334,17 @@ export const MachinistConfig = {
     radius: 0,
     tooltip: "Covers target's body in a slow-burning pitch. Action is changed to Detonator for the duration of the effect.\nDeals damage when time expires or upon executing Detonator.\nPotency is increased by 240 for each of your own weaponskills you land prior to the end of the effect.\nCan be stacked up to 6 times.\nDuration: 10s",
     potency: [
-      "Potency is increased by 240 for each of your own weaponskills you land prior to the end of the effect."
+      "Potency is increased by 240 for each of your own weaponskills you land prior to the end of the effect.",
     ],
     effects: [],
     conditions: [],
     duration: {
-      seconds: 10
+      seconds: 10,
     },
     max_charges: null,
     source_url: "FFXIV_Job_Guide_Raw_machinist_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   Detonator: {
     id: "pve_action__14",
@@ -363,13 +363,13 @@ export const MachinistConfig = {
     effects: [],
     conditions: [
       "Can only be executed while under the effect of Wildfire.",
-      "※This action cannot be assigned to a hotbar."
+      "※This action cannot be assigned to a hotbar.",
     ],
     duration: null,
     max_charges: null,
     source_url: "FFXIV_Job_Guide_Raw_machinist_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   Ricochet: {
     id: "pve_action__15",
@@ -385,7 +385,7 @@ export const MachinistConfig = {
     radius: 5,
     tooltip: "Deals damage to all nearby enemies with a potency of 130 for the first enemy, and 30% less for all remaining enemies.\nMaximum Charges: 3",
     potency: [
-      "Deals damage to all nearby enemies with a potency of 130 for the first enemy, and 30% less for all remaining enemies."
+      "Deals damage to all nearby enemies with a potency of 130 for the first enemy, and 30% less for all remaining enemies.",
     ],
     effects: [],
     conditions: [],
@@ -393,7 +393,7 @@ export const MachinistConfig = {
     max_charges: 3,
     source_url: "FFXIV_Job_Guide_Raw_machinist_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   "Auto Crossbow": {
     id: "pve_action__16",
@@ -409,17 +409,17 @@ export const MachinistConfig = {
     radius: 12,
     tooltip: "Delivers an attack with a potency of 180 to all enemies in a cone before you.\nCan only be executed when firearm is Overheated.\nThis weaponskill does not share a recast timer with any other actions. Upon execution, the recast timer for this action will be applied to all other weaponskills and magic actions.",
     potency: [
-      "Delivers an attack with a potency of 180 to all enemies in a cone before you."
+      "Delivers an attack with a potency of 180 to all enemies in a cone before you.",
     ],
     effects: [],
     conditions: [
-      "Can only be executed when firearm is Overheated."
+      "Can only be executed when firearm is Overheated.",
     ],
     duration: null,
     max_charges: null,
     source_url: "FFXIV_Job_Guide_Raw_machinist_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   "Heated Split Shot": {
     id: "pve_action__17",
@@ -435,17 +435,17 @@ export const MachinistConfig = {
     radius: 0,
     tooltip: "Delivers an attack with a potency of 220.\nAdditional Effect: Increases Heat Gauge by 5",
     potency: [
-      "Delivers an attack with a potency of 220."
+      "Delivers an attack with a potency of 220.",
     ],
     effects: [
-      "Additional Effect: Increases Heat Gauge by 5"
+      "Additional Effect: Increases Heat Gauge by 5",
     ],
     conditions: [],
     duration: null,
     max_charges: null,
     source_url: "FFXIV_Job_Guide_Raw_machinist_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   Tactician: {
     id: "pve_action__18",
@@ -464,12 +464,12 @@ export const MachinistConfig = {
     effects: [],
     conditions: [],
     duration: {
-      seconds: 15
+      seconds: 15,
     },
     max_charges: null,
     source_url: "FFXIV_Job_Guide_Raw_machinist_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   Drill: {
     id: "pve_action__19",
@@ -485,17 +485,17 @@ export const MachinistConfig = {
     radius: 0,
     tooltip: "Delivers an attack with a potency of 620.\nMaximum Charges: 2\nShares a recast timer with Bioblaster.",
     potency: [
-      "Delivers an attack with a potency of 620."
+      "Delivers an attack with a potency of 620.",
     ],
     effects: [],
     conditions: [
-      "Shares a recast timer with Bioblaster."
+      "Shares a recast timer with Bioblaster.",
     ],
     duration: null,
     max_charges: 2,
     source_url: "FFXIV_Job_Guide_Raw_machinist_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   "Heated Slug Shot": {
     id: "pve_action__20",
@@ -512,17 +512,17 @@ export const MachinistConfig = {
     tooltip: "Delivers an attack with a potency of 140.\nCombo Action: Heated Split Shot\nCombo Potency: 320\nCombo Bonus: Increases Heat Gauge by 5",
     potency: [
       "Delivers an attack with a potency of 140.",
-      "Combo Potency: 320"
+      "Combo Potency: 320",
     ],
     effects: [
-      "Combo Bonus: Increases Heat Gauge by 5"
+      "Combo Bonus: Increases Heat Gauge by 5",
     ],
     conditions: [],
     duration: null,
     max_charges: null,
     source_url: "FFXIV_Job_Guide_Raw_machinist_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   Dismantle: {
     id: "pve_action__21",
@@ -541,12 +541,12 @@ export const MachinistConfig = {
     effects: [],
     conditions: [],
     duration: {
-      seconds: 10
+      seconds: 10,
     },
     max_charges: null,
     source_url: "FFXIV_Job_Guide_Raw_machinist_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   "Heated Clean Shot": {
     id: "pve_action__22",
@@ -563,18 +563,18 @@ export const MachinistConfig = {
     tooltip: "Delivers an attack with a potency of 160.\nCombo Action: Heated Slug Shot\nCombo Potency: 420\nCombo Bonus: Increases Heat Gauge by 5\nCombo Bonus: Increases Battery Gauge by 10",
     potency: [
       "Delivers an attack with a potency of 160.",
-      "Combo Potency: 420"
+      "Combo Potency: 420",
     ],
     effects: [
       "Combo Bonus: Increases Heat Gauge by 5",
-      "Combo Bonus: Increases Battery Gauge by 10"
+      "Combo Bonus: Increases Battery Gauge by 10",
     ],
     conditions: [],
     duration: null,
     max_charges: null,
     source_url: "FFXIV_Job_Guide_Raw_machinist_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   "Barrel Stabilizer": {
     id: "pve_action__23",
@@ -591,18 +591,18 @@ export const MachinistConfig = {
     tooltip: "Grants Hypercharged.\nDuration: 30s\nAdditional Effect: Grants Full Metal Machinist\nDuration: 30s\nCan only be executed while in combat.",
     potency: [],
     effects: [
-      "Additional Effect: Grants Full Metal Machinist"
+      "Additional Effect: Grants Full Metal Machinist",
     ],
     conditions: [
-      "Can only be executed while in combat."
+      "Can only be executed while in combat.",
     ],
     duration: {
-      seconds: 30
+      seconds: 30,
     },
     max_charges: null,
     source_url: "FFXIV_Job_Guide_Raw_machinist_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   "Blazing Shot": {
     id: "pve_action__24",
@@ -618,19 +618,19 @@ export const MachinistConfig = {
     radius: 0,
     tooltip: "Delivers an attack with a potency of 240.\nAdditional Effect: Reduces the recast time of both Double Check and Checkmate by 15s\nCan only be executed when firearm is Overheated.\nThis weaponskill does not share a recast timer with any other actions. Upon execution, the recast timer for this action will be applied to all other weaponskills and magic actions.",
     potency: [
-      "Delivers an attack with a potency of 240."
+      "Delivers an attack with a potency of 240.",
     ],
     effects: [
-      "Additional Effect: Reduces the recast time of both Double Check and Checkmate by 15s"
+      "Additional Effect: Reduces the recast time of both Double Check and Checkmate by 15s",
     ],
     conditions: [
-      "Can only be executed when firearm is Overheated."
+      "Can only be executed when firearm is Overheated.",
     ],
     duration: null,
     max_charges: null,
     source_url: "FFXIV_Job_Guide_Raw_machinist_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   Flamethrower: {
     id: "pve_action__25",
@@ -646,17 +646,17 @@ export const MachinistConfig = {
     radius: 12,
     tooltip: "Delivers damage over time to all enemies in a cone before you.\nPotency: 120\nDuration: 10s\nEffect ends upon using another action or moving (including facing a different direction).\nCancels auto-attack upon execution.\nTriggers the cooldown of weaponskills upon execution. Cannot be executed during the cooldown of weaponskills.",
     potency: [
-      "Potency: 120"
+      "Potency: 120",
     ],
     effects: [],
     conditions: [],
     duration: {
-      seconds: 10
+      seconds: 10,
     },
     max_charges: null,
     source_url: "FFXIV_Job_Guide_Raw_machinist_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   Bioblaster: {
     id: "pve_action__26",
@@ -673,21 +673,21 @@ export const MachinistConfig = {
     tooltip: "Delivers an attack with a potency of 50 to all enemies in a cone before you.\nAdditional Effect: Damage over time\nPotency: 50\nDuration: 15s\nMaximum Charges: 2\nShares a recast timer with Drill.",
     potency: [
       "Delivers an attack with a potency of 50 to all enemies in a cone before you.",
-      "Potency: 50"
+      "Potency: 50",
     ],
     effects: [
-      "Additional Effect: Damage over time"
+      "Additional Effect: Damage over time",
     ],
     conditions: [
-      "Shares a recast timer with Drill."
+      "Shares a recast timer with Drill.",
     ],
     duration: {
-      seconds: 15
+      seconds: 15,
     },
     max_charges: 2,
     source_url: "FFXIV_Job_Guide_Raw_machinist_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   "Air Anchor": {
     id: "pve_action__27",
@@ -703,17 +703,17 @@ export const MachinistConfig = {
     radius: 0,
     tooltip: "Delivers an attack with a potency of 620.\nAdditional Effect: Increases Battery Gauge by 20\nThis weaponskill does not share a recast timer with any other actions.",
     potency: [
-      "Delivers an attack with a potency of 620."
+      "Delivers an attack with a potency of 620.",
     ],
     effects: [
-      "Additional Effect: Increases Battery Gauge by 20"
+      "Additional Effect: Increases Battery Gauge by 20",
     ],
     conditions: [],
     duration: null,
     max_charges: null,
     source_url: "FFXIV_Job_Guide_Raw_machinist_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   "Automaton Queen": {
     id: "pve_action__28",
@@ -729,19 +729,19 @@ export const MachinistConfig = {
     radius: 0,
     tooltip: "Deploys an Automaton Queen to fight at your side.\nPotency of Automaton Queen actions increases as Battery Gauge exceeds required cost at time of deployment.\nBattery Gauge Cost: 50\nDuration: 12s\nConsumes Battery Gauge upon execution.\nShuts down when time expires or upon execution of Queen Overdrive.\nShares a recast timer with Queen Overdrive.",
     potency: [
-      "Potency of Automaton Queen actions increases as Battery Gauge exceeds required cost at time of deployment."
+      "Potency of Automaton Queen actions increases as Battery Gauge exceeds required cost at time of deployment.",
     ],
     effects: [],
     conditions: [
-      "Shares a recast timer with Queen Overdrive."
+      "Shares a recast timer with Queen Overdrive.",
     ],
     duration: {
-      seconds: 12
+      seconds: 12,
     },
     max_charges: null,
     source_url: "FFXIV_Job_Guide_Raw_machinist_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   "Queen Overdrive": {
     id: "pve_action__29",
@@ -758,17 +758,17 @@ export const MachinistConfig = {
     tooltip: "Orders the Automaton Queen to use Pile Bunker.\nPile Bunker Potency: 340\nPotency increases as Battery Gauge exceeds required cost at time of deployment, up to a maximum of 680.\nThe Automaton Queen shuts down after execution. If this action is not used manually while the Automaton Queen is active, it will be triggered automatically immediately before shutting down.\nShares a recast timer with Automaton Queen.",
     potency: [
       "Pile Bunker Potency: 340",
-      "Potency increases as Battery Gauge exceeds required cost at time of deployment, up to a maximum of 680."
+      "Potency increases as Battery Gauge exceeds required cost at time of deployment, up to a maximum of 680.",
     ],
     effects: [],
     conditions: [
-      "Shares a recast timer with Automaton Queen."
+      "Shares a recast timer with Automaton Queen.",
     ],
     duration: null,
     max_charges: null,
     source_url: "FFXIV_Job_Guide_Raw_machinist_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   "Arm Punch": {
     id: "pve_action__30",
@@ -785,17 +785,17 @@ export const MachinistConfig = {
     tooltip: "Delivers an attack with a potency of 120.\nPotency increases as Battery Gauge exceeds required cost at time of deployment, up to a maximum of 240.\n\n※This action cannot be assigned to a hotbar.",
     potency: [
       "Delivers an attack with a potency of 120.",
-      "Potency increases as Battery Gauge exceeds required cost at time of deployment, up to a maximum of 240."
+      "Potency increases as Battery Gauge exceeds required cost at time of deployment, up to a maximum of 240.",
     ],
     effects: [],
     conditions: [
-      "※This action cannot be assigned to a hotbar."
+      "※This action cannot be assigned to a hotbar.",
     ],
     duration: null,
     max_charges: null,
     source_url: "FFXIV_Job_Guide_Raw_machinist_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   "Roller Dash": {
     id: "pve_action__31",
@@ -812,17 +812,17 @@ export const MachinistConfig = {
     tooltip: "Rushes target and delivers an attack with a potency of 240.\nPotency increases as Battery Gauge exceeds required cost at time of deployment, up to a maximum of 480.\n\n※This action cannot be assigned to a hotbar.",
     potency: [
       "Rushes target and delivers an attack with a potency of 240.",
-      "Potency increases as Battery Gauge exceeds required cost at time of deployment, up to a maximum of 480."
+      "Potency increases as Battery Gauge exceeds required cost at time of deployment, up to a maximum of 480.",
     ],
     effects: [],
     conditions: [
-      "※This action cannot be assigned to a hotbar."
+      "※This action cannot be assigned to a hotbar.",
     ],
     duration: null,
     max_charges: null,
     source_url: "FFXIV_Job_Guide_Raw_machinist_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   "Pile Bunker": {
     id: "pve_action__32",
@@ -839,17 +839,17 @@ export const MachinistConfig = {
     tooltip: "Delivers an attack with a potency of 340.\nPotency increases as Battery Gauge exceeds required cost at time of deployment, up to a maximum of 680.\nIf this action is not used manually while the Automaton Queen is active, it will be triggered automatically immediately before shutting down.\n\n※This action cannot be assigned to a hotbar.",
     potency: [
       "Delivers an attack with a potency of 340.",
-      "Potency increases as Battery Gauge exceeds required cost at time of deployment, up to a maximum of 680."
+      "Potency increases as Battery Gauge exceeds required cost at time of deployment, up to a maximum of 680.",
     ],
     effects: [],
     conditions: [
-      "※This action cannot be assigned to a hotbar."
+      "※This action cannot be assigned to a hotbar.",
     ],
     duration: null,
     max_charges: null,
     source_url: "FFXIV_Job_Guide_Raw_machinist_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   Scattergun: {
     id: "pve_action__33",
@@ -865,17 +865,17 @@ export const MachinistConfig = {
     radius: 12,
     tooltip: "Delivers an attack with a potency of 130 to all enemies in a cone before you.\nAdditional Effect: Increases Heat Gauge by 10",
     potency: [
-      "Delivers an attack with a potency of 130 to all enemies in a cone before you."
+      "Delivers an attack with a potency of 130 to all enemies in a cone before you.",
     ],
     effects: [
-      "Additional Effect: Increases Heat Gauge by 10"
+      "Additional Effect: Increases Heat Gauge by 10",
     ],
     conditions: [],
     duration: null,
     max_charges: null,
     source_url: "FFXIV_Job_Guide_Raw_machinist_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   "Crowned Collider": {
     id: "pve_action__34",
@@ -892,17 +892,17 @@ export const MachinistConfig = {
     tooltip: "Delivers an attack with a potency of 390.\nPotency increases as Battery Gauge exceeds required cost at time of deployment, up to a maximum of 780.\nThe Automaton Queen shuts down after execution. If this action is not used manually while the Automaton Queen is active, it will be triggered automatically immediately before shutting down.\n\n※This action cannot be assigned to a hotbar.",
     potency: [
       "Delivers an attack with a potency of 390.",
-      "Potency increases as Battery Gauge exceeds required cost at time of deployment, up to a maximum of 780."
+      "Potency increases as Battery Gauge exceeds required cost at time of deployment, up to a maximum of 780.",
     ],
     effects: [],
     conditions: [
-      "※This action cannot be assigned to a hotbar."
+      "※This action cannot be assigned to a hotbar.",
     ],
     duration: null,
     max_charges: null,
     source_url: "FFXIV_Job_Guide_Raw_machinist_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   "Chain Saw": {
     id: "pve_action__35",
@@ -918,20 +918,20 @@ export const MachinistConfig = {
     radius: 25,
     tooltip: "Delivers an attack to all enemies in a straight line before you with a potency of 620 for the first enemy, and 25% less for all remaining enemies.\nAdditional Effect: Increases Battery Gauge by 20\nAdditional Effect: Grants Excavator Ready\nDuration: 30s\nThis weaponskill does not share a recast timer with any other actions.",
     potency: [
-      "Delivers an attack to all enemies in a straight line before you with a potency of 620 for the first enemy, and 25% less for all remaining enemies."
+      "Delivers an attack to all enemies in a straight line before you with a potency of 620 for the first enemy, and 25% less for all remaining enemies.",
     ],
     effects: [
       "Additional Effect: Increases Battery Gauge by 20",
-      "Additional Effect: Grants Excavator Ready"
+      "Additional Effect: Grants Excavator Ready",
     ],
     conditions: [],
     duration: {
-      seconds: 30
+      seconds: 30,
     },
     max_charges: null,
     source_url: "FFXIV_Job_Guide_Raw_machinist_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   "Double Check": {
     id: "pve_action__36",
@@ -947,7 +947,7 @@ export const MachinistConfig = {
     radius: 5,
     tooltip: "Delivers an attack to target and all enemies nearby it with a potency of 180 for the first enemy, and 30% less for all remaining enemies.\nMaximum Charges: 3",
     potency: [
-      "Delivers an attack to target and all enemies nearby it with a potency of 180 for the first enemy, and 30% less for all remaining enemies."
+      "Delivers an attack to target and all enemies nearby it with a potency of 180 for the first enemy, and 30% less for all remaining enemies.",
     ],
     effects: [],
     conditions: [],
@@ -955,7 +955,7 @@ export const MachinistConfig = {
     max_charges: 3,
     source_url: "FFXIV_Job_Guide_Raw_machinist_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   Checkmate: {
     id: "pve_action__37",
@@ -971,7 +971,7 @@ export const MachinistConfig = {
     radius: 5,
     tooltip: "Delivers an attack to target and all enemies nearby it with a potency of 180 for the first enemy, and 30% less for all remaining enemies.\nMaximum Charges: 3",
     potency: [
-      "Delivers an attack to target and all enemies nearby it with a potency of 180 for the first enemy, and 30% less for all remaining enemies."
+      "Delivers an attack to target and all enemies nearby it with a potency of 180 for the first enemy, and 30% less for all remaining enemies.",
     ],
     effects: [],
     conditions: [],
@@ -979,7 +979,7 @@ export const MachinistConfig = {
     max_charges: 3,
     source_url: "FFXIV_Job_Guide_Raw_machinist_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   Excavator: {
     id: "pve_action__38",
@@ -995,20 +995,20 @@ export const MachinistConfig = {
     radius: 5,
     tooltip: "Delivers an attack to target and all enemies nearby it with a potency of 620 for the first enemy, and 25% less for all remaining enemies.\nAdditional Effect: Increases Battery Gauge by 20\nCan only be executed while under the effect of Excavator Ready.\n\n※This action cannot be assigned to a hotbar.\n※Chain Saw changes to Excavator when requirements for execution are met.",
     potency: [
-      "Delivers an attack to target and all enemies nearby it with a potency of 620 for the first enemy, and 25% less for all remaining enemies."
+      "Delivers an attack to target and all enemies nearby it with a potency of 620 for the first enemy, and 25% less for all remaining enemies.",
     ],
     effects: [
-      "Additional Effect: Increases Battery Gauge by 20"
+      "Additional Effect: Increases Battery Gauge by 20",
     ],
     conditions: [
       "Can only be executed while under the effect of Excavator Ready.",
-      "※This action cannot be assigned to a hotbar."
+      "※This action cannot be assigned to a hotbar.",
     ],
     duration: null,
     max_charges: null,
     source_url: "FFXIV_Job_Guide_Raw_machinist_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   "Full Metal Field": {
     id: "pve_action__39",
@@ -1024,17 +1024,17 @@ export const MachinistConfig = {
     radius: 5,
     tooltip: "Delivers a critical direct hit to target and all enemies nearby it with a potency of 900 for the first enemy, and 25% less for all remaining enemies.\nDamage dealt is increased when under an effect that raises critical hit rate or direct hit rate.\nThis action is not affected by Reassemble.\nCan only be executed while under the effect of Full Metal Machinist.",
     potency: [
-      "Delivers a critical direct hit to target and all enemies nearby it with a potency of 900 for the first enemy, and 25% less for all remaining enemies."
+      "Delivers a critical direct hit to target and all enemies nearby it with a potency of 900 for the first enemy, and 25% less for all remaining enemies.",
     ],
     effects: [],
     conditions: [
-      "Can only be executed while under the effect of Full Metal Machinist."
+      "Can only be executed while under the effect of Full Metal Machinist.",
     ],
     duration: null,
     max_charges: null,
     source_url: "FFXIV_Job_Guide_Raw_machinist_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   "Leg Graze": {
     id: "prange_action__01",
@@ -1053,12 +1053,12 @@ export const MachinistConfig = {
     effects: [],
     conditions: [],
     duration: {
-      seconds: 10
+      seconds: 10,
     },
     max_charges: null,
     source_url: "FFXIV_Job_Guide_Raw_machinist_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   "Second Wind": {
     id: "prange_action__02",
@@ -1074,7 +1074,7 @@ export const MachinistConfig = {
     radius: 0,
     tooltip: "Instantly restores own HP.\nCure Potency: 800",
     potency: [
-      "Cure Potency: 800"
+      "Cure Potency: 800",
     ],
     effects: [],
     conditions: [],
@@ -1082,7 +1082,7 @@ export const MachinistConfig = {
     max_charges: null,
     source_url: "FFXIV_Job_Guide_Raw_machinist_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   "Foot Graze": {
     id: "prange_action__03",
@@ -1101,12 +1101,12 @@ export const MachinistConfig = {
     effects: [],
     conditions: [],
     duration: {
-      seconds: 10
+      seconds: 10,
     },
     max_charges: null,
     source_url: "FFXIV_Job_Guide_Raw_machinist_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   Peloton: {
     id: "prange_action__04",
@@ -1125,12 +1125,12 @@ export const MachinistConfig = {
     effects: [],
     conditions: [],
     duration: {
-      seconds: 30
+      seconds: 30,
     },
     max_charges: null,
     source_url: "FFXIV_Job_Guide_Raw_machinist_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   "Head Graze": {
     id: "prange_action__05",
@@ -1152,7 +1152,7 @@ export const MachinistConfig = {
     max_charges: null,
     source_url: "FFXIV_Job_Guide_Raw_machinist_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
+    language: "en",
   },
   "Arm's Length": {
     id: "prange_action__06",
@@ -1169,17 +1169,17 @@ export const MachinistConfig = {
     tooltip: "Nullifies most knockback and draw-in effects.\nDuration: 6s\nAdditional Effect: When you are struck by a physical attack, the striker will be afflicted with Slow +20%\nDuration: 15s",
     potency: [],
     effects: [
-      "Additional Effect: When you are struck by a physical attack, the striker will be afflicted with Slow +20%"
+      "Additional Effect: When you are struck by a physical attack, the striker will be afflicted with Slow +20%",
     ],
     conditions: [],
     duration: {
-      seconds: 15
+      seconds: 15,
     },
     max_charges: null,
     source_url: "FFXIV_Job_Guide_Raw_machinist_2025-09.html",
     last_seen: "2025-09-12T00:00:00+00:00",
-    language: "en"
-  }
+    language: "en",
+  },
 },
   rotations: []
 };

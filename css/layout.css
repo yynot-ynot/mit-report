@@ -37,23 +37,44 @@
 /* new fight-wrapper = bordered container for pulls + table */
 .fight-wrapper {
     border: 1px solid #ddd;
-    border-top: none;
     border-radius: 0 6px 6px 6px;
     background: #fafafa;
-    padding: 1rem;
+    padding: 0;
     margin-top: 0;
     margin-bottom: 1.5rem;
 
     /* ⬇️ Ensure it extends down the page */
     min-height: 70vh;
-    /* 70% of viewport height */
     display: flex;
     flex-direction: column;
+
+    /* ✅ Grow with content, but scroll if table is wider than viewport */
+    max-width: none !important;
+    /* allow it to expand */
+    width: max-content;
+    /* grow with table */
+    min-width: 100%;
+    /* but never shrink smaller than viewport */
+
+    overflow-x: auto;
+    /* only scroll here */
+    overflow-y: visible;
+
+    box-sizing: border-box;
 }
 
+/* Container for the fight table */
 #fightContainer {
     padding: 1rem;
     border-top: 1px solid #e0e0e0;
     background: #fafafa;
-    /* soft contrast section */
+    box-sizing: border-box;
+
+    /* ✅ Let child table dictate width */
+    width: fit-content;
+    max-width: none;
+
+    overflow: visible;
+    /* no scroll here */
+    display: block;
 }

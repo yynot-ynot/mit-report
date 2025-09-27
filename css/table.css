@@ -2,22 +2,25 @@
 
 /* Wrapper for horizontal scroll only */
 .time-table-wrapper {
-    overflow-x: auto;
-    overflow-y: visible;
-    width: 100%;
+    width: fit-content;
+    /* match .time-table */
+    max-width: none;
+    overflow: visible;
+    /* no scroll here */
+    box-sizing: border-box;
 }
 
 /* Base table styling */
 .time-table {
     border-collapse: collapse;
-    width: 100%;
+    width: max-content;
+    /* ✅ table grows with content */
     margin: 1rem 0;
     font-size: 0.9rem;
     background: #ffffff;
     border: 1px solid #ccc;
     color: #222;
     table-layout: auto;
-    /* keeps header + body aligned */
 }
 
 /* Shared cell styling */
@@ -32,6 +35,14 @@
     box-sizing: border-box;
 }
 
+.time-table td span {
+    display: block;
+    /* spacing between entries */
+    font-weight: 500;
+    /* medium, not heavy */
+    white-space: nowrap;
+}
+
 /* Shared header styling */
 .time-table th,
 .frozen-header th {
@@ -42,6 +53,12 @@
     color: #333;
     text-align: center;
     vertical-align: middle;
+
+    /* Allow player names in headers to break across lines */
+    white-space: normal;
+    /* allow wrapping */
+    word-break: break-word;
+    /* break long names if needed */
 }
 
 /* First column special styling */

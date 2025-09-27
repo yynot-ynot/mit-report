@@ -1,6 +1,6 @@
 /**
- * Convert FFLogs event timestamp to "Xm Ys" format relative to fight start.
- * Example: 63.234 -> " 1m 03.234s", 624.789 -> "10m 24.789s"
+ * Convert FFLogs event timestamp to "mm:ss.###" format relative to fight start.
+ * Example: 1694 -> "00:01.694", 63234 -> "01:03.234", 624789 -> "10:24.789"
  */
 export function formatRelativeTime(eventTimestamp, fightStartTime) {
   const relativeMs = eventTimestamp - fightStartTime;
@@ -10,10 +10,10 @@ export function formatRelativeTime(eventTimestamp, fightStartTime) {
   const seconds = Math.floor(totalSeconds % 60);
   const millis = Math.floor((totalSeconds % 1) * 1000);
 
-  // pad minutes to 2 chars, seconds to 2 chars, millis to 3 chars
-  const minStr = String(minutes).padStart(2, " ");
+  // Always pad minutes + seconds to 2 digits, millis to 3 digits
+  const minStr = String(minutes).padStart(2, "0");
   const secStr = String(seconds).padStart(2, "0");
   const msStr = String(millis).padStart(3, "0");
 
-  return `${minStr}m ${secStr}.${msStr}s`;
+  return `${minStr}:${secStr}.${msStr}`;
 }

@@ -7,20 +7,15 @@
  */
 
 import { loadJobConfig } from "../config/AppConfig.js";
+import linkedAbilities from "../config/linkedAbilities.js";
 import { formatRelativeTime } from "../utility/dataUtils.js";
-import { getLogger } from "../utility/logger.js";
+import { getLogger, setModuleLogLevel } from "../utility/logger.js";
 
-const log = getLogger("ReportParser");
+setModuleLogLevel("BuffAnalysis", "info");
+const log = getLogger("BuffAnalysis");
 
 // Maps normalized buff → action name, or null
 const buffToAbilityMap = new Map();
-
-// 🔒 Buffs that should *always* be displayed as buffs (never collapse to abilities)
-const ALWAYS_SHOW_AS_BUFF = new Set([
-  "kardion", // Example
-  "differential diagnosis",
-  "galvanize",
-]);
 
 // 🔒 Hardcoded Buff → Ability overrides
 const HARDCODED_BUFF_TO_ABILITY = {
@@ -242,8 +237,8 @@ function spawnBuffLookup(normalizedBuff, buffName, job, jobConfig) {
 
     if (foundAction) {
       buffToAbilityMap.set(normalizedBuff, foundAction);
-      log.info(
-        `[BuffLookup] "${buffName}" resolved → ability "${foundAction}" (job: ${job})`
+      log.debug(
+        `[BuffLookup] Fuzzy match: buff="${buffName}" matched effect → action="${foundAction}" (job=${job})`
       );
     } else {
       buffToAbilityMap.set(normalizedBuff, null); // ✅ nothing found
@@ -265,37 +260,95 @@ function spawnBuffLookup(normalizedBuff, buffName, job, jobConfig) {
  *   the FightTable easier to read for users who only care about which
  *   buttons were pressed, not every side effect.
  *
- * Behavior:
+ * Enhanced Behavior (with linkedAbilities):
  *   - For each buff in the input list:
  *       • If buffToAbilityMap has an entry (and it’s not "__PENDING__" or null),
- *         replace the buff with the mapped ability name.
- *       • Otherwise, keep the buff as-is.
+ *         treat that as the "candidate mapped ability".
+ *       • Then check linkedAbilities.json for other abilities that are
+ *         considered equivalent or alternative sources.
+ *       • If any of those linked abilities are directly present in the
+ *         input buff list, prefer that one instead of the fuzzy match.
+ *         (This avoids wrongly attributing a buff to the wrong skill
+ *         when multiple valid sources exist.)
+ *       • Otherwise, fallback to the candidate mapped ability.
+ *   - If no mapping exists, keep the buff unchanged.
  *   - Deduplicates the final results to avoid showing both an ability
- *     and its converted effect buff (e.g. "Bloodwhetting" and "Stem the Flow").
+ *     and its converted effect buff.
  *
  * Example:
- *   Input: ["Bloodwhetting", "Stem the Flow"]
- *   Mapping: { "stem the flow" → "Bloodwhetting" }
- *   Output: ["Bloodwhetting"]
+ *   Input Buffs: ["Nascent Flash", "Stem the Flow"]
+ *   Mapping: { "stem the flow" → "Raw Intuition" }
+ *   Linked: { "Raw Intuition" ↔ "Nascent Flash" }
+ *   Resolution:
+ *     - "Stem the Flow" fuzzily maps to "Raw Intuition".
+ *     - But since "Nascent Flash" is in the buff list and is linked,
+ *       we prefer "Nascent Flash".
+ *   Output: ["Nascent Flash"]
  *
  * @param {Array<string>} buffs - List of buff/ability names for a single cell
  * @returns {Array<string>} resolved - List of simplified ability names
  */
 export function resolveBuffsToAbilities(buffs) {
-  if (!buffs || buffs.length === 0) return [];
+  if (!Array.isArray(buffs) || buffs.length === 0) return [];
 
+  // 3) Resolve each buff with linked-ability disambiguation
   const resolved = buffs.map((buff) => {
     const normalized = buff.trim().toLowerCase();
     const mapped = buffToAbilityMap.get(normalized);
 
-    if (mapped && mapped !== "__PENDING__") {
-      return mapped; // Replace with ability name
+    // Pending → keep as-is and log once
+    if (mapped === "__PENDING__") {
+      log.debug(
+        `[BuffResolve] Outcome buff="${buff}" → pending; keep as "${buff}"`
+      );
+      return buff;
     }
 
-    return buff; // Keep original if no mapping or still pending
+    // Have a candidate (from direct/hardcoded/fuzzy) → try linked disambiguation
+    if (mapped) {
+      // Build the set of all linked abilities reachable from the candidate
+      const linkedSet = new Set();
+      const stack = [mapped];
+      while (stack.length) {
+        const ability = stack.pop();
+        if (!ability || linkedSet.has(ability)) continue;
+        linkedSet.add(ability);
+
+        const linked = linkedAbilities[ability];
+        if (Array.isArray(linked)) {
+          linked.forEach((la) => {
+            if (!linkedSet.has(la)) stack.push(la);
+          });
+        } else if (linked && !linkedSet.has(linked)) {
+          stack.push(linked);
+        }
+      }
+
+      // Prefer a linked ability that already appears in this input list
+      const preferredLinked = buffs.find((b) => linkedSet.has(b));
+      if (preferredLinked) {
+        log.debug(
+          `[BuffResolve] Outcome buff="${buff}" → candidate="${mapped}" → chosen linked="${preferredLinked}"`
+        );
+
+        return preferredLinked;
+      }
+
+      // Otherwise fall back to the candidate mapped ability
+      log.debug(
+        `[BuffResolve] Outcome buff="${buff}" → candidate="${mapped}" → chosen candidate`
+      );
+      return mapped;
+    }
+
+    // No mapping known (null / unset) → keep original buff
+    log.debug(
+      `[BuffResolve] Outcome buff="${buff}" → no mapping; keep as "${buff}"`
+    );
+    return buff;
   });
 
-  // Deduplicate while preserving order
+  // 4) Deduplicate while preserving order (avoid showing both effect + ability)
   return [...new Set(resolved)];
 }
 

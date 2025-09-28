@@ -7,7 +7,7 @@ import {
   resolveMissingBuffSources,
 } from "../analysis/buffAnalysis.js";
 
-setModuleLogLevel("ReportParser", "debug");
+setModuleLogLevel("ReportParser", "info");
 const log = getLogger("ReportParser");
 
 export function parseReport(gqlData) {

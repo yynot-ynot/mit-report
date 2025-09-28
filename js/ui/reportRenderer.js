@@ -268,8 +268,8 @@ export function renderReport(outputEl, report, loadFightTable) {
     });
 
     if (pulls.length > 0) {
-      pullGrid.firstChild.classList.add("active");
-      pullGrid.firstChild.click();
+      pullGrid.lastChild.classList.add("active");
+      pullGrid.lastChild.click();
     }
   }
 

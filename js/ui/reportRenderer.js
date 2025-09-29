@@ -20,6 +20,21 @@ let SHOW_ABILITIES_ONLY = true;
 let SHOW_AUTO_ATTACKS = false; // default hidden
 let SHOW_COMBINED_DOTS = false; // default hidden
 
+let SELECTED_PLAYERS = new Set();
+
+/**
+ * Render the full report into the given container.
+ *
+ * Responsibilities:
+ *   - Groups fights by encounter ID and builds tabbed navigation.
+ *   - Creates fight selection grid (pull numbers).
+ *   - Provides a container for rendering individual fight tables.
+ *   - Initializes the first encounter by default.
+ *
+ * @param {HTMLElement} outputEl - The container element to render into
+ * @param {Object} report - Parsed report object with fights, actors, etc.
+ * @param {Function} loadFightTable - Async loader for fightTable data
+ */
 export function renderReport(outputEl, report, loadFightTable) {
   outputEl.innerHTML = `<div class="report-category">${report.title}</div>`;
 
@@ -55,20 +70,26 @@ export function renderReport(outputEl, report, loadFightTable) {
   outputEl.appendChild(fightWrapper);
 
   /**
-   * Render a single fight's table into the UI.
+   * Render a single fight’s table into the UI.
    *
    * Columns:
    *   - Timestamp: relative time of the event
    *   - Attack Name: ability name
-   *   - Damage: compact arrow format "unmitigated → amount (-mitigationPct%)"
-   *   - Player columns: show buffs active on each player at that timestamp
+   *   - Damage: "unmitigated → amount (mit%)"
+   *   - Player columns: buffs active on each player at that timestamp
    *
-   * Enhancement:
-   *   - Damage values now come directly from parser (`amount`, `unmitigatedAmount`, `mitigationPct`)
-   *     instead of recalculating in the renderer.
-   *   - Keeps renderer focused on formatting and display only.
+   * Enhancements:
+   *   - Adds a stacked control panel with toggles:
+   *       • Show/Hide Auto-Attacks
+   *       • Show/Hide Combined DoTs
+   *       • Enable/Disable Target Player Highlighting
+   *       • Show Buffs (Detailed) vs Show Abilities Only
+   *       • Reset Player Filter (clears selected players)
+   *   - Allows clicking player headers (live & frozen) to filter rows
+   *     by selected players (multiple selectable).
+   *   - Selected player headers remain normal; non-selected turn grey.
    *
-   * @param {Object} fightTable - parsed FightTable object
+   * @param {Object} fightTable - Parsed FightTable object for one pull
    */
   async function renderFight(fightTable) {
     // log the fightTable object
@@ -122,6 +143,16 @@ export function renderReport(outputEl, report, loadFightTable) {
           rerenderBuffCells(fightTable, report);
         },
       },
+      {
+        type: "reset-player",
+        label: "Reset Player Filter",
+        state: false,
+        onClick: () => {
+          SELECTED_PLAYERS.clear();
+          rerenderBuffCells(fightTable, report);
+          updateResetButtonState(); // ensure button greys out again
+        },
+      },
     ]);
 
     // Assemble stacked layout
@@ -160,14 +191,29 @@ export function renderReport(outputEl, report, loadFightTable) {
 
       const thead = document.createElement("thead");
       const headerRow = document.createElement("tr");
+      // Base headers
       headerRow.innerHTML =
-        "<th>Timestamp</th><th>Attack Name</th><th class='damage-col'>Damage</th>" +
-        sortedActors
-          .map((actor) => {
-            const roleClass = getRoleClass(actor.subType);
-            return `<th class="${roleClass}">${actor.name}</th>`;
-          })
-          .join("");
+        "<th>Timestamp</th><th>Attack Name</th><th class='damage-col'>Damage</th>";
+
+      // Player headers
+      sortedActors.forEach((actor) => {
+        const roleClass = getRoleClass(actor.subType);
+        const th = document.createElement("th");
+        th.className = roleClass;
+        th.textContent = actor.name;
+
+        // 🔹 Make header clickable
+        th.addEventListener("click", () => {
+          if (SELECTED_PLAYERS.has(actor.name)) {
+            SELECTED_PLAYERS.delete(actor.name); // toggle off
+          } else {
+            SELECTED_PLAYERS.add(actor.name); // toggle on
+          }
+          rerenderBuffCells(fightTable, report); // reapply filtering
+        });
+
+        headerRow.appendChild(th);
+      });
       thead.appendChild(headerRow);
       table.appendChild(thead);
 
@@ -176,12 +222,11 @@ export function renderReport(outputEl, report, loadFightTable) {
         const row = document.createElement("tr");
         const event = fightTable.rows[ms];
 
-        // 🚫 Filter Auto-Attacks / DoTs
-        if (
-          (!SHOW_AUTO_ATTACKS && event.ability === "Attack") ||
-          (!SHOW_COMBINED_DOTS && event.ability === "Combined DoTs")
-        ) {
-          return; // skip rendering this row entirely
+        // 🚫 Filter rows by selected players
+        if (SELECTED_PLAYERS.size > 0) {
+          const targets = getRowTargets(event);
+          const hasMatch = targets.some((t) => SELECTED_PLAYERS.has(t));
+          if (!hasMatch) return;
         }
 
         const tdTime = document.createElement("td");
@@ -245,7 +290,8 @@ export function renderReport(outputEl, report, loadFightTable) {
           td.innerHTML = styledBuffs.length > 0 ? styledBuffs.join("") : "";
 
           // Highlight target cell (compare event.actor to this actor’s name)
-          if (event.actor && actor.name === event.actor) {
+          const targets = getRowTargets(event);
+          if (targets.includes(actor.name)) {
             td.classList.add("target-cell");
             log.debug(
               `[RenderFight] Marked target column for actor="${actor.name}" at ts=${ms}`
@@ -333,6 +379,19 @@ export function renderReport(outputEl, report, loadFightTable) {
   }
 }
 
+/**
+ * Create and manage a frozen (sticky) header for a time-table.
+ *
+ * Behavior:
+ *   - Clones the live <thead> into a fixed-position header.
+ *   - Syncs column widths and heights with the live table.
+ *   - Updates position on scroll and resize.
+ *   - Forwards click events from frozen header cells to live headers
+ *     (keeps player selection behavior consistent).
+ *   - Resyncs widths after clicks to prevent size shifts.
+ *
+ * @param {HTMLTableElement} table - The fight table to freeze header for
+ */
 function makeFrozenHeader(table) {
   const thead = table.querySelector("thead");
   if (!thead) return;
@@ -351,6 +410,24 @@ function makeFrozenHeader(table) {
 
   const clonedThead = thead.cloneNode(true);
   frozen.appendChild(clonedThead);
+
+  // Sync clicks from frozen headers to live headers
+  const liveHeaders = thead.querySelectorAll("th");
+  const frozenHeaders = clonedThead.querySelectorAll("th");
+  frozenHeaders.forEach((fh, idx) => {
+    const live = liveHeaders[idx];
+    if (!live) return;
+
+    fh.style.cursor = "pointer"; // show clickable
+
+    fh.addEventListener("click", (e) => {
+      e.stopPropagation();
+      live.click(); // delegate to live header’s handler
+
+      // Force resync after the click to avoid size shift
+      requestAnimationFrame(() => syncWidths(false));
+    });
+  });
 
   wrapper.parentNode.insertBefore(frozen, wrapper.nextSibling);
 
@@ -431,19 +508,20 @@ function makeFrozenHeader(table) {
 }
 
 /**
- * Enable header highlight on row hover.
+ * Enable header highlighting when hovering rows.
  *
- * When a row is hovered, the `.target-cell` in that row is located,
- * its column index is determined, and the corresponding header cell
- * (in both live and frozen headers) is highlighted.
+ * Behavior:
+ *   - On row hover, finds the `.target-cell` in that row.
+ *   - Highlights the corresponding player column header
+ *     in both live and frozen headers.
+ *   - Adds a small "Target" badge above the header cell.
+ *   - On mouse leave, removes highlight and badge.
  *
- * Enhancement:
- *   - Adds a small "Target" badge (styled via .target-label) to the header cell.
- *   - The label is positioned slightly above the cell, overlapping the top border,
- *     to give it a "stamp" effect and clearly indicate the target player.
+ * Controlled by:
+ *   - ENABLE_COLUMN_HIGHLIGHT toggle (if false, no effect).
  *
- * @param {HTMLTableElement} table - The table element
- * @param {HTMLTableRowElement} row - The row element being configured
+ * @param {HTMLTableElement} table - The fight table
+ * @param {HTMLTableRowElement} row - The row element to attach listeners to
  */
 function enableHeaderHighlight(table, row) {
   row.addEventListener("mouseenter", () => {
@@ -513,11 +591,23 @@ function enableHeaderHighlight(table, row) {
 }
 
 /**
- * Build a control panel of toggle buttons for display options.
+ * Build a control panel of buttons for fight display options.
  *
- * @param {Array} options - Array of toggle configs:
- *   { labelOn: string, labelOff: string, state: boolean, onToggle: function }
- * @returns {HTMLElement} controlPanel - The built panel element
+ * Supports two types of controls:
+ *   1. Toggle buttons:
+ *      - Have on/off labels and maintain an internal state.
+ *      - State changes call the provided `onToggle` callback.
+ *   2. Action buttons (e.g. Reset Player Filter):
+ *      - Always display the same label.
+ *      - Trigger `onClick` only when conditions are met
+ *        (e.g. only active if players are selected).
+ *
+ * Styling:
+ *   - .toggle-btn.enable (lit, active)
+ *   - .toggle-btn.disable (greyed out, inactive)
+ *
+ * @param {Array} options - List of control definitions
+ * @returns {HTMLElement} controlPanel - The constructed control panel div
  */
 function renderControlPanel(options) {
   const controlPanel = document.createElement("div");
@@ -526,18 +616,34 @@ function renderControlPanel(options) {
   options.forEach((opt) => {
     const btn = document.createElement("button");
 
-    function updateBtn() {
-      btn.textContent = opt.state ? opt.labelOn : opt.labelOff;
-      btn.className = opt.state ? "toggle-btn disable" : "toggle-btn enable";
+    if (opt.type === "reset-player") {
+      // 🔹 Reset Player Filter special case
+      btn.textContent = opt.label;
+      btn.className = "toggle-btn disable"; // default greyed out
+      btn.addEventListener("click", () => {
+        if (SELECTED_PLAYERS.size > 0) {
+          opt.onClick();
+        }
+      });
+
+      // Save ref for external updates
+      controlPanel.resetPlayerBtn = btn;
+    } else {
+      // 🔹 Normal toggle buttons
+      function updateBtn() {
+        btn.textContent = opt.state ? opt.labelOn : opt.labelOff;
+        btn.className = opt.state ? "toggle-btn disable" : "toggle-btn enable";
+      }
+
+      btn.addEventListener("click", () => {
+        opt.state = !opt.state;
+        opt.onToggle(opt.state);
+        updateBtn();
+      });
+
+      updateBtn();
     }
 
-    btn.addEventListener("click", () => {
-      opt.state = !opt.state;
-      opt.onToggle(opt.state);
-      updateBtn();
-    });
-
-    updateBtn();
     controlPanel.appendChild(btn);
   });
 
@@ -545,24 +651,26 @@ function renderControlPanel(options) {
 }
 
 /**
- * Rerender buff cells in the fight table without rebuilding the whole DOM.
+ * Incrementally refresh buff cells and row visibility.
  *
  * Purpose:
- *   - Prevents flickering when buff lookups finish.
- *   - Updates only the <td> cells that display buffs/abilities.
+ *   - Avoids full table rebuild when toggles or async lookups change.
+ *   - Keeps DOM stable (no flicker).
  *
  * Behavior:
- *   - Iterates over each row in fightTable.
- *   - For each player column, recomputes `displayBuffs`
- *     using resolveBuffsToAbilities if SHOW_ABILITIES_ONLY is active.
- *   - Updates the cell’s innerHTML with the styled buff list.
- *   - Preserves row highlighting and frozen headers.
+ *   - Iterates over fight rows and applies filters:
+ *       • Auto-Attacks hidden if SHOW_AUTO_ATTACKS = false
+ *       • Combined DoTs hidden if SHOW_COMBINED_DOTS = false
+ *       • Only rows with selected player targets shown (if any)
+ *   - Updates buff cells per player:
+ *       • Raw buffs or collapsed into abilities
+ *       • Styled with role/job matching
+ *       • Vulnerabilities shown in red
+ *   - Updates header greying to match player selection.
+ *   - Updates Reset Player Filter button state.
  *
- * Usage:
- *   - Called once when async buff lookups complete (via waitForBuffLookups).
- *   - Also called when user toggles "Show Abilities Only".
- *
- * @param {Object} fightTable - Parsed FightTable with rows and buffs.
+ * @param {Object} fightTable - Parsed FightTable with rows + buffs
+ * @param {Object} report - Report reference (for actor lookups)
  */
 function rerenderBuffCells(fightTable, report) {
   const table = fightContainer.querySelector("table.time-table");
@@ -591,6 +699,34 @@ function rerenderBuffCells(fightTable, report) {
     const event = fightTable.rows[ms];
     const row = tbody.rows[rowIndex];
     if (!row) return;
+
+    // 🚫 Hide Auto-Attacks / DoTs
+    if (
+      (!SHOW_AUTO_ATTACKS && event.ability === "Attack") ||
+      (!SHOW_COMBINED_DOTS && event.ability === "Combined DoTs")
+    ) {
+      row.style.display = "none";
+      return;
+    } else {
+      row.style.display = "";
+    }
+
+    // 🚫 Hide rows if they don’t match selected players
+    if (
+      SELECTED_PLAYERS.size > 0 &&
+      (!event.actor || !SELECTED_PLAYERS.has(event.actor))
+    ) {
+      row.style.display = "none";
+    } else {
+      row.style.display = ""; // ensure visible again if filter cleared
+    }
+
+    // 🚫 Hide rows if they don’t match selected players
+    if (SELECTED_PLAYERS.size > 0) {
+      const targets = getRowTargets(event);
+      const hasMatch = targets.some((t) => SELECTED_PLAYERS.has(t));
+      row.style.display = hasMatch ? "" : "none";
+    }
 
     sortedActors.forEach((actor, colIndex) => {
       // Columns offset by 3 (Timestamp, Ability, Damage)
@@ -627,4 +763,66 @@ function rerenderBuffCells(fightTable, report) {
       td.innerHTML = styledBuffs.length > 0 ? styledBuffs.join("") : "";
     });
   });
+
+  // 🔹 Update header styling to reflect selected players
+  const liveHeaders = table.querySelectorAll("thead th");
+  const frozen = table.parentNode.parentNode.querySelector(".frozen-header");
+  const frozenHeaders = frozen ? frozen.querySelectorAll("th") : [];
+
+  sortedActors.forEach((actor, idx) => {
+    const headerCell = liveHeaders[idx + 3]; // offset: timestamp, ability, damage
+    const frozenCell = frozenHeaders[idx + 3];
+
+    if (SELECTED_PLAYERS.size > 0 && !SELECTED_PLAYERS.has(actor.name)) {
+      headerCell?.classList.add("player-deselected");
+      frozenCell?.classList.add("player-deselected");
+    } else {
+      headerCell?.classList.remove("player-deselected");
+      frozenCell?.classList.remove("player-deselected");
+    }
+  });
+
+  updateResetButtonState();
+}
+
+/**
+ * Determine which player(s) are the target of a given event row.
+ *
+ * Current behavior:
+ *   - Uses event.actor (single string).
+ *
+ * Future-proofing:
+ *   - Returns an array of targets to support multi-target abilities.
+ *
+ * @param {Object} event - A fightTable row event
+ * @returns {string[]} Array of targeted player names
+ */
+function getRowTargets(event) {
+  if (event.actor) {
+    return [event.actor];
+  }
+  return [];
+}
+
+/**
+ * Update the Reset Player Filter button’s visual state.
+ *
+ * Behavior:
+ *   - If one or more players are selected:
+ *       • Button styled as "enable" (lit up).
+ *   - If no players are selected:
+ *       • Button styled as "disable" (greyed out).
+ *
+ * Called:
+ *   - At the end of rerenderBuffCells().
+ *   - After clearing selection via Reset button.
+ */
+function updateResetButtonState() {
+  const resetBtn = document.querySelector(".control-panel").resetPlayerBtn;
+  if (!resetBtn) return;
+  if (SELECTED_PLAYERS.size > 0) {
+    resetBtn.className = "toggle-btn enable";
+  } else {
+    resetBtn.className = "toggle-btn disable";
+  }
 }

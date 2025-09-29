@@ -235,9 +235,12 @@
 
 /* Enable state (light yellow/orange) */
 .toggle-btn.enable {
-    background-color: #fff8dc;
-    border: 1px solid #ffd580;
-    color: #a06000;
+    background-color: #dcfce7;
+    /* green-100 */
+    border: 1px solid #22c55e;
+    /* green-500 */
+    color: #166534;
+    /* green-900 */
 }
 
 /* Disable state (greyed out) */
@@ -258,4 +261,12 @@
     /* ensures centered text */
     white-space: nowrap;
     /* prevent multi-line wrapping */
+}
+
+/* Greyed out header when not selected */
+.time-table th.player-deselected,
+.frozen-header th.player-deselected {
+    background-color: #e5e5e5 !important;
+    color: #888 !important;
+    opacity: 0.7;
 }

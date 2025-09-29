@@ -185,6 +185,14 @@ export function renderReport(outputEl, report, loadFightTable) {
           const td = document.createElement("td");
           td.classList.add(getRoleClass(actor.subType));
 
+          // Check if player is dead at this timestamp
+          if (event.deaths && event.deaths.includes(actor.name)) {
+            td.style.color = "#6b7280"; // grey text
+            td.style.backgroundColor = "#f3f4f6"; // light grey background
+            row.appendChild(td);
+            return; // skip buff rendering
+          }
+
           // Look up buffs applied to this actor at this timestamp
           const rawBuffs = [];
           for (const [buffName, appliers] of Object.entries(event.buffs)) {

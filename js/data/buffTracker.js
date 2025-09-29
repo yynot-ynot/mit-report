@@ -6,7 +6,7 @@ setModuleLogLevel("BuffTracker", "info");
 const log = getLogger("BuffTracker");
 
 /**
- * Build a complete list of buff/debuff statuses with start, end, stacks, and targets.
+ * Build a complete list of buff/debuff statuses with start, end, stacks, activeTargets, and targets.
  *
  * This tracker processes both BUFF and DEBUFF events from FFLogs, but it consumes
  * already-parsed buff/debuff events (from parseBuffEvents) rather than raw logs.
@@ -14,13 +14,18 @@ const log = getLogger("BuffTracker");
  * Each status is uniquely keyed by (source, buff) and maintains:
  *   - start / end time (relative to fight start)
  *   - stack count
- *   - a Set of current targets
+ *   - activeTargets: a Set of currently affected targets (working field used
+ *     to decide when the status should close)
+ *   - targets: a Set of all targets that have ever been affected by this status
+ *     (historical record, even if they are no longer active)
  *
- * Using a single status per (source, buff) with a Set of targets ensures that
+ * Using a single status per (source, buff) with activeTargets ensures that
  * multi-target buffs (e.g. Shake It Off, Embolden) are tracked correctly:
  *   - When the buff applies to one target, behavior is identical to before.
  *   - When the buff applies to multiple targets, they are all tracked in the same
  *     status, and each target is removed individually until none remain.
+ *   - The historical `targets` field still records everyone who was ever affected,
+ *     even if they were removed before the status closed.
  *   - This prevents duplicate overlapping statuses for AoE/raid buffs.
  *
  * Supported event types:
@@ -32,16 +37,19 @@ const log = getLogger("BuffTracker");
  *
  * Event handling rules:
  *   - "apply*" creates a new status or extends an existing one, adding the target.
+ *     Both `activeTargets` and `targets` are updated.
  *   - "apply*stack" increases stack count on an active status (or creates if missing).
+ *     Target is also added to both sets.
  *   - "remove*stack" decreases stack count but does NOT close the status until
- *     all targets are removed.
- *   - "remove*" removes a single target. If no targets remain, the status closes.
+ *     all activeTargets are removed.
+ *   - "remove*" removes a single target from activeTargets. If no activeTargets remain,
+ *     the status closes. The `targets` set is NOT modified, preserving history.
  *   - "refresh*" is logged but does not change the timeline.
  *   - Leftover incomplete statuses are force-closed at MAX_SAFE_INTEGER and logged.
  *
  * @param {Array} parsedEvents - Parsed buff/debuff events from parseBuffEvents
  * @param {Object} fight - Fight object with startTime
- * @returns {Array} completeStatuses - Array of { source, buff, start, end, stacks, targets }
+ * @returns {Array} completeStatuses - Array of { source, buff, start, end, stacks, activeTargets, targets }
  */
 export function buildStatusList(parsedEvents, fight) {
   const incompleteStatuses = []; // currently active (open)
@@ -70,11 +78,13 @@ export function buildStatusList(parsedEvents, fight) {
           start: relTs,
           end: null,
           stacks: ev.stack ?? 1,
-          targets: new Set(),
+          activeTargets: new Set(),
+          targets: new Set(), // historical record
         };
         incompleteStatuses.push(status);
       }
-      status.targets.add(target);
+      status.activeTargets.add(target);
+      status.targets.add(target); // track historical
     }
 
     // ---- APPLY STACK ----
@@ -89,11 +99,14 @@ export function buildStatusList(parsedEvents, fight) {
           start: relTs,
           end: null,
           stacks: ev.stack ?? 1,
-          targets: new Set([target]),
+          activeTargets: new Set([target]),
+          targets: new Set([target]), // historical
         };
         incompleteStatuses.push(status);
       } else {
         status.stacks = ev.stack ?? status.stacks + 1;
+        status.activeTargets.add(target);
+        status.targets.add(target); // add to historical as well
       }
       log.debug(
         `Applied stack for ${buffName} (${status.stacks}) on ${status.source} @${relTs}`
@@ -117,14 +130,14 @@ export function buildStatusList(parsedEvents, fight) {
       }
     }
 
-    // ---- REMOVE (close status if all targets gone) ----
+    // ---- REMOVE (close status if all activeTargets gone) ----
     else if (ev.type === "removebuff" || ev.type === "removedebuff") {
       const status = incompleteStatuses.find(
         (s) => s.source === source && s.buff === buffName && s.end === null
       );
       if (status) {
-        status.targets.delete(target);
-        if (status.targets.size === 0) {
+        status.activeTargets.delete(target); // remove from working set only
+        if (status.activeTargets.size === 0) {
           status.end = relTs;
           completeStatuses.push(status);
           incompleteStatuses.splice(incompleteStatuses.indexOf(status), 1);
@@ -137,7 +150,8 @@ export function buildStatusList(parsedEvents, fight) {
           start: 0,
           end: relTs,
           stacks: ev.stack ?? 1,
-          targets: new Set([target]),
+          activeTargets: new Set(), // no one still active
+          targets: new Set([target]), // historical
         };
         completeStatuses.push(syntheticStatus);
         log.debug(
@@ -329,4 +343,100 @@ export function buildVulnerabilityList(parsedEvents, fight) {
   setVulnerabilityMap(vulnMap);
 
   return sortedVulns;
+}
+
+/**
+ * Build a complete death status list using parsed death events and Raise buff statuses.
+ *
+ * Purpose:
+ *   Track when a player is "dead" (from death → rez). FFLogs does not log
+ *   "revive" directly, but Raise is represented as a buff. The Raise buff
+ *   applies to a dead player and falls off when they accept and return.
+ *
+ * Logic:
+ *   - Start: the timestamp of the death event.
+ *   - End: the removal time of the first Raise buff applied to the same actor
+ *           after the death.
+ *   - If no Raise buff is found, end = Number.MAX_SAFE_INTEGER.
+ *
+ * Behavior:
+ *   - Each death creates one timeline entry { actor, start, end, source }.
+ *   - Multiple deaths per actor in the same fight will produce multiple entries.
+ *   - Raise detection is case-insensitive (`buff.toLowerCase() === "raise"`).
+ *
+ * @param {Array} parsedDeaths - Parsed death events (from parseFightDeaths)
+ * @param {Array} statusList - Buff/debuff timelines (from buildStatusList)
+ * @param {Object} fight - Fight metadata (id, startTime)
+ * @returns {Array} deathStatuses - Array of { actor, start, end, source }
+ */
+export function buildDeathStatusList(parsedDeaths, statusList, fight) {
+  const deathStatuses = [];
+
+  parsedDeaths.forEach((death) => {
+    const { actor, relative, source } = death;
+
+    /**
+     * ⚠️ FFLogs Quirk Justification:
+     * In some cases, Raise is logged slightly *before* the actual death event,
+     * even though logically it is associated with that death.
+     *
+     * Example:
+     *   - Death:  https://www.fflogs.com/reports/gC7tXWMwvNqpyD2f?fight=7&type=deaths&view=events
+     *   - Raise:  https://www.fflogs.com/reports/gC7tXWMwvNqpyD2f?fight=7&type=auras&view=events&target=4&ability=1000148
+     *
+     * In this report, Fumiko Sumomo’s Raise is logged ~0.09s before her death.
+     * To handle this, we allow a small lookback window of 1.5s when associating
+     * Raise buffs with deaths.
+     */
+    const lookbackWindow = 1500;
+    const raiseStatuses = statusList.filter(
+      (s) =>
+        s.buff.toLowerCase() === "raise" &&
+        s.targets.has(actor) &&
+        s.start >= relative - lookbackWindow
+    );
+
+    log.debug(
+      `Death tracking: actor=${actor}, ts=${formatRelativeTime(
+        death.rawTimestamp,
+        fight.startTime
+      )}, found ${raiseStatuses.length} Raise buff(s)`
+    );
+
+    let end = Number.MAX_SAFE_INTEGER;
+    if (raiseStatuses.length > 0) {
+      // Take the first Raise after (or just before) death
+      const raise = raiseStatuses[0];
+      end = raise.end ?? Number.MAX_SAFE_INTEGER;
+
+      // 🛠 Sanity check: make sure end ≥ start
+      if (end < relative) {
+        log.error(
+          `Death tracking correction: actor=${actor}, Raise ended before death ` +
+            `(end=${formatRelativeTime(
+              raise.end + fight.startTime,
+              fight.startTime
+            )}, start=${formatRelativeTime(
+              death.rawTimestamp,
+              fight.startTime
+            )}). Clamping end=start.`
+        );
+        end = relative;
+      }
+    }
+
+    deathStatuses.push({
+      actor,
+      start: relative,
+      end,
+      source,
+    });
+  });
+
+  log.info(
+    `Fight ${fight.id}: built ${deathStatuses.length} death statuses`,
+    deathStatuses
+  );
+
+  return deathStatuses;
 }

@@ -1,6 +1,6 @@
 import { getLogger, setModuleLogLevel } from "../utility/logger.js";
 
-setModuleLogLevel("FFLogsApi", "debug");
+setModuleLogLevel("FFLogsApi", "info");
 const log = getLogger("FFLogsApi");
 
 /**
@@ -342,5 +342,25 @@ export async function fetchFightDebuffs(
     fight,
     EventDataType.DEBUFFS,
     extraOptions
+  );
+}
+
+/**
+ * Fetch death events for a fight.
+ *
+ * Queries the FFLogs API for all `Deaths` events within the fight duration.
+ * These include player and NPC deaths with timestamp and actor info.
+ *
+ * @param {string} accessToken - OAuth2 access token for the FFLogs API.
+ * @param {string} reportCode - Unique FFLogs report code.
+ * @param {Object} fight - Fight metadata (requires `id`, `startTime`, `endTime`).
+ * @returns {Promise<Array>} Resolves to an array of death event objects.
+ */
+export async function fetchFightDeaths(accessToken, reportCode, fight) {
+  return await fetchEventsPaginated(
+    accessToken,
+    reportCode,
+    fight,
+    EventDataType.DEATHS
   );
 }

@@ -1,10 +1,13 @@
 import { getLogger, setModuleLogLevel } from "../utility/logger.js";
-import { buildStatusList, buildVulnerabilityList } from "./buffTracker.js";
+import {
+  buildStatusList,
+  buildVulnerabilityList,
+  buildDeathStatusList,
+} from "./buffTracker.js";
 import { formatRelativeTime } from "../utility/dataUtils.js";
 import { IGNORED_BUFFS } from "../config/ignoredBuffs.js";
 import {
   isVulnerability,
-  getVulnerabilityMap,
   assignLastKnownBuffSource,
   resolveMissingBuffSources,
 } from "../analysis/buffAnalysis.js";
@@ -330,6 +333,56 @@ function applyVulnsToAttacks(
 }
 
 /**
+ * Apply death statuses to damage events in the FightTable.
+ *
+ * Matching logic:
+ *   - Each damage event corresponds to a timestamp.
+ *   - Each death status entry describes a timeline with { actor, start, end }.
+ *   - For each row, we add ALL actors who are dead at that timestamp.
+ *
+ * Result:
+ *   rows[timestamp].deaths = [ "PlayerA", "PlayerB", ... ]
+ *
+ * Notes:
+ *   - Multiple players can be dead at the same timestamp.
+ *   - Death attribution is independent of the event’s actor/target.
+ *   - If no deaths are active at that time, the list is empty.
+ *
+ * @param {Array} deathStatusList - Death timelines ({ actor, start, end })
+ * @param {Array} damageEvents - Parsed damage-taken events
+ * @param {Object} fightTable - FightTable being constructed
+ * @param {Object} fight - Fight metadata for logging context
+ */
+function applyDeathsToAttacks(
+  deathStatusList,
+  damageEvents,
+  fightTable,
+  fight
+) {
+  damageEvents.forEach((ev) => {
+    const row = fightTable.rows[ev.relative];
+    if (!row) return;
+
+    if (!row.deaths) {
+      row.deaths = [];
+    }
+
+    // Collect all players who are "dead" at this timestamp
+    const matches = deathStatusList.filter(
+      (s) => ev.relative >= s.start && ev.relative <= s.end
+    );
+
+    row.deaths = matches.map((m) => m.actor);
+
+    log.debug(
+      `Row @${formatRelativeTime(ev.rawTimestamp, fight.startTime)} (Fight ${
+        fight.id
+      }) deaths=[${row.deaths.join(", ")}]`
+    );
+  });
+}
+
+/**
  * Build the final FightTable for a given fight.
  *
  * The FightTable is a structured view of a fight's damage-taken timeline,
@@ -387,6 +440,7 @@ function applyVulnsToAttacks(
  * @param {Array} damageEvents - Parsed damage-taken events (from parseFightDamageTaken)
  * @param {Array} parsedBuffs - Parsed buff/debuff events (from parseBuffEvents)
  * @param {Array} parsedVulnerabilities - Parsed vulnerabilities/debuffs on friendlies
+ * @param {Array} parsedDeaths - Parsed death events (from parseFightDeaths)
  * @param {Object} fight - Fight metadata (id, encounterID, name, startTime, friendlyPlayers)
  * @param {Map} actorById - Map of actorID → actor metadata
  * @returns {Object} FightTable
@@ -395,6 +449,7 @@ export function buildFightTable(
   damageEvents,
   parsedBuffs,
   parsedVulnerabilities,
+  parsedDeaths,
   fight,
   actorById
 ) {
@@ -402,6 +457,13 @@ export function buildFightTable(
   const vulnerabilityStatusList = buildVulnerabilityList(
     parsedVulnerabilities,
     fight
+  );
+  const deathStatusList = buildDeathStatusList(parsedDeaths, statusList, fight);
+
+  // 🔎 For development: log the death status list
+  log.info(
+    `Fight ${fight.id}: built ${deathStatusList.length} death statuses`,
+    deathStatusList
   );
 
   const table = {
@@ -428,6 +490,7 @@ export function buildFightTable(
         mitigationPct: ev.mitigationPct,
         buffs: {},
         vulns: {}, // active vulnerabilities (per-target, no sources)
+        deaths: [], // all players dead at this timestamp
       };
     }
 
@@ -444,6 +507,9 @@ export function buildFightTable(
   // Fill in vulnerabilities based on target timelines
   applyVulnsToAttacks(vulnerabilityStatusList, damageEvents, table, fight);
 
+  // Fill in deaths based on death timelines
+  applyDeathsToAttacks(deathStatusList, damageEvents, table, fight);
+
   // ✅ Final pass: replace null/unknown appliers with all players in this fight
   resolveMissingBuffSources(table, actorById, fight);
 
@@ -454,4 +520,48 @@ export function buildFightTable(
   );
 
   return table;
+}
+
+/**
+ * Parse raw death events into normalized objects.
+ *
+ * Each death event includes:
+ *   - rawTimestamp: original event timestamp
+ *   - relative: timestamp offset from fight start
+ *   - actor: name of the target who died
+ *   - source: name of the killer (if available)
+ *   - ability: killing ability name (if available)
+ *   - abilityGameID: raw FFLogs ability ID
+ *
+ * @param {Array} events - Raw death events from FFLogs
+ * @param {Object} fight - Fight metadata (must include startTime, id)
+ * @param {Map} actorById - Map of actorID → actor metadata
+ * @param {Map} abilityById - Map of abilityGameID → ability metadata
+ * @returns {Array} parsed - Array of normalized death events
+ */
+export function parseFightDeaths(events, fight, actorById, abilityById) {
+  if (!events || events.length === 0) {
+    log.warn(`Fight ${fight.id}: no death events returned`);
+    return [];
+  }
+
+  const parsed = events
+    .map((ev) => {
+      const actor = actorById.get(ev.targetID);
+      const source = actorById.get(ev.sourceID);
+      const ability = abilityById.get(ev.abilityGameID);
+
+      return {
+        rawTimestamp: ev.timestamp,
+        relative: ev.timestamp - fight.startTime,
+        actor: actor ? actor.name : `Unknown(${ev.targetID})`,
+        source: source ? source.name : `Unknown(${ev.sourceID})`,
+        ability: ability ? ability.name : "Unknown Ability",
+        abilityGameID: ev.abilityGameID,
+      };
+    })
+    .filter(Boolean);
+
+  log.debug(`Fight ${fight.id}: parsed ${parsed.length} death events`);
+  return parsed;
 }

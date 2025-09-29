@@ -14,9 +14,6 @@ import { getLogger, setModuleLogLevel } from "../utility/logger.js";
 setModuleLogLevel("BuffAnalysis", "info");
 const log = getLogger("BuffAnalysis");
 
-// Maps normalized buff → action name, or null
-const buffToAbilityMap = new Map();
-
 // 🔒 Hardcoded Buff → Ability overrides
 const HARDCODED_BUFF_TO_ABILITY = {
   "blackest night": "The Blackest Night",
@@ -24,6 +21,40 @@ const HARDCODED_BUFF_TO_ABILITY = {
   "undead rebirth": "Living Dead",
   holosakos: "Holos",
 };
+
+// Maps normalized buff → action name, or null
+const buffToAbilityMap = new Map();
+
+// Global vulnerability map
+let vulnToAbilityMap = new Map();
+
+/**
+ * Setter to update the vulnerability map from buffTracker.
+ *
+ * @param {Map} newMap - Map of vulnerabilityName(lowercased) → originalName
+ */
+export function setVulnerabilityMap(newMap) {
+  vulnToAbilityMap = newMap;
+  log.info(
+    `[VulnerabilityMap] Updated with ${vulnToAbilityMap.size} entries`,
+    Object.fromEntries(vulnToAbilityMap)
+  );
+}
+
+/**
+ * Check if a given name is a known vulnerability.
+ *
+ * Purpose:
+ *   Provides a quick lookup to verify whether a debuff name should
+ *   be treated as a vulnerability tracked in the FightTable.
+ *
+ * @param {string} vulnName - The vulnerability name to check
+ * @returns {boolean} true if recognized as a vulnerability, false otherwise
+ */
+export function isVulnerability(vulnName) {
+  if (!vulnName) return false;
+  return vulnToAbilityMap.has(vulnName.trim().toLowerCase());
+}
 
 /**
  * Check if a given ability/buff is part of a specific job's actions.
@@ -154,14 +185,21 @@ export function assignLastKnownBuffSource(
  *   have no source (empty array) or only invalid "Unknown" placeholders.
  *   This function guarantees that the FightTable has no unassigned buffs.
  *
+ * Updated Behavior:
+ *   - Instead of crediting *all* friendly players, the buff is attributed
+ *     directly to the damage target (`row.actor`).
+ *   - This avoids inflated attributions and keeps mitigation credit aligned
+ *     with the player who actually benefited from the buff.
+ *
  * Behavior:
  *   - Iterates through all rows and buffs.
- *   - If a buff has no valid appliers, credits *all* friendly players.
- *   - Logs a warning to indicate normalization was required.
+ *   - If a buff has no valid appliers, credits the targeted player instead.
+ *   - Logs a warning to indicate fallback attribution was required.
  *
  * Tradeoff:
- *   This avoids rendering empty buff columns, but it inflates
- *   attribution by giving credit to everyone. Used only as a last resort.
+ *   - Prevents empty buff columns without over-crediting.
+ *   - However, if the true applier differs from the target, the buff may
+ *     still be misattributed (better than "credit everyone").
  *
  * @param {Object} table - The FightTable being built
  * @param {Map} actorById - Map of actorID → actor metadata
@@ -175,11 +213,10 @@ export function resolveMissingBuffSources(table, actorById, fight) {
         appliers.some((a) => !a || a.startsWith("Unknown"))
       ) {
         log.warn(
-          `Fight ${fight.id}, ts=${ts}: Buff ${buffName} has no valid source, crediting all players`
+          `Fight ${fight.id}, ts=${ts}: Buff ${buffName} had no valid source, ` +
+            `crediting damage target "${row.actor}" instead`
         );
-        row.buffs[buffName] = table.friendlyPlayerIds
-          .map((id) => actorById.get(id)?.name)
-          .filter(Boolean);
+        row.buffs[buffName] = [row.actor];
       }
     }
   }

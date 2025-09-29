@@ -3,6 +3,7 @@ import { formatRelativeTime } from "../utility/dataUtils.js";
 import { getRoleClass, sortActorsByJob } from "../config/AppConfig.js";
 import {
   isJobAbility,
+  isVulnerability,
   resolveBuffsToAbilities,
   waitForBuffLookups,
 } from "../analysis/buffAnalysis.js";
@@ -577,9 +578,16 @@ function rerenderBuffCells(fightTable, report) {
 
       const styledBuffs = displayBuffs.map((buff) => {
         const matched = isJobAbility(buff, actor.subType);
-        return `<div><span style="color:${
-          matched ? "#000" : "#b45309"
-        }">${buff}</span></div>`;
+        const isVuln = isVulnerability(buff);
+
+        let color = "#000"; // default (black)
+        if (isVuln) {
+          color = "#b91c1c"; // 🔴 redish, readable
+        } else if (!matched) {
+          color = "#228B22"; // 🟢 fallback for unknown buffs
+        }
+
+        return `<div><span style="color:${color}">${buff}</span></div>`;
       });
 
       td.innerHTML = styledBuffs.length > 0 ? styledBuffs.join("") : "";

@@ -101,6 +101,28 @@ document.addEventListener("DOMContentLoaded", async () => {
         );
         log.info(`Pull ${pull.id}: parsed Buffs/Debuffs`, parsedBuffs);
 
+        const vulnerabilitiesTaken = await fetchFightDebuffs(
+          accessToken,
+          reportCode,
+          pull,
+          HostilityType.FRIENDLIES
+        );
+        log.info(
+          `Pull ${pull.id}: raw Vulnerabilities (debuffs on friendlies) fetched`,
+          vulnerabilitiesTaken
+        );
+
+        const parsedVulnerabilities = parseBuffEvents(
+          vulnerabilitiesTaken,
+          pull,
+          report.actorById,
+          report.abilityById
+        );
+        log.info(
+          `Pull ${pull.id}: parsed Vulnerabilities (debuffs on friendlies)`,
+          parsedVulnerabilities
+        );
+
         // Fetch damage taken
         const damageTaken = await fetchFightDamageTaken(
           accessToken,
@@ -121,6 +143,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         const fightTable = buildFightTable(
           parsedDamageTaken,
           parsedBuffs,
+          parsedVulnerabilities,
           pull,
           report.actorById,
           report.abilityById

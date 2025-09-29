@@ -12,6 +12,31 @@ export const HostilityType = Object.freeze({
   ENEMIES: "Enemies",
 });
 
+/**
+ * FFLogs GraphQL ENUM for EventDataType.
+ * ⚠️ Important: Must use ENUM values, NOT strings or integers.
+ *
+ * Usage:
+ * - These values are passed directly in GraphQL queries (without quotes).
+ * - See: Report.events query.
+ */
+export const EventDataType = Object.freeze({
+  ALL: "All",
+  BUFFS: "Buffs",
+  CASTS: "Casts",
+  COMBATANT_INFO: "CombatantInfo",
+  DAMAGE_DONE: "DamageDone",
+  DAMAGE_TAKEN: "DamageTaken",
+  DEATHS: "Deaths",
+  DEBUFFS: "Debuffs",
+  DISPELS: "Dispels",
+  HEALING: "Healing",
+  INTERRUPTS: "Interrupts",
+  RESOURCES: "Resources",
+  SUMMONS: "Summons",
+  THREAT: "Threat",
+});
+
 export async function fetchReport(accessToken, reportCode) {
   log.info("Fetching report metadata", reportCode);
 
@@ -91,13 +116,42 @@ function formatOption(key, value) {
 }
 
 /**
- * Generic event fetcher with pagination
+ * Fetches events from the FFLogs API with automatic pagination support.
+ *
+ * This function queries the `reportData.report.events` GraphQL endpoint for a specific fight,
+ * handling page-by-page retrieval until all events are collected. It supports filtering by
+ * `EventDataType` and any combination of other query arguments documented in the FFLogs schema.
+ *
+ * @param {string} accessToken - OAuth2 access token for the FFLogs API.
+ * @param {string} reportCode - The unique code identifying the FFLogs report.
+ * @param {Object} fight - Fight metadata object, containing at least `id`, `startTime`, and `endTime`.
+ * @param {string} dataType - One of the `EventDataType` ENUM values (e.g. EventDataType.CASTS).
+ *                            ⚠️ Must be an unquoted ENUM constant, not an arbitrary string.
+ * @param {Object} [extraOptions={}] - Additional GraphQL query arguments for filtering events.
+ *                                     See FFLogs `events` schema for full list. Examples:
+ *   - abilityID {number} — Only include events from a specific ability.
+ *   - hostilityType {HostilityType} — Filter by friendlies/enemies (ENUM, no quotes).
+ *   - sourceID {number} / targetID {number} — Restrict to a specific actor.
+ *   - filterExpression {string} — Custom FFLogs filter language.
+ *   - includeResources {boolean} — Whether to include detailed resource data.
+ *   - limit {number} — Number of events per page (100–10000, default 300).
+ *
+ * @returns {Promise<Array>} Resolves to an array of all fetched event objects.
+ *
+ * @example
+ * const casts = await fetchEventsPaginated(
+ *   token,
+ *   "abc123XYZ",
+ *   fight,
+ *   EventDataType.CASTS,
+ *   { hostilityType: HostilityType.ENEMIES }
+ * );
  */
 async function fetchEventsPaginated(
   accessToken,
   reportCode,
   fight,
-  dataType = "Casts",
+  dataType = EventDataType.CASTS,
   extraOptions = {}
 ) {
   let allEvents = [];
@@ -187,67 +241,106 @@ async function fetchEventsPaginated(
 
   return allEvents;
 }
-
+/**
+ * Fetch cast events for a fight.
+ *
+ * Queries the FFLogs API for all `Casts` events within the fight duration.
+ * This includes every ability cast attempt by actors (players, NPCs, pets).
+ *
+ * @param {string} accessToken - OAuth2 access token for the FFLogs API.
+ * @param {string} reportCode - Unique FFLogs report code.
+ * @param {Object} fight - Fight metadata (requires `id`, `startTime`, `endTime`).
+ * @returns {Promise<Array>} Resolves to an array of cast event objects.
+ */
 export async function fetchFightCasts(accessToken, reportCode, fight) {
-  return await fetchEventsPaginated(accessToken, reportCode, fight, "Casts");
+  return await fetchEventsPaginated(
+    accessToken,
+    reportCode,
+    fight,
+    EventDataType.CASTS
+  );
 }
 
+/**
+ * Fetch damage taken events for a fight.
+ *
+ * Queries the FFLogs API for all `DamageTaken` events and filters to
+ * only include `damage`-type events (ignoring absorbed, mitigated, or
+ * non-damage subtypes).
+ *
+ * @param {string} accessToken - OAuth2 access token for the FFLogs API.
+ * @param {string} reportCode - Unique FFLogs report code.
+ * @param {Object} fight - Fight metadata (requires `id`, `startTime`, `endTime`).
+ * @returns {Promise<Array>} Resolves to an array of damage event objects.
+ */
 export async function fetchFightDamageTaken(accessToken, reportCode, fight) {
   const events = await fetchEventsPaginated(
     accessToken,
     reportCode,
     fight,
-    "DamageTaken"
+    EventDataType.DAMAGE_TAKEN
   );
   return events.filter((ev) => ev.type === "damage");
 }
 
+/**
+ * Fetch buff events for a fight.
+ *
+ * Queries the FFLogs API for all `Buffs` events applied or removed during the fight.
+ * These include player and NPC buff applications, refreshes, and expirations.
+ *
+ * @param {string} accessToken - OAuth2 access token for the FFLogs API.
+ * @param {string} reportCode - Unique FFLogs report code.
+ * @param {Object} fight - Fight metadata (requires `id`, `startTime`, `endTime`).
+ * @returns {Promise<Array>} Resolves to an array of buff event objects.
+ */
 export async function fetchFightBuffs(accessToken, reportCode, fight) {
-  return await fetchEventsPaginated(accessToken, reportCode, fight, "Buffs");
+  return await fetchEventsPaginated(
+    accessToken,
+    reportCode,
+    fight,
+    EventDataType.BUFFS
+  );
 }
 
 /**
  * Fetch debuff events for a fight.
  *
- * @param {string} accessToken - OAuth token
- * @param {string} reportCode - Report code
- * @param {Object} fight - Fight metadata
- * @param {string} hostilityType - (ENUM) Friendlies or Enemies. Defaults to Enemies.
- * ⚠️ Important: Do NOT use integers (0/1). Must be the ENUM values.
+ * Queries the FFLogs API for all `Debuffs` events applied or removed during the fight.
+ * Debuffs can be filtered by hostility (friendlies vs enemies).
+ *
+ * @param {string} accessToken - OAuth2 access token for the FFLogs API.
+ * @param {string} reportCode - Unique FFLogs report code.
+ * @param {Object} fight - Fight metadata (requires `id`, `startTime`, `endTime`).
+ * @param {string} hostilityType - One of the `HostilityType` ENUM values
+ *                                 (HostilityType.FRIENDLIES or HostilityType.ENEMIES).
+ *                                 Defaults to `HostilityType.ENEMIES`.
+ * @returns {Promise<Array>} Resolves to an array of debuff event objects.
+ *
+ * @example
+ * const debuffsOnEnemies = await fetchFightDebuffs(
+ *   token,
+ *   "abc123XYZ",
+ *   fight,
+ *   HostilityType.ENEMIES
+ * );
  */
 export async function fetchFightDebuffs(
   accessToken,
   reportCode,
   fight,
-  hostilityType = HostilityType.ENEMIES // Default: Enemies
+  hostilityType = HostilityType.ENEMIES
 ) {
   const extraOptions = {};
   if (hostilityType) {
-    extraOptions.hostilityType = hostilityType; // ENUM only
+    extraOptions.hostilityType = hostilityType; // must be ENUM
   }
 
   return await fetchEventsPaginated(
     accessToken,
     reportCode,
     fight,
-    "Debuffs",
+    EventDataType.DEBUFFS,
     extraOptions
-  );
-}
-
-export async function fetchFightDamageDone(
-  accessToken,
-  reportCode,
-  fight,
-  hostilityType = 0 // 0 = Friendlies, 1 = Enemies
-) {
-  return await fetchEventsPaginated(
-    accessToken,
-    reportCode,
-    fight,
-    "DamageDone",
-    {
-      hostilityType,
-    }
   );
 }

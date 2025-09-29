@@ -1,5 +1,5 @@
 import { getLogger, setModuleLogLevel } from "../utility/logger.js";
-import { buildStatusList } from "./buffTracker.js";
+import { buildStatusList, buildVulnerabilityList } from "./buffTracker.js";
 import { formatRelativeTime } from "../utility/dataUtils.js";
 import { IGNORED_BUFFS } from "../config/ignoredBuffs.js";
 import {
@@ -254,39 +254,145 @@ function applyBuffsToAttacks(statusList, damageEvents, fightTable, fight) {
 }
 
 /**
+ * Apply vulnerability statuses to damage events in the FightTable.
+ *
+ * Matching logic:
+ *   - Each damage event corresponds to a target (actor).
+ *   - Each vulnerability status entry describes a vuln’s timeline
+ *     with { vuln, target, start, end }.
+ *   - We only credit a vuln to an event if:
+ *       1. The damage event’s actor matches the vuln’s target.
+ *       2. The event timestamp falls between the vuln’s start and end.
+ *
+ * Result:
+ *   rows[timestamp].vulns = {
+ *     "Magic Vulnerability Up": true,
+ *     "Physical Vulnerability Up": true,
+ *   }
+ *
+ * Notes:
+ *   - Unlike buffs, vulns are not tied to a source player. They only need to
+ *     indicate that the target was vulnerable at the time of the hit.
+ *   - If no matching vuln is found but the event was expected to have one,
+ *     the function logs a warning for triage.
+ *
+ * @param {Array} vulnerabilityStatusList - Vulnerability timelines ({ vuln, target, start, end })
+ * @param {Array} damageEvents - Parsed damage-taken events
+ * @param {Object} fightTable - FightTable being constructed
+ * @param {Object} fight - Fight metadata for logging context
+ */
+function applyVulnsToAttacks(
+  vulnerabilityStatusList,
+  damageEvents,
+  fightTable,
+  fight
+) {
+  damageEvents.forEach((ev) => {
+    const row = fightTable.rows[ev.relative];
+    if (!row) return;
+
+    if (!row.vulns) {
+      row.vulns = {};
+    }
+
+    // Match all vulnerabilities affecting this actor at this time
+    const matches = vulnerabilityStatusList.filter(
+      (s) =>
+        s.target === ev.actor && // must match same target name
+        ev.relative >= s.start &&
+        ev.relative <= s.end
+    );
+
+    if (matches.length > 0) {
+      matches.forEach((m) => {
+        row.vulns[m.vuln] = true;
+      });
+    } else {
+      log.debug(
+        `No active vuln found for actor=${ev.actor} at ts=${ev.relative} (Fight ${fight.id}). ` +
+          `Checked vulns: ${vulnerabilityStatusList
+            .filter((s) => s.target === ev.actor)
+            .map((s) => `[${s.vuln}: ${s.start}-${s.end}]`)
+            .join(", ")}`
+      );
+    }
+  });
+}
+
+/**
  * Build the final FightTable for a given fight.
  *
- * Rows are keyed by relative timestamp:
+ * The FightTable is a structured view of a fight's damage-taken timeline,
+ * enriched with mitigation values, buff/debuff sources, and vulnerabilities.
+ *
+ * Structure:
  *   {
- *     fightId, encounterId, name,
- *     friendlyPlayerIds: [id1, id2, ...],  // only references player IDs
+ *     fightId: number,
+ *     encounterId: number,
+ *     name: string,
+ *     friendlyPlayerIds: [id1, id2, ...],  // only player IDs (no NPCs/pets)
  *     rows: {
- *       [timestamp]: {
- *         source: attacker name,
- *         ability: attack name,
- *         amount: actual damage taken,
- *         unmitigatedAmount: raw unmitigated damage,
- *         mitigated: raw absorbed/mitigated value,
- *         mitigationPct: percentage mitigated (0–100),
- *         buffs: { buffName: [applierNames] }
+ *       [relativeTimestamp: number]: {
+ *         source: string,        // attacker name
+ *         actor: string,         // target name (actor taking damage)
+ *         targetID: number|null, // target actor ID, if available
+ *         ability: string,       // ability name
+ *         amount: number,        // actual damage taken
+ *         unmitigatedAmount: number, // raw pre-mitigation damage
+ *         mitigated: number,     // absorbed/mitigated amount
+ *         mitigationPct: number, // percentage mitigated (0–100)
+ *         buffs: {               // buffs active on the target at this time
+ *           [buffName: string]: [applierNames...]
+ *         },
+ *         vulns: {               // vulnerabilities (debuffs) active on the target
+ *           [vulnName: string]: true
+ *         }
  *       }
  *     }
  *   }
  *
- * ⚠️ Enhancement:
- *   - Now consumes parsedBuffEvents instead of raw FFLogs buff/debuff events,
- *     making it consistent with parsedDamageTaken events.
- *   - Rows now include mitigation data (amount, unmitigatedAmount, mitigated, mitigationPct)
- *     directly from parsed damage events so the renderer does not need to recompute.
+ * Buff attribution:
+ *   1. `applyBuffsToAttacks` matches parsed buff/debuff timelines against
+ *      each damage event, assigning the known applier(s).
+ *   2. `resolveMissingBuffSources` fills in missing/unknown appliers
+ *      (e.g. when FFLogs omits source data) using fallback heuristics.
  *
- * @param {Array} damageEvents - Parsed damage taken events
+ * Vulnerability attribution:
+ *   1. `applyVulnsToAttacks` matches vulnerability timelines against each
+ *      damage event, ensuring the damage target matches the vuln’s target.
+ *   2. If no matching vuln is found, a debug log is written for triage.
+ *   3. Unlike buffs, vulnerabilities are not tied to sources — they simply
+ *      indicate that the target was vulnerable at the time of the hit.
+ *
+ * Enhancements over raw FFLogs events:
+ *   - Consumes parsedBuffEvents, parsedVulnerabilityEvents, and parsedDamageTaken
+ *     for consistency.
+ *   - Rows include mitigation data (`amount`, `unmitigatedAmount`, `mitigated`, `mitigationPct`)
+ *     computed once during parsing (renderer does not need to recompute).
+ *   - Buff source attribution ensures each buff listed on a damage event
+ *     is tied to the correct player(s).
+ *   - Vulnerability attribution ensures per-target vulnerability windows
+ *     are tracked and reflected on each relevant damage event.
+ *
+ * @param {Array} damageEvents - Parsed damage-taken events (from parseFightDamageTaken)
  * @param {Array} parsedBuffs - Parsed buff/debuff events (from parseBuffEvents)
- * @param {Object} fight - Fight metadata (id, encounterID, name, startTime)
+ * @param {Array} parsedVulnerabilities - Parsed vulnerabilities/debuffs on friendlies
+ * @param {Object} fight - Fight metadata (id, encounterID, name, startTime, friendlyPlayers)
  * @param {Map} actorById - Map of actorID → actor metadata
  * @returns {Object} FightTable
  */
-export function buildFightTable(damageEvents, parsedBuffs, fight, actorById) {
+export function buildFightTable(
+  damageEvents,
+  parsedBuffs,
+  parsedVulnerabilities,
+  fight,
+  actorById
+) {
   const statusList = buildStatusList(parsedBuffs, fight);
+  const vulnerabilityStatusList = buildVulnerabilityList(
+    parsedVulnerabilities,
+    fight
+  );
 
   const table = {
     fightId: fight.id,
@@ -311,6 +417,7 @@ export function buildFightTable(damageEvents, parsedBuffs, fight, actorById) {
         mitigated: ev.mitigated,
         mitigationPct: ev.mitigationPct,
         buffs: {},
+        vulns: {}, // active vulnerabilities (per-target, no sources)
       };
     }
 
@@ -323,6 +430,9 @@ export function buildFightTable(damageEvents, parsedBuffs, fight, actorById) {
 
   // Fill in applier names based on buff timelines
   applyBuffsToAttacks(statusList, damageEvents, table, fight);
+
+  // Fill in vulnerabilities based on target timelines
+  applyVulnsToAttacks(vulnerabilityStatusList, damageEvents, table, fight);
 
   // ✅ Final pass: replace null/unknown appliers with all players in this fight
   resolveMissingBuffSources(table, actorById, fight);

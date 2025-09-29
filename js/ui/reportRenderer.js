@@ -17,6 +17,9 @@ let ENABLE_COLUMN_HIGHLIGHT = true;
 // Toggle for collapsing buffs into abilities
 let SHOW_ABILITIES_ONLY = true;
 
+let SHOW_AUTO_ATTACKS = false; // default hidden
+let SHOW_COMBINED_DOTS = false; // default hidden
+
 export function renderReport(outputEl, report, loadFightTable) {
   outputEl.innerHTML = `<div class="report-category">${report.title}</div>`;
 
@@ -74,11 +77,9 @@ export function renderReport(outputEl, report, loadFightTable) {
 
     const section = document.createElement("section");
 
-    // Header row container (flexbox)
-    const headerRow = document.createElement("div");
-    headerRow.style.display = "flex";
-    headerRow.style.alignItems = "center";
-    headerRow.style.justifyContent = "space-between";
+    // Container for title + controls stacked vertically
+    const headerContainer = document.createElement("div");
+    headerContainer.classList.add("fight-header");
 
     // Fight title
     const titleEl = document.createElement("h4");
@@ -86,6 +87,24 @@ export function renderReport(outputEl, report, loadFightTable) {
 
     // 🔹 Build control panel
     const controlPanel = renderControlPanel([
+      {
+        labelOn: "Hide Auto-Attacks",
+        labelOff: "Show Auto-Attacks",
+        state: SHOW_AUTO_ATTACKS,
+        onToggle: (newState) => {
+          SHOW_AUTO_ATTACKS = newState;
+          rerenderBuffCells(fightTable, report); // re-render efficiently
+        },
+      },
+      {
+        labelOn: "Hide Combined DoTs",
+        labelOff: "Show Combined DoTs",
+        state: SHOW_COMBINED_DOTS,
+        onToggle: (newState) => {
+          SHOW_COMBINED_DOTS = newState;
+          rerenderBuffCells(fightTable, report);
+        },
+      },
       {
         labelOn: "Disable Target Player Highlight",
         labelOff: "Enable Target Player Highlight",
@@ -100,16 +119,15 @@ export function renderReport(outputEl, report, loadFightTable) {
         state: SHOW_ABILITIES_ONLY,
         onToggle: (newState) => {
           SHOW_ABILITIES_ONLY = newState;
-          rerenderBuffCells(fightTable, report); // 🔁 re-render to update immediately
+          rerenderBuffCells(fightTable, report);
         },
       },
-      // You can easily add more toggles here later
     ]);
 
-    // Assemble header row
-    headerRow.appendChild(titleEl);
-    headerRow.appendChild(controlPanel);
-    section.appendChild(headerRow);
+    // Assemble stacked layout
+    headerContainer.appendChild(titleEl);
+    headerContainer.appendChild(controlPanel);
+    section.appendChild(headerContainer);
 
     const timestamps = Object.keys(fightTable.rows)
       .map((n) => parseInt(n, 10))
@@ -157,6 +175,14 @@ export function renderReport(outputEl, report, loadFightTable) {
       timestamps.forEach((ms) => {
         const row = document.createElement("tr");
         const event = fightTable.rows[ms];
+
+        // 🚫 Filter Auto-Attacks / DoTs
+        if (
+          (!SHOW_AUTO_ATTACKS && event.ability === "Attack") ||
+          (!SHOW_COMBINED_DOTS && event.ability === "Combined DoTs")
+        ) {
+          return; // skip rendering this row entirely
+        }
 
         const tdTime = document.createElement("td");
         tdTime.textContent = formatRelativeTime(ms, 0);

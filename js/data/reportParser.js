@@ -3,6 +3,8 @@ import { buildStatusList, buildVulnerabilityList } from "./buffTracker.js";
 import { formatRelativeTime } from "../utility/dataUtils.js";
 import { IGNORED_BUFFS } from "../config/ignoredBuffs.js";
 import {
+  isVulnerability,
+  getVulnerabilityMap,
   assignLastKnownBuffSource,
   resolveMissingBuffSources,
 } from "../analysis/buffAnalysis.js";
@@ -223,31 +225,39 @@ function applyBuffsToAttacks(statusList, damageEvents, fightTable, fight) {
           fight
         );
         if (!applied) {
-          // If failsafe also fails, warn
-          log.warn(
-            `No active status for buff=${buffName} at ts=${ev.relative}. ` +
-              `Known statuses: ${statusList
-                .filter((s) => s.buff === buffName)
-                .map(
-                  (s) =>
-                    `[${formatRelativeTime(
-                      s.start + fight.startTime,
-                      fight.startTime
-                    )} - ${formatRelativeTime(
-                      s.end + fight.startTime,
-                      fight.startTime
-                    )}]`
-                )
-                .join(", ")}`
-          );
-          log.warn(
-            `Buff ${buffName} on damage event @${ev.relative} (Fight ${fight.id}) had no matching active status`
-          );
+          if (isVulnerability(buffName)) {
+            // Detected as a vulnerability — log at debug level
+            log.debug(
+              `Vulnerability buff="${buffName}" on attack=${
+                ev.ability
+              } at ${formatRelativeTime(
+                ev.rawTimestamp,
+                fight.startTime
+              )} (Fight ${
+                fight.id
+              }) has no matching buff status (expected for vulns)`
+            );
+          } else {
+            // ⚠️ Still a real buff, warn about missing status
+            log.warn(
+              `No active status for buff=${buffName} on attack=${ev.ability} ` +
+                `at ${formatRelativeTime(ev.rawTimestamp, fight.startTime)} ` +
+                `(Fight ${fight.id}). Known statuses: ${statusList
+                  .filter((s) => s.buff === buffName)
+                  .map(
+                    (s) =>
+                      `[${formatRelativeTime(
+                        s.start + fight.startTime,
+                        fight.startTime
+                      )} - ${formatRelativeTime(
+                        s.end + fight.startTime,
+                        fight.startTime
+                      )}]`
+                  )
+                  .join(", ")}`
+            );
+          }
         }
-        // Buff was present in event.buffs but no source found in statusList
-        log.warn(
-          `Buff ${buffName} on damage event @${ev.relative} (Fight ${fight.id}) had no matching active status`
-        );
       }
     });
   });

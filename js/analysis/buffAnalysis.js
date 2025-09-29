@@ -57,6 +57,15 @@ export function isVulnerability(vulnName) {
 }
 
 /**
+ * Getter to retrieve the current vulnerability map.
+ *
+ * @returns {Map} vulnToAbilityMap
+ */
+export function getVulnerabilityMap() {
+  return vulnToAbilityMap;
+}
+
+/**
  * Check if a given ability/buff is part of a specific job's actions.
  *
  * Purpose:
@@ -212,10 +221,15 @@ export function resolveMissingBuffSources(table, actorById, fight) {
         appliers.length === 0 ||
         appliers.some((a) => !a || a.startsWith("Unknown"))
       ) {
-        log.warn(
-          `Fight ${fight.id}, ts=${ts}: Buff ${buffName} had no valid source, ` +
-            `crediting damage target "${row.actor}" instead`
-        );
+        if (!isVulnerability(buffName)) {
+          log.warn(
+            `Fight ${fight.id}, ts=${formatRelativeTime(
+              Number(ts) + fight.startTime,
+              fight.startTime
+            )}: Buff ${buffName} had no valid source, ` +
+              `crediting damage target "${row.actor}" instead`
+          );
+        }
         row.buffs[buffName] = [row.actor];
       }
     }
@@ -252,6 +266,14 @@ export function resolveMissingBuffSources(table, actorById, fight) {
  * @param {Object} jobConfig - Job config object (with actions map)
  */
 function spawnBuffLookup(normalizedBuff, buffName, job, jobConfig) {
+  // Skip lookup if this is actually a vulnerability
+  if (isVulnerability(buffName)) {
+    log.info(
+      `[BuffLookup] Skipping lookup for vulnerability "${buffName}" (job=${job})`
+    );
+    return;
+  }
+
   // Mark lookup as pending if not already tracked
   if (!buffToAbilityMap.has(normalizedBuff)) {
     buffToAbilityMap.set(normalizedBuff, "__PENDING__");
@@ -278,7 +300,7 @@ function spawnBuffLookup(normalizedBuff, buffName, job, jobConfig) {
         `[BuffLookup] Fuzzy match: buff="${buffName}" matched effect → action="${foundAction}" (job=${job})`
       );
     } else {
-      buffToAbilityMap.set(normalizedBuff, null); // ✅ nothing found
+      buffToAbilityMap.set(normalizedBuff, null); // nothing found
       log.warn(
         `[BuffLookup] "${buffName}" could not be resolved for job ${job}`
       );

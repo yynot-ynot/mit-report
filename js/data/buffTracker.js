@@ -1,6 +1,5 @@
 import { getLogger, setModuleLogLevel } from "../utility/logger.js";
 import { formatRelativeTime } from "../utility/dataUtils.js";
-import { setVulnerabilityMap } from "../analysis/buffAnalysis.js";
 
 setModuleLogLevel("BuffTracker", "info");
 const log = getLogger("BuffTracker");
@@ -221,9 +220,10 @@ export function buildStatusList(parsedEvents, fight) {
  *
  * @param {Array} parsedEvents - Parsed vulnerability events from parseBuffEvents
  * @param {Object} fight - Fight metadata (must include startTime, id)
+ * @param {BuffAnalysis} buffAnalysis - Instance of BuffAnalysis for this fight
  * @returns {Array} completeVulns - Array of { vuln, target, start, end, stacks }
  */
-export function buildVulnerabilityList(parsedEvents, fight) {
+export function buildVulnerabilityList(parsedEvents, fight, buffAnalysis) {
   const openVulns = []; // active vulnerabilities per target
   const completeVulns = []; // finalized timelines
   const vulnMap = new Map(); // ✅ collect unique vulnerability names
@@ -340,7 +340,7 @@ export function buildVulnerabilityList(parsedEvents, fight) {
   );
 
   // Update global vulnerability map in buffAnalysis
-  setVulnerabilityMap(vulnMap);
+  buffAnalysis.setVulnerabilityMap(vulnMap);
 
   return sortedVulns;
 }

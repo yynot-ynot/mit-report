@@ -16,6 +16,7 @@ import {
 } from "../data/reportParser.js";
 import { renderReport } from "./reportRenderer.js";
 import { initializeAuth, ensureLogin } from "./authManager.js";
+import { FightState } from "./fightState.js";
 
 setModuleLogLevel("App", "info");
 const log = getLogger("App");
@@ -166,6 +167,9 @@ document.addEventListener("DOMContentLoaded", async () => {
         );
         log.info(`Pull ${pull.id}: parsed Deaths`, parsedDeaths);
 
+        // Wrap fightTable in FightState (adds filters + buffAnalysis first)
+        const fightState = new FightState(null);
+
         // --- Build fight table with damage, buffs, vulnerabilities ---
         const fightTable = buildFightTable(
           parsedDamageTaken,
@@ -174,11 +178,14 @@ document.addEventListener("DOMContentLoaded", async () => {
           parsedDeaths,
           pull,
           report.actorById,
-          report.abilityById
+          fightState.buffAnalysis
         );
 
-        fightTableCache.set(pull.id, fightTable);
-        return fightTable;
+        // Store table back into fightState
+        fightState.fightTable = fightTable;
+
+        fightTableCache.set(pull.id, fightState);
+        return fightState;
       }
 
       stopLoadingMessage("");

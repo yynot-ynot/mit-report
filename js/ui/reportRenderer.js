@@ -1,26 +1,10 @@
 import { getLogger, setModuleLogLevel } from "../utility/logger.js";
 import { formatRelativeTime } from "../utility/dataUtils.js";
 import { getRoleClass, sortActorsByJob } from "../config/AppConfig.js";
-import {
-  isJobAbility,
-  isVulnerability,
-  resolveBuffsToAbilities,
-  waitForBuffLookups,
-} from "../analysis/buffAnalysis.js";
+import { FilterState } from "./filterState.js";
 
 setModuleLogLevel("ReportRenderer", "info");
 const log = getLogger("ReportRenderer");
-
-// Toggle for highlighting full target column
-let ENABLE_COLUMN_HIGHLIGHT = true;
-
-// Toggle for collapsing buffs into abilities
-let SHOW_ABILITIES_ONLY = true;
-
-let SHOW_AUTO_ATTACKS = false; // default hidden
-let SHOW_COMBINED_DOTS = false; // default hidden
-
-let SELECTED_PLAYERS = new Set();
 
 /**
  * Render the full report into the given container.
@@ -91,7 +75,15 @@ export function renderReport(outputEl, report, loadFightTable) {
    *
    * @param {Object} fightTable - Parsed FightTable object for one pull
    */
-  async function renderFight(fightTable) {
+  async function renderFight(fightState) {
+    const fightTable = fightState.fightTable;
+    const filterState = fightState.filters;
+    const buffAnalysis = fightState.buffAnalysis;
+
+    // Reset filters when switching fights
+    filterState.resetPlayers();
+    updateResetButtonState(filterState);
+
     // log the fightTable object
     log.debug("[RenderFight] fightTable object:", fightTable);
     fightContainer.innerHTML = "";
@@ -106,41 +98,40 @@ export function renderReport(outputEl, report, loadFightTable) {
     const titleEl = document.createElement("h4");
     titleEl.textContent = `${fightTable.name} (Pull: ${fightTable.fightId})`;
 
-    // 🔹 Build control panel
-    const controlPanel = renderControlPanel([
+    const controlPanel = renderControlPanel(filterState, [
       {
         labelOn: "Hide Auto-Attacks",
         labelOff: "Show Auto-Attacks",
-        state: SHOW_AUTO_ATTACKS,
+        state: filterState.showAutoAttacks,
         onToggle: (newState) => {
-          SHOW_AUTO_ATTACKS = newState;
-          rerenderBuffCells(fightTable, report); // re-render efficiently
+          filterState.showAutoAttacks = newState;
+          rerenderBuffCells(fightTable, report, filterState, buffAnalysis);
         },
       },
       {
         labelOn: "Hide Combined DoTs",
         labelOff: "Show Combined DoTs",
-        state: SHOW_COMBINED_DOTS,
+        state: filterState.showCombinedDots,
         onToggle: (newState) => {
-          SHOW_COMBINED_DOTS = newState;
-          rerenderBuffCells(fightTable, report);
+          filterState.showCombinedDots = newState;
+          rerenderBuffCells(fightTable, report, filterState, buffAnalysis);
         },
       },
       {
         labelOn: "Disable Target Player Highlight",
         labelOff: "Enable Target Player Highlight",
-        state: ENABLE_COLUMN_HIGHLIGHT,
+        state: filterState.enableColumnHighlight,
         onToggle: (newState) => {
-          ENABLE_COLUMN_HIGHLIGHT = newState;
+          filterState.enableColumnHighlight = newState;
         },
       },
       {
         labelOn: "Show Buffs (Detailed)",
         labelOff: "Show Abilities Only",
-        state: SHOW_ABILITIES_ONLY,
+        state: filterState.showAbilitiesOnly,
         onToggle: (newState) => {
-          SHOW_ABILITIES_ONLY = newState;
-          rerenderBuffCells(fightTable, report);
+          filterState.showAbilitiesOnly = newState;
+          rerenderBuffCells(fightTable, report, filterState, buffAnalysis);
         },
       },
       {
@@ -148,9 +139,9 @@ export function renderReport(outputEl, report, loadFightTable) {
         label: "Reset Player Filter",
         state: false,
         onClick: () => {
-          SELECTED_PLAYERS.clear();
-          rerenderBuffCells(fightTable, report);
-          updateResetButtonState(); // ensure button greys out again
+          filterState.resetPlayers();
+          rerenderBuffCells(fightTable, report, filterState, buffAnalysis);
+          updateResetButtonState(filterState); // ensure button greys out again
         },
       },
     ]);
@@ -204,12 +195,8 @@ export function renderReport(outputEl, report, loadFightTable) {
 
         // 🔹 Make header clickable
         th.addEventListener("click", () => {
-          if (SELECTED_PLAYERS.has(actor.name)) {
-            SELECTED_PLAYERS.delete(actor.name); // toggle off
-          } else {
-            SELECTED_PLAYERS.add(actor.name); // toggle on
-          }
-          rerenderBuffCells(fightTable, report); // reapply filtering
+          filterState.togglePlayer(actor.name);
+          rerenderBuffCells(fightTable, report, filterState, buffAnalysis); // reapply filtering
         });
 
         headerRow.appendChild(th);
@@ -223,9 +210,11 @@ export function renderReport(outputEl, report, loadFightTable) {
         const event = fightTable.rows[ms];
 
         // 🚫 Filter rows by selected players
-        if (SELECTED_PLAYERS.size > 0) {
+        if (filterState.selectedPlayers.size > 0) {
           const targets = getRowTargets(event);
-          const hasMatch = targets.some((t) => SELECTED_PLAYERS.has(t));
+          const hasMatch = targets.some((t) =>
+            filterState.selectedPlayers.has(t)
+          );
           if (!hasMatch) return;
         }
 
@@ -274,13 +263,13 @@ export function renderReport(outputEl, report, loadFightTable) {
 
           // Apply toggle: show raw buffs or collapse into abilities
           let displayBuffs = rawBuffs;
-          if (SHOW_ABILITIES_ONLY) {
-            displayBuffs = resolveBuffsToAbilities(rawBuffs);
+          if (filterState.showAbilitiesOnly) {
+            displayBuffs = buffAnalysis.resolveBuffsToAbilities(rawBuffs);
           }
 
           // Wrap in span with coloring, then stack vertically
           const styledBuffs = displayBuffs.map((buff) => {
-            const matched = isJobAbility(buff, actor.subType);
+            const matched = buffAnalysis.isJobAbility(buff, actor.subType);
             return `<div><span style="color:${
               matched ? "#000" : "#b45309"
             }">${buff}</span></div>`;
@@ -302,7 +291,7 @@ export function renderReport(outputEl, report, loadFightTable) {
         });
 
         tbody.appendChild(row);
-        enableHeaderHighlight(table, row);
+        enableHeaderHighlight(table, row, filterState);
       });
       table.appendChild(tbody);
 
@@ -319,7 +308,9 @@ export function renderReport(outputEl, report, loadFightTable) {
     fightContainer.appendChild(section);
 
     // 🔁 Schedule re-render once buff lookups are finished
-    waitForBuffLookups(() => rerenderBuffCells(fightTable, report));
+    buffAnalysis.waitForBuffLookups(() =>
+      rerenderBuffCells(fightTable, report, filterState, buffAnalysis)
+    );
   }
 
   function renderPullGrid(encounterId) {
@@ -341,8 +332,8 @@ export function renderReport(outputEl, report, loadFightTable) {
         box.classList.add("active");
 
         fightContainer.innerHTML = "Loading fight data...";
-        const fightTable = await loadFightTable(f);
-        renderFight(fightTable);
+        const fightState = await loadFightTable(f);
+        renderFight(fightState);
       });
 
       pullGrid.appendChild(box);
@@ -518,14 +509,14 @@ function makeFrozenHeader(table) {
  *   - On mouse leave, removes highlight and badge.
  *
  * Controlled by:
- *   - ENABLE_COLUMN_HIGHLIGHT toggle (if false, no effect).
+ *   - filterState.enableColumnHighlight toggle (if false, no effect).
  *
  * @param {HTMLTableElement} table - The fight table
  * @param {HTMLTableRowElement} row - The row element to attach listeners to
  */
-function enableHeaderHighlight(table, row) {
+function enableHeaderHighlight(table, row, filterState) {
   row.addEventListener("mouseenter", () => {
-    if (!ENABLE_COLUMN_HIGHLIGHT) return;
+    if (!filterState.enableColumnHighlight) return;
 
     const targetCell = row.querySelector(".target-cell");
     if (!targetCell) return;
@@ -569,7 +560,7 @@ function enableHeaderHighlight(table, row) {
   });
 
   row.addEventListener("mouseleave", () => {
-    if (!ENABLE_COLUMN_HIGHLIGHT) return;
+    if (!filterState.enableColumnHighlight) return;
 
     // Remove from live header
     table.querySelectorAll("thead th.highlight-header").forEach((th) => {
@@ -609,7 +600,7 @@ function enableHeaderHighlight(table, row) {
  * @param {Array} options - List of control definitions
  * @returns {HTMLElement} controlPanel - The constructed control panel div
  */
-function renderControlPanel(options) {
+function renderControlPanel(filterState, options) {
   const controlPanel = document.createElement("div");
   controlPanel.classList.add("control-panel");
 
@@ -621,13 +612,13 @@ function renderControlPanel(options) {
       btn.textContent = opt.label;
       btn.className = "toggle-btn disable"; // default greyed out
       btn.addEventListener("click", () => {
-        if (SELECTED_PLAYERS.size > 0) {
+        if (filterState.selectedPlayers.size > 0) {
           opt.onClick();
         }
       });
 
       // Save ref for external updates
-      controlPanel.resetPlayerBtn = btn;
+      filterState.resetPlayerBtn = btn;
     } else {
       // 🔹 Normal toggle buttons
       function updateBtn() {
@@ -659,8 +650,8 @@ function renderControlPanel(options) {
  *
  * Behavior:
  *   - Iterates over fight rows and applies filters:
- *       • Auto-Attacks hidden if SHOW_AUTO_ATTACKS = false
- *       • Combined DoTs hidden if SHOW_COMBINED_DOTS = false
+ *       • Auto-Attacks hidden if filterState.showAutoAttacks = false
+ *       • Combined DoTs hidden if filterState.showCombinedDots = false
  *       • Only rows with selected player targets shown (if any)
  *   - Updates buff cells per player:
  *       • Raw buffs or collapsed into abilities
@@ -671,8 +662,10 @@ function renderControlPanel(options) {
  *
  * @param {Object} fightTable - Parsed FightTable with rows + buffs
  * @param {Object} report - Report reference (for actor lookups)
+ * @param {FilterState} filterState - current fight’s filter state
+ * @param {BuffAnalysis} buffAnalysis - per-fight buff analysis instance
  */
-function rerenderBuffCells(fightTable, report) {
+function rerenderBuffCells(fightTable, report, filterState, buffAnalysis) {
   const table = fightContainer.querySelector("table.time-table");
   if (!table) return;
 
@@ -702,8 +695,8 @@ function rerenderBuffCells(fightTable, report) {
 
     // 🚫 Hide Auto-Attacks / DoTs
     if (
-      (!SHOW_AUTO_ATTACKS && event.ability === "Attack") ||
-      (!SHOW_COMBINED_DOTS && event.ability === "Combined DoTs")
+      (!filterState.showAutoAttacks && event.ability === "Attack") ||
+      (!filterState.showCombinedDots && event.ability === "Combined DoTs")
     ) {
       row.style.display = "none";
       return;
@@ -713,8 +706,8 @@ function rerenderBuffCells(fightTable, report) {
 
     // 🚫 Hide rows if they don’t match selected players
     if (
-      SELECTED_PLAYERS.size > 0 &&
-      (!event.actor || !SELECTED_PLAYERS.has(event.actor))
+      filterState.selectedPlayers.size > 0 &&
+      (!event.actor || !filterState.selectedPlayers.has(event.actor))
     ) {
       row.style.display = "none";
     } else {
@@ -722,9 +715,9 @@ function rerenderBuffCells(fightTable, report) {
     }
 
     // 🚫 Hide rows if they don’t match selected players
-    if (SELECTED_PLAYERS.size > 0) {
+    if (filterState.selectedPlayers.size > 0) {
       const targets = getRowTargets(event);
-      const hasMatch = targets.some((t) => SELECTED_PLAYERS.has(t));
+      const hasMatch = targets.some((t) => filterState.selectedPlayers.has(t));
       row.style.display = hasMatch ? "" : "none";
     }
 
@@ -742,13 +735,13 @@ function rerenderBuffCells(fightTable, report) {
       }
 
       let displayBuffs = rawBuffs;
-      if (SHOW_ABILITIES_ONLY) {
-        displayBuffs = resolveBuffsToAbilities(rawBuffs);
+      if (filterState.showAbilitiesOnly) {
+        displayBuffs = buffAnalysis.resolveBuffsToAbilities(rawBuffs);
       }
 
       const styledBuffs = displayBuffs.map((buff) => {
-        const matched = isJobAbility(buff, actor.subType);
-        const isVuln = isVulnerability(buff);
+        const matched = buffAnalysis.isJobAbility(buff, actor.subType);
+        const isVuln = buffAnalysis.isVulnerability(buff);
 
         let color = "#000"; // default (black)
         if (isVuln) {
@@ -773,7 +766,10 @@ function rerenderBuffCells(fightTable, report) {
     const headerCell = liveHeaders[idx + 3]; // offset: timestamp, ability, damage
     const frozenCell = frozenHeaders[idx + 3];
 
-    if (SELECTED_PLAYERS.size > 0 && !SELECTED_PLAYERS.has(actor.name)) {
+    if (
+      filterState.selectedPlayers.size > 0 &&
+      !filterState.selectedPlayers.has(actor.name)
+    ) {
       headerCell?.classList.add("player-deselected");
       frozenCell?.classList.add("player-deselected");
     } else {
@@ -782,7 +778,7 @@ function rerenderBuffCells(fightTable, report) {
     }
   });
 
-  updateResetButtonState();
+  updateResetButtonState(filterState);
 }
 
 /**
@@ -805,24 +801,17 @@ function getRowTargets(event) {
 }
 
 /**
- * Update the Reset Player Filter button’s visual state.
+ * Update Reset Player button state based on FilterState selections.
  *
- * Behavior:
- *   - If one or more players are selected:
- *       • Button styled as "enable" (lit up).
- *   - If no players are selected:
- *       • Button styled as "disable" (greyed out).
- *
- * Called:
- *   - At the end of rerenderBuffCells().
- *   - After clearing selection via Reset button.
+ * @param {FilterState} filterState - current fight’s filter state
  */
-function updateResetButtonState() {
-  const resetBtn = document.querySelector(".control-panel").resetPlayerBtn;
-  if (!resetBtn) return;
-  if (SELECTED_PLAYERS.size > 0) {
-    resetBtn.className = "toggle-btn enable";
+function updateResetButtonState(filterState) {
+  if (!filterState.resetPlayerBtn) return; // nothing to update yet
+  if (filterState.hasSelections()) {
+    filterState.resetPlayerBtn.classList.remove("disable");
+    filterState.resetPlayerBtn.classList.add("enable");
   } else {
-    resetBtn.className = "toggle-btn disable";
+    filterState.resetPlayerBtn.classList.remove("enable");
+    filterState.resetPlayerBtn.classList.add("disable");
   }
 }

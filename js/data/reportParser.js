@@ -6,11 +6,7 @@ import {
 } from "./buffTracker.js";
 import { formatRelativeTime } from "../utility/dataUtils.js";
 import { IGNORED_BUFFS } from "../config/ignoredBuffs.js";
-import {
-  isVulnerability,
-  assignLastKnownBuffSource,
-  resolveMissingBuffSources,
-} from "../analysis/buffAnalysis.js";
+import { assignLastKnownBuffSource } from "../analysis/buffAnalysis.js";
 
 setModuleLogLevel("ReportParser", "info");
 const log = getLogger("ReportParser");
@@ -202,7 +198,13 @@ export function parseFightDamageTaken(events, fight, actorById, abilityById) {
  * @param {Object} fightTable - FightTable being constructed
  * @param {Object} fight - Fight metadata for logging context
  */
-function applyBuffsToAttacks(statusList, damageEvents, fightTable, fight) {
+function applyBuffsToAttacks(
+  statusList,
+  damageEvents,
+  fightTable,
+  fight,
+  buffAnalysis
+) {
   damageEvents.forEach((ev) => {
     const row = fightTable.rows[ev.relative];
     if (!row) return;
@@ -228,7 +230,7 @@ function applyBuffsToAttacks(statusList, damageEvents, fightTable, fight) {
           fight
         );
         if (!applied) {
-          if (isVulnerability(buffName)) {
+          if (buffAnalysis.isVulnerability(buffName)) {
             // Detected as a vulnerability — log at debug level
             log.debug(
               `Vulnerability buff="${buffName}" on attack=${
@@ -451,12 +453,14 @@ export function buildFightTable(
   parsedVulnerabilities,
   parsedDeaths,
   fight,
-  actorById
+  actorById,
+  buffAnalysis
 ) {
   const statusList = buildStatusList(parsedBuffs, fight);
   const vulnerabilityStatusList = buildVulnerabilityList(
     parsedVulnerabilities,
-    fight
+    fight,
+    buffAnalysis
   );
   const deathStatusList = buildDeathStatusList(parsedDeaths, statusList, fight);
 
@@ -502,7 +506,7 @@ export function buildFightTable(
   });
 
   // Fill in applier names based on buff timelines
-  applyBuffsToAttacks(statusList, damageEvents, table, fight);
+  applyBuffsToAttacks(statusList, damageEvents, table, fight, buffAnalysis);
 
   // Fill in vulnerabilities based on target timelines
   applyVulnsToAttacks(vulnerabilityStatusList, damageEvents, table, fight);
@@ -511,7 +515,7 @@ export function buildFightTable(
   applyDeathsToAttacks(deathStatusList, damageEvents, table, fight);
 
   // ✅ Final pass: replace null/unknown appliers with all players in this fight
-  resolveMissingBuffSources(table, actorById, fight);
+  buffAnalysis.resolveMissingBuffSources(table, actorById, fight);
 
   log.info(
     `Fight ${fight.id}: FightTable built with ${

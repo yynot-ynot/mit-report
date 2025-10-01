@@ -56,33 +56,56 @@ export function renderReport(outputEl, report, loadFightTable) {
   /**
    * Render a single fight’s table into the UI.
    *
-   * Columns:
+   * Delivery Requirement:
+   *   - This function must always produce a full, unfiltered DOM snapshot
+   *     of the fight. Every row and every player column is rendered,
+   *     regardless of filter settings. No structural filtering is applied
+   *     here — it is deferred to `filterAndStyleTable`, which safely mutates
+   *     the table in place.
+   *
+   * Output Structure:
+   *   - A section containing:
+   *       • Fight title
+   *       • A stacked control panel of filter/interaction toggles
+   *       • A scrollable table with frozen header support
+   *
+   * Table Columns:
    *   - Timestamp: relative time of the event
    *   - Attack Name: ability name
    *   - Damage: "unmitigated → amount (mit%)"
    *   - Player columns: buffs active on each player at that timestamp
    *
-   * Enhancements:
-   *   - Adds a stacked control panel with toggles:
+   * Table Behavior:
+   *   - Each row represents a single damage event.
+   *   - Buffs applied to a player are shown in that player’s column
+   *     at the corresponding timestamp.
+   *   - Dead players are rendered with greyed-out cells.
+   *   - Targeted players (event.actor) are marked with `.target-cell`.
+   *
+   * Interactive Enhancements:
+   *   - Control panel provides:
    *       • Show/Hide Auto-Attacks
    *       • Show/Hide Combined DoTs
    *       • Enable/Disable Target Player Highlighting
    *       • Show Buffs (Detailed) vs Show Abilities Only
    *       • Reset Player Filter (clears selected players)
-   *   - Allows clicking player headers (live & frozen) to filter rows
-   *     by selected players (multiple selectable).
-   *   - Selected player headers remain normal; non-selected turn grey.
+   *   - Clicking player headers (live or frozen) toggles selection
+   *     and triggers `filterAndStyleTable` to update visibility.
+   *   - Selected players stay normal; non-selected headers grey out.
+   *   - Hovering over a row highlights the corresponding player column header
+   *     (live + frozen) with a “Target” badge if enabled.
    *
-   * @param {Object} fightTable - Parsed FightTable object for one pull
+   * Notes:
+   *   - Buff name resolution may complete asynchronously. Once all lookups
+   *     are done, `buffAnalysis.waitForBuffLookups` triggers a final
+   *     `filterAndStyleTable` to repaint cells with resolved names.
+   *
+   * @param {FightState} fightState - Encapsulates fight data, filters, and analysis
    */
   async function renderFight(fightState) {
     const fightTable = fightState.fightTable;
     const filterState = fightState.filters;
     const buffAnalysis = fightState.buffAnalysis;
-
-    // Reset filters when switching fights
-    filterState.resetPlayers();
-    updateResetButtonState(filterState);
 
     // log the fightTable object
     log.debug("[RenderFight] fightTable object:", fightTable);
@@ -105,7 +128,7 @@ export function renderReport(outputEl, report, loadFightTable) {
         state: filterState.showAutoAttacks,
         onToggle: (newState) => {
           filterState.showAutoAttacks = newState;
-          rerenderBuffCells(fightTable, report, filterState, buffAnalysis);
+          filterAndStyleTable(fightState, report);
         },
       },
       {
@@ -114,7 +137,7 @@ export function renderReport(outputEl, report, loadFightTable) {
         state: filterState.showCombinedDots,
         onToggle: (newState) => {
           filterState.showCombinedDots = newState;
-          rerenderBuffCells(fightTable, report, filterState, buffAnalysis);
+          filterAndStyleTable(fightState, report);
         },
       },
       {
@@ -131,7 +154,7 @@ export function renderReport(outputEl, report, loadFightTable) {
         state: filterState.showAbilitiesOnly,
         onToggle: (newState) => {
           filterState.showAbilitiesOnly = newState;
-          rerenderBuffCells(fightTable, report, filterState, buffAnalysis);
+          filterAndStyleTable(fightState, report);
         },
       },
       {
@@ -140,7 +163,7 @@ export function renderReport(outputEl, report, loadFightTable) {
         state: false,
         onClick: () => {
           filterState.resetPlayers();
-          rerenderBuffCells(fightTable, report, filterState, buffAnalysis);
+          filterAndStyleTable(fightState, report);
           updateResetButtonState(filterState); // ensure button greys out again
         },
       },
@@ -180,6 +203,9 @@ export function renderReport(outputEl, report, loadFightTable) {
       const table = document.createElement("table");
       table.classList.add("time-table");
 
+      // Save reference in FightState
+      fightState.tableEl = table;
+
       const thead = document.createElement("thead");
       const headerRow = document.createElement("tr");
       // Base headers
@@ -196,7 +222,7 @@ export function renderReport(outputEl, report, loadFightTable) {
         // 🔹 Make header clickable
         th.addEventListener("click", () => {
           filterState.togglePlayer(actor.name);
-          rerenderBuffCells(fightTable, report, filterState, buffAnalysis); // reapply filtering
+          filterAndStyleTable(fightState, report); // reapply filtering
         });
 
         headerRow.appendChild(th);
@@ -208,15 +234,6 @@ export function renderReport(outputEl, report, loadFightTable) {
       timestamps.forEach((ms) => {
         const row = document.createElement("tr");
         const event = fightTable.rows[ms];
-
-        // 🚫 Filter rows by selected players
-        if (filterState.selectedPlayers.size > 0) {
-          const targets = getRowTargets(event);
-          const hasMatch = targets.some((t) =>
-            filterState.selectedPlayers.has(t)
-          );
-          if (!hasMatch) return;
-        }
 
         const tdTime = document.createElement("td");
         tdTime.textContent = formatRelativeTime(ms, 0);
@@ -309,7 +326,7 @@ export function renderReport(outputEl, report, loadFightTable) {
 
     // 🔁 Schedule re-render once buff lookups are finished
     buffAnalysis.waitForBuffLookups(() =>
-      rerenderBuffCells(fightTable, report, filterState, buffAnalysis)
+      filterAndStyleTable(fightState, report)
     );
   }
 
@@ -646,31 +663,56 @@ function renderControlPanel(filterState, options) {
  *
  * Purpose:
  *   - Avoids full table rebuild when toggles or async lookups change.
- *   - Keeps DOM stable (no flicker).
+ *   - Keeps DOM stable (no flicker, no row reallocation).
  *
  * Behavior:
  *   - Iterates over fight rows and applies filters:
- *       • Auto-Attacks hidden if filterState.showAutoAttacks = false
- *       • Combined DoTs hidden if filterState.showCombinedDots = false
- *       • Only rows with selected player targets shown (if any)
+ *       • Hides Auto-Attacks if filterState.showAutoAttacks = false
+ *       • Hides Combined DoTs if filterState.showCombinedDots = false
+ *       • Hides rows with non-matching player targets if selections exist
  *   - Updates buff cells per player:
- *       • Raw buffs or collapsed into abilities
- *       • Styled with role/job matching
- *       • Vulnerabilities shown in red
- *   - Updates header greying to match player selection.
+ *       • Raw buffs or collapsed into abilities (based on filterState.showAbilitiesOnly)
+ *       • Styles vulnerabilities in red, known job abilities in black, unknowns in green
+ *       • ⚠️ Buff cells are fully repainted each call (innerHTML replaced).
+ *         → Current contents: <div><span style="color:...">BuffName</span></div>
+ *         → Any custom DOM (icons, tooltips, event listeners) must be
+ *           injected inside this function, or else it will be wiped.
+ *   - Updates header greying to match selected players.
  *   - Updates Reset Player Filter button state.
+ *   - Logs row visibility statistics (total, visible, hidden).
  *
- * @param {Object} fightTable - Parsed FightTable with rows + buffs
+ * ✅ Safe operations (allowed here):
+ *   - Show/hide rows using CSS (`row.style.display`).
+ *   - Update buff cells’ innerHTML and styling (paint-only ownership).
+ *   - Toggle header cell classes for selection state.
+ *   - Update external UI controls (reset button).
+ *
+ * 🚫 Constraints (must avoid here):
+ *   - Do NOT add/remove <tr> rows or <td>/<th> cells.
+ *   - Do NOT modify Timestamp, Attack Name, or Damage cells.
+ *   - Do NOT mutate fightTable.rows (source of truth).
+ *   - Do NOT introduce side effects outside rendering (idempotency required).
+ *
+ * @param {FightState} fightState - Per-fight state container (table, filters, buffAnalysis)
  * @param {Object} report - Report reference (for actor lookups)
- * @param {FilterState} filterState - current fight’s filter state
- * @param {BuffAnalysis} buffAnalysis - per-fight buff analysis instance
  */
-function rerenderBuffCells(fightTable, report, filterState, buffAnalysis) {
-  const table = fightContainer.querySelector("table.time-table");
+function filterAndStyleTable(fightState, report) {
+  const {
+    fightTable,
+    buffAnalysis,
+    filters: filterState,
+    tableEl,
+  } = fightState;
+  const table = tableEl;
   if (!table) return;
 
   const tbody = table.querySelector("tbody");
   if (!tbody) return;
+
+  // Restore all rows before applying filters
+  Array.from(tbody.rows).forEach((row) => {
+    row.style.display = ""; // reset visibility
+  });
 
   const timestamps = Object.keys(fightTable.rows)
     .map((n) => parseInt(n, 10))
@@ -705,20 +747,12 @@ function rerenderBuffCells(fightTable, report, filterState, buffAnalysis) {
     }
 
     // 🚫 Hide rows if they don’t match selected players
-    if (
-      filterState.selectedPlayers.size > 0 &&
-      (!event.actor || !filterState.selectedPlayers.has(event.actor))
-    ) {
-      row.style.display = "none";
-    } else {
-      row.style.display = ""; // ensure visible again if filter cleared
-    }
-
-    // 🚫 Hide rows if they don’t match selected players
     if (filterState.selectedPlayers.size > 0) {
       const targets = getRowTargets(event);
       const hasMatch = targets.some((t) => filterState.selectedPlayers.has(t));
       row.style.display = hasMatch ? "" : "none";
+    } else {
+      row.style.display = "";
     }
 
     sortedActors.forEach((actor, colIndex) => {
@@ -756,6 +790,19 @@ function rerenderBuffCells(fightTable, report, filterState, buffAnalysis) {
       td.innerHTML = styledBuffs.length > 0 ? styledBuffs.join("") : "";
     });
   });
+
+  // 🔹 After processing all rows, log visibility stats
+  const allRows = Array.from(tbody.rows);
+  const visibleRows = allRows.filter((r) => r.style.display !== "none");
+  const hiddenRows = allRows.filter((r) => r.style.display === "none");
+
+  log.debug(
+    `[filterAndStyleTable] Total rows=${allRows.length}, visible=${
+      visibleRows.length
+    }, hidden=${hiddenRows.length}, selectedPlayers=[${Array.from(
+      filterState.selectedPlayers
+    ).join(", ")}]`
+  );
 
   // 🔹 Update header styling to reflect selected players
   const liveHeaders = table.querySelectorAll("thead th");

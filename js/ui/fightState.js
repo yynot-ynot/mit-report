@@ -23,11 +23,14 @@ export class FightState {
     /** @type {Object} Parsed FightTable object for this fight */
     this.fightTable = fightTable;
 
+    /** @type {BuffAnalysis} Buff/vulnerability resolution state */
+    this.buffAnalysis = new BuffAnalysis();
+
     /** @type {FilterState} UI filter state for this fight */
     this.filters = new FilterState();
 
-    /** @type {BuffAnalysis} Buff/vulnerability resolution state */
-    this.buffAnalysis = new BuffAnalysis();
+    /** @type {HTMLTableElement|null} Reference to the fight’s rendered table */
+    this.tableEl = null;
   }
 
   /**

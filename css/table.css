@@ -202,6 +202,8 @@
     /* ensures fixed-width digits */
     letter-spacing: -0.5px;
     /* optional: tighten spacing */
+
+    padding: 0.9rem 0.3rem !important;
 }
 
 /* "Target" label styled as a badge/stamp above header cell */

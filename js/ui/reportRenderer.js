@@ -254,10 +254,12 @@ export function renderReport(outputEl, report, loadFightTable) {
           const unmitigated =
             event.unmitigatedAmount === 0 ? "?" : event.unmitigatedAmount;
 
-          tdDamage.innerHTML = `${unmitigated}&nbsp;→&nbsp;${event.amount}<br>
-  <span style="white-space:nowrap">A: ${event.absorbed || 0} | (${
+          tdDamage.innerHTML = `&nbsp;${unmitigated}&nbsp;→&nbsp;${
+            event.amount
+          }&nbsp;<br>
+  <span style="white-space:nowrap">&nbsp;A: ${event.absorbed || 0} | (${
             event.mitigationPct
-          }%)</span>`;
+          }%)&nbsp;</span>`;
         } else {
           tdDamage.textContent = "-";
         }

@@ -278,7 +278,8 @@ export async function fetchFightDamageTaken(accessToken, reportCode, fight) {
     accessToken,
     reportCode,
     fight,
-    EventDataType.DAMAGE_TAKEN
+    EventDataType.DAMAGE_TAKEN,
+    { includeResources: true }
   );
   return events.filter((ev) => ev.type === "damage");
 }

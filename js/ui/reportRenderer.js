@@ -85,7 +85,7 @@ export function renderReport(outputEl, report, loadFightTable) {
    * Interactive Enhancements:
    *   - Control panel provides:
    *       • Show/Hide Auto-Attacks
-   *       • Show/Hide Combined DoTs
+   *       • Show/Hide Bleeds
    *       • Enable/Disable Target Player Highlighting
    *       • Show Buffs (Detailed) vs Show Abilities Only
    *       • Reset Player Filter (clears selected players)
@@ -132,8 +132,8 @@ export function renderReport(outputEl, report, loadFightTable) {
         },
       },
       {
-        labelOn: "Hide Combined DoTs",
-        labelOff: "Show Combined DoTs",
+        labelOn: "Hide Bleeds",
+        labelOff: "Show Bleeds",
         state: filterState.showCombinedDots,
         onToggle: (newState) => {
           filterState.showCombinedDots = newState;
@@ -251,7 +251,13 @@ export function renderReport(outputEl, report, loadFightTable) {
           event.unmitigatedAmount != null &&
           event.mitigationPct != null
         ) {
-          tdDamage.innerHTML = `${event.unmitigatedAmount} → ${event.amount}<br>(${event.mitigationPct}% mit)`;
+          const unmitigated =
+            event.unmitigatedAmount === 0 ? "?" : event.unmitigatedAmount;
+
+          tdDamage.innerHTML = `${unmitigated}&nbsp;→&nbsp;${event.amount}<br>
+  <span style="white-space:nowrap">A: ${event.absorbed || 0} | (${
+            event.mitigationPct
+          }%)</span>`;
         } else {
           tdDamage.textContent = "-";
         }
@@ -668,7 +674,7 @@ function renderControlPanel(filterState, options) {
  * Behavior:
  *   - Iterates over fight rows and applies filters:
  *       • Hides Auto-Attacks if filterState.showAutoAttacks = false
- *       • Hides Combined DoTs if filterState.showCombinedDots = false
+ *       • Hides Bleeds if filterState.showCombinedDots = false
  *       • Hides rows with non-matching player targets if selections exist
  *   - Updates buff cells per player:
  *       • Raw buffs or collapsed into abilities (based on filterState.showAbilitiesOnly)

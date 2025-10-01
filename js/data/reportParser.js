@@ -152,6 +152,7 @@ export function parseFightDamageTaken(events, fight, actorById, abilityById) {
       }
 
       const amount = ev.amount ?? 0;
+      const absorbed = ev.absorbed ?? 0;
       const unmitigated = ev.unmitigatedAmount ?? amount;
       const mitigated = unmitigated - amount;
       const mitigationPct =
@@ -164,10 +165,11 @@ export function parseFightDamageTaken(events, fight, actorById, abilityById) {
         source: source ? source.name : `Unknown(${ev.sourceID})`,
         ability: ability ? ability.name : "Unknown Damage",
         amount,
+        absorbed,
         unmitigatedAmount: unmitigated,
         mitigated,
         mitigationPct,
-        buffs: buffNames, // ✅ include parsed buffs
+        buffs: buffNames, // include parsed buffs
       };
     })
     .filter(Boolean);
@@ -489,6 +491,7 @@ export function buildFightTable(
         targetID: ev.targetID ?? null, // optional: add ID for safer matching
         ability: ev.ability,
         amount: ev.amount,
+        absorbed: ev.absorbed,
         unmitigatedAmount: ev.unmitigatedAmount,
         mitigated: ev.mitigated,
         mitigationPct: ev.mitigationPct,

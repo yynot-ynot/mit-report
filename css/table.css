@@ -187,8 +187,21 @@
     width: 140px;
     /* adjust until it looks right */
     white-space: normal;
-    /* allow wrapping */
-    word-break: break-word;
+    word-break: normal;
+    /* keep tokens intact */
+    line-height: 1.3;
+    /* tighter vertical spacing */
+}
+
+.time-table td.damage-col,
+.frozen-header td.damage-col {
+    text-align: justify;
+    text-align-last: justify;
+    /* ensures last line also spreads */
+    font-family: monospace, monospace;
+    /* ensures fixed-width digits */
+    letter-spacing: -0.5px;
+    /* optional: tighten spacing */
 }
 
 /* "Target" label styled as a badge/stamp above header cell */

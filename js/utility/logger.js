@@ -63,3 +63,13 @@ export function getLogger(moduleName) {
     },
   };
 }
+
+// Picks default level depending on environment
+export function envLogLevel(localLevel = "debug", prodLevel = "info") {
+  const isLocalhost =
+    typeof window !== "undefined" &&
+    (window.location.hostname === "localhost" ||
+      window.location.hostname === "127.0.0.1");
+
+  return isLocalhost ? localLevel : prodLevel;
+}

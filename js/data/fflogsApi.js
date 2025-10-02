@@ -1,6 +1,10 @@
-import { getLogger, setModuleLogLevel } from "../utility/logger.js";
+import {
+  getLogger,
+  setModuleLogLevel,
+  envLogLevel,
+} from "../utility/logger.js";
 
-setModuleLogLevel("FFLogsApi", "info");
+setModuleLogLevel("FFLogsApi", envLogLevel("info", "warn"));
 const log = getLogger("FFLogsApi");
 
 /**

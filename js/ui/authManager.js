@@ -1,7 +1,11 @@
 import { startLogin, exchangeCode } from "../utility/fflogsAuth.js";
-import { getLogger, setModuleLogLevel } from "../utility/logger.js";
+import {
+  getLogger,
+  setModuleLogLevel,
+  envLogLevel,
+} from "../utility/logger.js";
 
-setModuleLogLevel("AuthManager", "debug");
+setModuleLogLevel("AuthManager", envLogLevel("info", "warn"));
 const log = getLogger("AuthManager");
 
 export async function initializeAuth(statusEl, analyzeBtn, urlInput, onLogin) {

@@ -9,9 +9,13 @@
 import { loadJobConfig } from "../config/AppConfig.js";
 import linkedAbilities from "../config/linkedAbilities.js";
 import { formatRelativeTime } from "../utility/dataUtils.js";
-import { getLogger, setModuleLogLevel } from "../utility/logger.js";
+import {
+  getLogger,
+  setModuleLogLevel,
+  envLogLevel,
+} from "../utility/logger.js";
 
-setModuleLogLevel("BuffAnalysis", "info");
+setModuleLogLevel("BuffAnalysis", envLogLevel("info", "warn"));
 const log = getLogger("BuffAnalysis");
 
 // 🔒 Hardcoded Buff → Ability overrides

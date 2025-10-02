@@ -1,9 +1,13 @@
-import { getLogger, setModuleLogLevel } from "../utility/logger.js";
+import {
+  getLogger,
+  setModuleLogLevel,
+  envLogLevel,
+} from "../utility/logger.js";
 import { formatRelativeTime } from "../utility/dataUtils.js";
 import { getRoleClass, sortActorsByJob } from "../config/AppConfig.js";
 import { FilterState } from "./filterState.js";
 
-setModuleLogLevel("ReportRenderer", "info");
+setModuleLogLevel("ReportRenderer", envLogLevel("info", "warn"));
 const log = getLogger("ReportRenderer");
 
 /**

@@ -1,4 +1,8 @@
-import { getLogger, setModuleLogLevel } from "../utility/logger.js";
+import {
+  getLogger,
+  setModuleLogLevel,
+  envLogLevel,
+} from "../utility/logger.js";
 import {
   buildStatusList,
   buildVulnerabilityList,
@@ -8,7 +12,7 @@ import { formatRelativeTime } from "../utility/dataUtils.js";
 import { IGNORED_BUFFS } from "../config/ignoredBuffs.js";
 import { assignLastKnownBuffSource } from "../analysis/buffAnalysis.js";
 
-setModuleLogLevel("ReportParser", "info");
+setModuleLogLevel("ReportParser", envLogLevel("info", "warn"));
 const log = getLogger("ReportParser");
 
 export function parseReport(gqlData) {

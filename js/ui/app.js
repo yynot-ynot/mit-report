@@ -1,4 +1,8 @@
-import { getLogger, setModuleLogLevel } from "../utility/logger.js";
+import {
+  getLogger,
+  setModuleLogLevel,
+  envLogLevel,
+} from "../utility/logger.js";
 import {
   fetchReport,
   fetchFightDamageTaken,
@@ -18,7 +22,7 @@ import { renderReport } from "./reportRenderer.js";
 import { initializeAuth, ensureLogin } from "./authManager.js";
 import { FightState } from "./fightState.js";
 
-setModuleLogLevel("App", "info");
+setModuleLogLevel("App", envLogLevel("debug", "info"));
 const log = getLogger("App");
 
 document.addEventListener("DOMContentLoaded", async () => {

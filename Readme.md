@@ -1,81 +1,79 @@
-# 📊 FFLogs Raid Mitigation Report
+# 📊 FFLogs Raid Mitigation Analyzer
 
-This web application analyzes **FFLogs reports** to show how mitigation abilities (such as _Rampart_, _Reprisal_, _Addle_, etc.) were used during raid encounters in **Final Fantasy XIV**.
-
-It focuses on the **damage taken timeline**:
-
-- Each **row** = a timestamped boss/NPC attack.
-- Each **column** = a **player** in the raid.
-- Each **cell** = the mitigation abilities the player had active when struck at that timestamp.
-
-The app’s purpose is to help raiders and groups review mitigation usage, identify gaps, and improve defensive coordination.
+This web app analyzes **FFLogs raid reports** to visualize how defensive cooldowns were used against incoming damage in **Final Fantasy XIV**.
 
 ---
 
-## 📐 Core Data Structure
+## ✨ Features
 
-All data is normalized into a single **FightTable object**.  
-This structure is what the UI layer consumes to render the timeline table.
+- **Mitigation Timeline View**  
+  See when raid-wide and personal cooldowns were active during boss mechanics.
 
-```ts
-FightTable {
-  fightId: number                  // Unique fight identifier from FFLogs
-  encounterId: number              // Encounter (boss) ID
-  name: string                     // Encounter name
+- **Damage Breakdown**  
+  Each event shows unmitigated vs. mitigated damage, absorbed shields, and mitigation %.
 
-  rows: {                          // Timeline rows keyed by timestamp
-    [timestamp: number]: {         // ms since fight start (e.g. 1000 = 1s)
-      source: string               // Attacker (boss or NPC)
-      ability: string              // The attack used at this time
-      targets: {                   // Defenses active on each player hit
-        [playerName: string]: string[]
-        // Key = player's name (e.g. "PlayerA")
-        // Value = list of mitigation/defensive abilities active during this hit
-        // Example: { "PlayerA": ["Rampart", "Addle"], "PlayerB": ["Reprisal"] }
-      }
-    }
-  }
+- **Buff Attribution**  
+  Buffs are linked back to their actual source player.
 
-  actors: {                        // Metadata for players (columns in the table)
-    [id: number]: {
-      id: number
-      name: string
-      type: string                 // Always "Player" here
-    }
-  }
-}
-```
+- **Vulnerability Tracking**  
+  Tracks debuffs like _Magic Vulnerability Up_ or _Physical Vulnerability Up_ on players.
+
+- **Death Timeline**  
+  Marks players as dead until they are revived (Raise detection included).
+
+- **Interactive Report Browser**
+
+  - Grouped by boss encounter
+  - Pull selection grid
+  - Player columns sortable by role
+  - Clickable headers to filter by player
+
+- **UI Controls**
+  - Toggle Auto-Attacks and Bleeds
+  - Switch between “buff detail” and “abilities only” views
+  - Highlight the target player per event
 
 ---
 
-### 🔍 Example
+## 🔄 Workflow
 
-```json
-{
-  "fightId": 1,
-  "encounterId": 1234,
-  "name": "Boss Fight",
-  "rows": {
-    "1000": {
-      "source": "Boss",
-      "ability": "Cleave",
-      "targets": {
-        "PlayerA": ["Rampart", "Addle"],
-        "PlayerB": ["Reprisal"]
-      }
-    },
-    "2000": {
-      "source": "Boss",
-      "ability": "Auto Attack",
-      "targets": {
-        "PlayerC": []
-      }
-    }
-  },
-  "actors": {
-    "12": { "id": 12, "name": "PlayerA", "type": "Player" },
-    "13": { "id": 13, "name": "PlayerB", "type": "Player" },
-    "14": { "id": 14, "name": "PlayerC", "type": "Player" }
-  }
-}
-```
+1. **Authentication**
+
+   - Log in via FFLogs OAuth to access reports.
+
+2. **Data Fetching (FFLogs API)**
+
+   - Report metadata (actors, fights, abilities)
+   - Buff and debuff events
+   - Damage taken events
+   - Death events
+   - Vulnerabilities (debuffs on friendlies)
+
+3. **Parsing & Normalization**
+
+   - Raw events are normalized into structured objects:
+     - Damage events (with mitigation calculations)
+     - Buff/debuff events (timelines, stacks, AoE)
+     - Vulnerability debuffs per target
+     - Death timelines (death → raise)
+
+4. **FightTable Construction**
+
+   - All normalized events are merged into a **FightTable**, keyed by relative timestamps.
+   - Each row = one **damage taken event**, enriched with:
+     - Damage values
+     - Active buffs (with credited sources)
+     - Vulnerabilities
+     - Death states
+
+5. **Buff Analysis**
+
+   - Buff names are resolved back to abilities.
+   - Linked abilities (e.g. _Stem the Flow_ → _Bloodwhetting_) are merged.
+   - Missing sources are backfilled using heuristics.
+
+6. **Rendering**
+   - The FightTable is rendered as an interactive timeline table.
+   - Players are displayed in columns, **damage taken events** in rows.
+   - Buffs show up in the cells of players who applied them.
+   - UI filters update the table live without reloading data.

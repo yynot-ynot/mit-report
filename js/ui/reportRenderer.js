@@ -209,8 +209,21 @@ export function renderReport(outputEl, report, loadFightTable) {
       const thead = document.createElement("thead");
       const headerRow = document.createElement("tr");
       // Base headers
-      headerRow.innerHTML =
-        "<th>Timestamp</th><th>Attack Name</th><th class='damage-col'>Damage</th>";
+      headerRow.innerHTML = `
+<th>Timestamp</th>
+<th>Attack Name</th>
+<th class="damage-col">
+  <div class="damage-header-top">
+    <span>U:</span>
+    <span>Damage</span>
+    <span>M:</span>
+  </div>
+  <div class="damage-header-bottom">
+    <span>A:</span>
+    <span>(mit)</span>
+  </div>
+</th>
+   `;
 
       // Player headers
       sortedActors.forEach((actor) => {

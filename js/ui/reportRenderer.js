@@ -760,9 +760,10 @@ function filterAndStyleTable(fightState, report) {
     const row = tbody.rows[rowIndex];
     if (!row) return;
 
-    const AUTO_ATTACK_NAMES = new Set(["Attack", "攻撃"]);
+    const AUTO_ATTACK_NAMES = new Set(["attack", "攻撃"]);
 
-    const isAutoAttack = AUTO_ATTACK_NAMES.has(event.ability);
+    const abilityName = event.ability ? event.ability.toLowerCase() : "";
+    const isAutoAttack = AUTO_ATTACK_NAMES.has(abilityName);
 
     // 🚫 Hide Auto-Attacks / DoTs
     if (

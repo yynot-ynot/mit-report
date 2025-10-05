@@ -1,3 +1,5 @@
+import { getMitigationPercent } from "../utility/jobConfigHelper.js";
+
 /**
  * buffAnalysis.js
  *
@@ -447,4 +449,68 @@ export function assignLastKnownBuffSource(
     return true;
   }
   return false;
+}
+
+/**
+ * Compute the combined mitigation percentage from multiple buffs.
+ *
+ * Formula:
+ *   totalMit = 1 - ∏(1 - aᵢ)
+ *
+ * Example:
+ *   Buffs: ["Rampart", "Reprisal"]
+ *   Rampart = 0.20 (20%), Reprisal = 0.10 (10%)
+ *   Result = 1 - (1 - 0.20) * (1 - 0.10) = 0.28 (28%)
+ *
+ * Notes:
+ *   - Works globally (no jobName needed).
+ *   - Accepts optional `damageType` ("physical" | "magical") and `targetJob`.
+ *     This allows the function to choose the correct conditional and relational
+ *     mitigation variant (e.g. Feint for physical vs Addle for magical, or
+ *     self vs ally like “Knight’s Resolve”).
+ *   - Any buff not found in the config will be ignored (treated as 0%).
+ *   - Returns a decimal fraction rounded to 0.01 (e.g. 0.28 for 28% total mitigation).
+ *   - Logs any missing or unknown buffs for transparency.
+ *
+ * @param {Array<string>} buffNames - List of buff or ability names.
+ * @param {("physical"|"magical"|null)} [damageType=null] - Optional type of incoming damage.
+ * @param {string|null} [targetJob=null] - Optional target's job name (used for self vs ally mitigation).
+ * @returns {number} Combined mitigation as a decimal (0–1 range).
+ */
+export function calculateTotalMitigation(
+  buffNames,
+  damageType = null,
+  targetJob = null
+) {
+  if (!Array.isArray(buffNames) || buffNames.length === 0) return 0;
+
+  const missingBuffs = [];
+  const mitigations = [];
+
+  for (const buff of buffNames) {
+    // Pass both damageType and targetJob for correct lookup variant
+    const mit = getMitigationPercent(buff, damageType, targetJob);
+    if (typeof mit === "number" && mit > 0) {
+      mitigations.push(mit);
+    } else {
+      missingBuffs.push(buff);
+    }
+  }
+
+  if (missingBuffs.length > 0) {
+    log.info(
+      `[MitigationCalc] Ignoring unknown or 0% buffs: ${missingBuffs.join(
+        ", "
+      )}`
+    );
+  }
+
+  if (mitigations.length === 0) return 0;
+
+  // Compute multiplicative stacking: 1 - ∏(1 - aᵢ)
+  const totalMitigation =
+    1 - mitigations.reduce((prod, a) => prod * (1 - a), 1);
+
+  // Round to two decimal places (e.g. 0.2847 → 0.28)
+  return Math.round(totalMitigation * 100) / 100;
 }

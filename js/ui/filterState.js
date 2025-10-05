@@ -29,6 +29,9 @@ export class FilterState {
 
     /** @type {HTMLButtonElement|null} Reference to the Reset Player Filter button */
     this.resetPlayerBtn = null;
+
+    /** @type {boolean} Whether to show botched mitigation comparisons */
+    this.showBotchedMitigations = false;
   }
 
   /**

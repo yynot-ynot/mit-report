@@ -10,7 +10,10 @@ import {
 } from "./buffTracker.js";
 import { formatRelativeTime } from "../utility/dataUtils.js";
 import { IGNORED_BUFFS } from "../config/ignoredBuffs.js";
-import { assignLastKnownBuffSource } from "../analysis/buffAnalysis.js";
+import {
+  assignLastKnownBuffSource,
+  calculateTotalMitigation,
+} from "../analysis/buffAnalysis.js";
 
 setModuleLogLevel("ReportParser", envLogLevel("info", "warn"));
 const log = getLogger("ReportParser");
@@ -91,7 +94,6 @@ export function parseBuffEvents(events, fight, actorById, abilityById) {
 
   return parsed;
 }
-
 /**
  * Parse raw damage-taken events into normalized objects for the FightTable.
  *
@@ -135,13 +137,34 @@ export function parseFightDamageTaken(events, fight, actorById, abilityById) {
     return [];
   }
 
+  // Track ability types and the names that use them
+  const seenTypes = new Set();
+  const typeToNames = new Map();
+
+  // Store translation from numeric type code → readable label
+  const typeCodeToDamageType = {
+    32: "magical",
+    128: "physical",
+    1024: "magical",
+  };
+
   const parsed = events
     .map((ev) => {
       const actor = actorById.get(ev.targetID); // target hit
       const source = actorById.get(ev.sourceID); // attacker
       const ability = abilityById.get(ev.abilityGameID);
 
-      // 🔍 Parse buffs if present (string of ability IDs separated by ".")
+      if (ability?.type) {
+        seenTypes.add(ability.type);
+
+        // Track the ability name under its type
+        if (!typeToNames.has(ability.type)) {
+          typeToNames.set(ability.type, new Set());
+        }
+        typeToNames.get(ability.type).add(ability.name);
+      }
+
+      // Parse buffs if present (string of ability IDs separated by ".")
       let buffNames = [];
       if (ev.buffs) {
         buffNames = ev.buffs
@@ -158,9 +181,24 @@ export function parseFightDamageTaken(events, fight, actorById, abilityById) {
       const amount = ev.amount ?? 0;
       const absorbed = ev.absorbed ?? 0;
       const unmitigated = ev.unmitigatedAmount ?? amount;
-      const mitigated = unmitigated - amount;
+      const mitigated = unmitigated - amount - absorbed;
+
+      // Determine the translated damage type label (e.g. "physical" | "magical")
+      const damageType =
+        ability?.type && typeCodeToDamageType[ability.type]
+          ? typeCodeToDamageType[ability.type]
+          : null;
+
+      // 1. Actual mitigation from event data
       const mitigationPct =
-        unmitigated > 0 ? Math.round((1 - amount / unmitigated) * 100) : 0;
+        unmitigated > 0 ? Math.round((mitigated / unmitigated) * 100) : 0;
+
+      // Use the global mitigation calculator with damageType and target job context
+      // 2. Intended mitigation based on buffs & context
+      const targetJob = actor?.subType || null;
+      const intendedMitPct = Math.round(
+        calculateTotalMitigation(buffNames, damageType, targetJob) * 100
+      );
 
       return {
         rawTimestamp: ev.timestamp,
@@ -172,12 +210,25 @@ export function parseFightDamageTaken(events, fight, actorById, abilityById) {
         absorbed,
         unmitigatedAmount: unmitigated,
         mitigated,
-        mitigationPct,
+        mitigationPct, // actual % from data
+        intendedMitPct, // theoretical % from buffs
         buffs: buffNames, // include parsed buffs
       };
     })
     .filter(Boolean);
 
+  // Log unique types + associated ability names
+  const typeSummary = Array.from(typeToNames.entries()).map(
+    ([type, names]) => ({
+      type,
+      abilities: Array.from(names).sort(),
+    })
+  );
+
+  log.debug(`[DamageTaken] Unique ability types for Fight ${fight.id}:`);
+  typeSummary.forEach(({ type, abilities }) => {
+    log.debug(`- Type ${type}: ${abilities.join(", ")}`);
+  });
   log.debug(`Fight ${fight.id}: parsed ${parsed.length} damage taken events`);
   return parsed;
 }
@@ -404,20 +455,29 @@ function applyDeathsToAttacks(
  *     friendlyPlayerIds: [id1, id2, ...],  // only player IDs (no NPCs/pets)
  *     rows: {
  *       [relativeTimestamp: number]: {
- *         source: string,        // attacker name
- *         actor: string,         // target name (actor taking damage)
- *         targetID: number|null, // target actor ID, if available
- *         ability: string,       // ability name
- *         amount: number,        // actual damage taken
- *         unmitigatedAmount: number, // raw pre-mitigation damage
- *         mitigated: number,     // absorbed/mitigated amount
- *         mitigationPct: number, // percentage mitigated (0–100)
- *         buffs: {               // buffs active on the target at this time
- *           [buffName: string]: [applierNames...]
+ *         source: string,            // attacker name
+ *         actor: string,             // target name (player taking damage)
+ *         targetID: number|null,     // target actor ID, if available
+ *         ability: string,           // attack or damage ability name
+ *
+ *         // --- Damage & mitigation ---
+ *         amount: number,            // actual damage taken (post-mitigation)
+ *         absorbed: number,          // absorbed value (e.g. shields)
+ *         unmitigatedAmount: number, // estimated damage before mitigation
+ *         mitigated: number,         // total damage prevented (unmitigated - amount)
+ *         mitigationPct: number,     // actual % mitigated from combat data (derived from damage)
+ *         intendedMitPct: number,    // theoretical % mitigated based on buffs + context (predicted)
+ *
+ *         // --- Status effects ---
+ *         buffs: {                   // buffs active on the target at this time
+ *           [buffName: string]: [applierNames...] // who applied each buff
  *         },
- *         vulns: {               // vulnerabilities (debuffs) active on the target
+ *         vulns: {                   // vulnerabilities (debuffs) active on the target
  *           [vulnName: string]: true
- *         }
+ *         },
+ *
+ *         // --- Other fight context ---
+ *         deaths: [string],          // list of all players dead at this timestamp
  *       }
  *     }
  *   }
@@ -481,7 +541,7 @@ export function buildFightTable(
     encounterId: fight.encounterID,
     name: fight.name,
     rows: {},
-    // ✅ Instead of duplicating actor metadata, only keep friendly player IDs
+    // Instead of duplicating actor metadata, only keep friendly player IDs
     friendlyPlayerIds: fight.friendlyPlayers || [],
   };
 
@@ -499,6 +559,7 @@ export function buildFightTable(
         unmitigatedAmount: ev.unmitigatedAmount,
         mitigated: ev.mitigated,
         mitigationPct: ev.mitigationPct,
+        intendedMitPct: ev.intendedMitPct, // theoretical % from buffs
         buffs: {},
         vulns: {}, // active vulnerabilities (per-target, no sources)
         deaths: [], // all players dead at this timestamp

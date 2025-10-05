@@ -184,7 +184,7 @@
 .frozen-header th.damage-col,
 .time-table td.damage-col,
 .frozen-header td.damage-col {
-    width: 140px;
+    width: 160px;
     /* adjust until it looks right */
     white-space: normal;
     word-break: normal;
@@ -193,8 +193,8 @@
     /* tighter vertical spacing */
 }
 
-.time-table td.damage-col,
-.frozen-header td.damage-col {
+.time-table td.damage-col .intended-mit,
+.frozen-header td.damage-col .intended-mit{
     text-align: justify;
     text-align-last: justify;
     /* ensures last line also spreads */
@@ -301,4 +301,18 @@
     background-color: #e5e5e5 !important;
     color: #888 !important;
     opacity: 0.7;
+}
+
+/* Intended mitigation percentage (struck-through, greyed out) */
+.intended-mit {
+    text-decoration: line-through;
+    color: #9ca3af;
+    /* Tailwind gray-400 equivalent */
+    opacity: 0.9;
+    font-weight: 500;
+}
+
+.damage-col span,
+.damage-col .intended-mit {
+    display: inline !important;
 }

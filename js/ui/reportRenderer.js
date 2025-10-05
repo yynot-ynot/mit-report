@@ -43,7 +43,7 @@ export function renderReport(outputEl, report, loadFightTable) {
 
   outputEl.appendChild(reportWrapper);
 
-  // 🔑 New container for pulls + fight table
+  // New container for pulls + fight table
   const fightWrapper = document.createElement("div");
   fightWrapper.classList.add("fight-wrapper");
 
@@ -171,6 +171,15 @@ export function renderReport(outputEl, report, loadFightTable) {
           updateResetButtonState(filterState); // ensure button greys out again
         },
       },
+      {
+        labelOn: "Hide Botched Mitigations",
+        labelOff: "Show Botched Mitigations",
+        state: filterState.showBotchedMitigations,
+        onToggle: (newState) => {
+          filterState.showBotchedMitigations = newState;
+          filterAndStyleTable(fightState, report); // refresh the view
+        },
+      },
     ]);
 
     // Assemble stacked layout
@@ -271,12 +280,21 @@ export function renderReport(outputEl, report, loadFightTable) {
           const unmitigated =
             event.unmitigatedAmount === 0 ? "?" : event.unmitigatedAmount;
 
-          tdDamage.innerHTML = `&nbsp;${unmitigated}&nbsp;→&nbsp;${
-            event.amount
-          }&nbsp;<br>
-  <span style="white-space:nowrap">&nbsp;A: ${event.absorbed || 0} | (${
-            event.mitigationPct
-          }%)&nbsp;</span>`;
+          // 💡 Include intendedMitPct if "botched mitigations" toggle is ON
+          let mitDisplay = `${event.mitigationPct}%`;
+
+          if (
+            filterState.showBotchedMitigations &&
+            typeof event.intendedMitPct === "number" &&
+            event.intendedMitPct > event.mitigationPct
+          ) {
+            mitDisplay += ` <span class="intended-mit">${event.intendedMitPct}%</span>`;
+          }
+
+          tdDamage.innerHTML = `
+    &nbsp;${unmitigated}&nbsp;→&nbsp;${event.amount}&nbsp;<br>
+    <span>&nbsp;A: ${event.absorbed || 0} | (${mitDisplay})&nbsp;</span>
+  `;
         } else {
           tdDamage.textContent = "-";
         }
@@ -572,7 +590,7 @@ function enableHeaderHighlight(table, row, filterState) {
     if (headerCell) {
       headerCell.classList.add("highlight-header");
 
-      // 🏷️ Add "Target" badge if not already present
+      // Add "Target" badge if not already present
       if (!headerCell.querySelector(".target-label")) {
         const label = document.createElement("span");
         label.className = "target-label";
@@ -590,7 +608,7 @@ function enableHeaderHighlight(table, row, filterState) {
       if (frozenHeaderCell) {
         frozenHeaderCell.classList.add("highlight-header");
 
-        // 🏷️ Add "Target" badge for frozen header if not already present
+        // Add "Target" badge for frozen header if not already present
         if (!frozenHeaderCell.querySelector(".target-label")) {
           const label = document.createElement("span");
           label.className = "target-label";
@@ -783,6 +801,42 @@ function filterAndStyleTable(fightState, report) {
       row.style.display = hasMatch ? "" : "none";
     } else {
       row.style.display = "";
+    }
+
+    // Update mitigation visibility dynamically
+    const tdDamage = row.cells[2]; // 3rd column = damage column
+    if (tdDamage && event.mitigationPct != null) {
+      const intendedSpan = tdDamage.querySelector(".intended-mit");
+
+      if (filterState.showBotchedMitigations) {
+        // Show if applicable and hidden previously
+        if (
+          !intendedSpan &&
+          typeof event.intendedMitPct === "number" &&
+          event.intendedMitPct > event.mitigationPct
+        ) {
+          const baseSpan = tdDamage.querySelector("span");
+          if (baseSpan) {
+            const mitDisplay = `<span class="intended-mit"> ${event.intendedMitPct}%</span>`;
+
+            // find the closing parenthesis inside the mitigation text, and insert before it
+            const currentHTML = baseSpan.innerHTML;
+            const insertIndex = currentHTML.lastIndexOf(")");
+            if (insertIndex !== -1) {
+              baseSpan.innerHTML =
+                currentHTML.slice(0, insertIndex) +
+                mitDisplay +
+                currentHTML.slice(insertIndex);
+            } else {
+              // fallback if no parentheses found
+              baseSpan.insertAdjacentHTML("beforeend", mitDisplay);
+            }
+          }
+        }
+      } else {
+        // Hide intended mitigation spans when toggle is off
+        tdDamage.querySelectorAll(".intended-mit").forEach((el) => el.remove());
+      }
     }
 
     sortedActors.forEach((actor, colIndex) => {

@@ -19,9 +19,12 @@ import { FilterState } from "./filterState.js";
 import { BuffAnalysis } from "../analysis/buffAnalysis.js";
 
 export class FightState {
-  constructor(fightTable) {
+  constructor(fightTable, condensedPull = null) {
     /** @type {Object} Parsed FightTable object for this fight */
     this.fightTable = fightTable;
+
+    /** @type {Object|null} Condensed pull table (grouped summary view) */
+    this.condensedPull = condensedPull;
 
     /** @type {BuffAnalysis} Buff/vulnerability resolution state */
     this.buffAnalysis = new BuffAnalysis();

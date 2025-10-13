@@ -24,6 +24,9 @@ export class FilterState {
     /** @type {boolean} Whether to combine DoTs into a single entry */
     this.showCombinedDots = false;
 
+    /** @type {boolean} Whether to show condensed (grouped) view by default */
+    this.showCondensedView = false;
+
     /** @type {Set<string>} Set of currently selected player names for filtering */
     this.selectedPlayers = new Set();
 

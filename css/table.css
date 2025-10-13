@@ -316,3 +316,36 @@
 .damage-col .intended-mit {
     display: inline !important;
 }
+
+/* Condensed Table Expansion */
+tr.condensed-row {
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+
+tr.condensed-row:hover {
+    background-color: #f8fafc;
+}
+
+tr.child-row .child-cell {
+    background-color: #f9fafb;
+    padding: 8px 16px;
+}
+
+table.mini-detailed-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 12px;
+}
+
+table.mini-detailed-table th,
+table.mini-detailed-table td {
+    border: 1px solid #e5e7eb;
+    padding: 4px 6px;
+    text-align: left;
+}
+
+table.mini-detailed-table th {
+    background-color: #f3f4f6;
+    font-weight: 600;
+}

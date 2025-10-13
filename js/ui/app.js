@@ -18,6 +18,7 @@ import {
   parseBuffEvents,
   buildFightTable,
 } from "../data/reportParser.js";
+import { generateCondensedPullTable } from "../analysis/pullAnalysis.js";
 import { renderReport } from "./reportRenderer.js";
 import { initializeAuth, ensureLogin } from "./authManager.js";
 import { FightState } from "./fightState.js";
@@ -212,10 +213,20 @@ document.addEventListener("DOMContentLoaded", async () => {
         );
         profiler.stop("Build FightTable", "Processing", `Pull ${pull.id}`);
 
-        // Store table back into fightState
+        // Log the final built FightTable for this pull
+        log.info(`Pull ${pull.id}: built FightTable`, fightTable);
+
+        // Build condensed pull analysis from the FightTable
+        const condensedPull = generateCondensedPullTable(fightTable);
+
+        // Attach data to existing fightState to preserve BuffAnalysis
         fightState.fightTable = fightTable;
+        fightState.condensedPull = condensedPull;
 
         fightTableCache.set(pull.id, fightState);
+
+        // Log the final condensed pull table for this fight
+        log.info(`Pull ${pull.id}: built condensed PullTable`, condensedPull);
 
         profiler.print();
 

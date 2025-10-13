@@ -6,6 +6,11 @@ import {
 import { formatRelativeTime } from "../utility/dataUtils.js";
 import { getRoleClass, sortActorsByJob } from "../config/AppConfig.js";
 import { FilterState } from "./filterState.js";
+import { renderDetailedTable } from "./reportRendererDetailed.js";
+import {
+  renderCondensedTable,
+  filterAndStyleCondensedTable,
+} from "./reportRendererCondensed.js";
 
 setModuleLogLevel("ReportRenderer", envLogLevel("info", "warn"));
 const log = getLogger("ReportRenderer");
@@ -107,270 +112,28 @@ export function renderReport(outputEl, report, loadFightTable) {
    * @param {FightState} fightState - Encapsulates fight data, filters, and analysis
    */
   async function renderFight(fightState) {
-    const fightTable = fightState.fightTable;
     const filterState = fightState.filters;
-    const buffAnalysis = fightState.buffAnalysis;
-
-    // log the fightTable object
-    log.debug("[RenderFight] fightTable object:", fightTable);
     fightContainer.innerHTML = "";
 
+    // 🧱 Build shared header (title + controls)
     const section = document.createElement("section");
-
-    // Container for title + controls stacked vertically
-    const headerContainer = document.createElement("div");
-    headerContainer.classList.add("fight-header");
-
-    // Fight title
-    const titleEl = document.createElement("h4");
-    titleEl.textContent = `${fightTable.name} (Pull: ${fightTable.fightId})`;
-
-    const controlPanel = renderControlPanel(filterState, [
-      {
-        labelOn: "Hide Auto-Attacks",
-        labelOff: "Show Auto-Attacks",
-        state: filterState.showAutoAttacks,
-        onToggle: (newState) => {
-          filterState.showAutoAttacks = newState;
-          filterAndStyleTable(fightState, report);
-        },
-      },
-      {
-        labelOn: "Hide Bleeds",
-        labelOff: "Show Bleeds",
-        state: filterState.showCombinedDots,
-        onToggle: (newState) => {
-          filterState.showCombinedDots = newState;
-          filterAndStyleTable(fightState, report);
-        },
-      },
-      {
-        labelOn: "Disable Target Player Highlight",
-        labelOff: "Enable Target Player Highlight",
-        state: filterState.enableColumnHighlight,
-        onToggle: (newState) => {
-          filterState.enableColumnHighlight = newState;
-        },
-      },
-      {
-        labelOn: "Show Buffs (Detailed)",
-        labelOff: "Show Abilities Only",
-        state: filterState.showAbilitiesOnly,
-        onToggle: (newState) => {
-          filterState.showAbilitiesOnly = newState;
-          filterAndStyleTable(fightState, report);
-        },
-      },
-      {
-        type: "reset-player",
-        label: "Reset Player Filter",
-        state: false,
-        onClick: () => {
-          filterState.resetPlayers();
-          filterAndStyleTable(fightState, report);
-          updateResetButtonState(filterState); // ensure button greys out again
-        },
-      },
-      {
-        labelOn: "Hide Botched Mitigations",
-        labelOff: "Show Botched Mitigations",
-        state: filterState.showBotchedMitigations,
-        onToggle: (newState) => {
-          filterState.showBotchedMitigations = newState;
-          filterAndStyleTable(fightState, report); // refresh the view
-        },
-      },
-    ]);
-
-    // Assemble stacked layout
-    headerContainer.appendChild(titleEl);
-    headerContainer.appendChild(controlPanel);
+    const headerContainer = renderFightHeader(fightState, report, renderFight);
     section.appendChild(headerContainer);
 
-    const timestamps = Object.keys(fightTable.rows)
-      .map((n) => parseInt(n, 10))
-      .sort((a, b) => a - b);
-
-    // 🔑 Resolve player metadata from IDs using global actorById
-    const allActors = fightTable.friendlyPlayerIds
-      .map((id) => report.actorById.get(id))
-      .filter(
-        (a) =>
-          a &&
-          a.type === "Player" &&
-          a.name !== "Multiple Players" &&
-          a.name !== "Limit Break"
+    // 🔀 Route between condensed and detailed views
+    if (filterState.showCondensedView) {
+      log.info(
+        `[Router] Rendering condensed view for Pull ${fightState.fightTable?.fightId}`
       );
-
-    // 🔑 Sort actors according to AppConfig (Tank → Healer → DPS order)
-    const sortedActors = sortActorsByJob(allActors);
-
-    log.debug(
-      `Rendering pull ${fightTable.fightId} with ${timestamps.length} rows and ${sortedActors.length} player columns`
-    );
-
-    if (timestamps.length > 0) {
-      const container = document.createElement("div");
-      container.classList.add("time-table-container");
-
-      const table = document.createElement("table");
-      table.classList.add("time-table");
-
-      // Save reference in FightState
-      fightState.tableEl = table;
-
-      const thead = document.createElement("thead");
-      const headerRow = document.createElement("tr");
-      // Base headers
-      headerRow.innerHTML = `
-<th>Timestamp</th>
-<th>Attack Name</th>
-<th class="damage-col">
-  <div class="damage-header-top">
-    <span>U:</span>
-    <span>Damage</span>
-    <span>M:</span>
-  </div>
-  <div class="damage-header-bottom">
-    <span>A:</span>
-    <span>(mit)</span>
-  </div>
-</th>
-   `;
-
-      // Player headers
-      sortedActors.forEach((actor) => {
-        const roleClass = getRoleClass(actor.subType);
-        const th = document.createElement("th");
-        th.className = roleClass;
-        th.textContent = actor.name;
-
-        // 🔹 Make header clickable
-        th.addEventListener("click", () => {
-          filterState.togglePlayer(actor.name);
-          filterAndStyleTable(fightState, report); // reapply filtering
-        });
-
-        headerRow.appendChild(th);
-      });
-      thead.appendChild(headerRow);
-      table.appendChild(thead);
-
-      const tbody = document.createElement("tbody");
-      timestamps.forEach((ms) => {
-        const row = document.createElement("tr");
-        const event = fightTable.rows[ms];
-
-        const tdTime = document.createElement("td");
-        tdTime.textContent = formatRelativeTime(ms, 0);
-        row.appendChild(tdTime);
-
-        const tdAbility = document.createElement("td");
-        tdAbility.textContent = event.ability || "";
-        row.appendChild(tdAbility);
-
-        // Damage Info cell (arrow style, uses precomputed fields)
-        const tdDamage = document.createElement("td");
-        tdDamage.classList.add("damage-col");
-        if (
-          event.amount != null &&
-          event.unmitigatedAmount != null &&
-          event.mitigationPct != null
-        ) {
-          const unmitigated =
-            event.unmitigatedAmount === 0 ? "?" : event.unmitigatedAmount;
-
-          // 💡 Include intendedMitPct if "botched mitigations" toggle is ON
-          let mitDisplay = `${event.mitigationPct}%`;
-
-          if (
-            filterState.showBotchedMitigations &&
-            typeof event.intendedMitPct === "number" &&
-            event.intendedMitPct > event.mitigationPct
-          ) {
-            mitDisplay += ` <span class="intended-mit">${event.intendedMitPct}%</span>`;
-          }
-
-          tdDamage.innerHTML = `
-    &nbsp;${unmitigated}&nbsp;→&nbsp;${event.amount}&nbsp;<br>
-    <span>&nbsp;A: ${event.absorbed || 0} | (${mitDisplay})&nbsp;</span>
-  `;
-        } else {
-          tdDamage.textContent = "-";
-        }
-        row.appendChild(tdDamage);
-
-        // Buff columns per player
-        sortedActors.forEach((actor) => {
-          const td = document.createElement("td");
-          td.classList.add(getRoleClass(actor.subType));
-
-          // Check if player is dead at this timestamp
-          if (event.deaths && event.deaths.includes(actor.name)) {
-            td.style.color = "#6b7280"; // grey text
-            td.style.backgroundColor = "#f3f4f6"; // light grey background
-            row.appendChild(td);
-            return; // skip buff rendering
-          }
-
-          // Look up buffs applied to this actor at this timestamp
-          const rawBuffs = [];
-          for (const [buffName, appliers] of Object.entries(event.buffs)) {
-            if (appliers.includes(actor.name)) {
-              rawBuffs.push(buffName);
-            }
-          }
-
-          // Apply toggle: show raw buffs or collapse into abilities
-          let displayBuffs = rawBuffs;
-          if (filterState.showAbilitiesOnly) {
-            displayBuffs = buffAnalysis.resolveBuffsToAbilities(rawBuffs);
-          }
-
-          // Wrap in span with coloring, then stack vertically
-          const styledBuffs = displayBuffs.map((buff) => {
-            const matched = buffAnalysis.isJobAbility(buff, actor.subType);
-            return `<div><span style="color:${
-              matched ? "#000" : "#b45309"
-            }">${buff}</span></div>`;
-          });
-
-          // Insert into cell
-          td.innerHTML = styledBuffs.length > 0 ? styledBuffs.join("") : "";
-
-          // Highlight target cell (compare event.actor to this actor’s name)
-          const targets = getRowTargets(event);
-          if (targets.includes(actor.name)) {
-            td.classList.add("target-cell");
-            log.debug(
-              `[RenderFight] Marked target column for actor="${actor.name}" at ts=${ms}`
-            );
-          }
-
-          row.appendChild(td);
-        });
-
-        tbody.appendChild(row);
-        enableHeaderHighlight(table, row, filterState);
-      });
-      table.appendChild(tbody);
-
-      const wrapper = document.createElement("div");
-      wrapper.classList.add("time-table-wrapper");
-      wrapper.appendChild(table);
-      container.appendChild(wrapper);
-      section.appendChild(container);
-
-      // Activate frozen header
-      makeFrozenHeader(table, section);
+      renderCondensedTable(fightState, report, section);
+    } else {
+      log.info(
+        `[Router] Rendering detailed view for Pull ${fightState.fightTable?.fightId}`
+      );
+      renderDetailedTable(fightState, report, section);
     }
 
     fightContainer.appendChild(section);
-
-    // 🔁 Schedule re-render once buff lookups are finished
-    buffAnalysis.waitForBuffLookups(() =>
-      filterAndStyleTable(fightState, report)
-    );
   }
 
   function renderPullGrid(encounterId) {
@@ -443,7 +206,7 @@ export function renderReport(outputEl, report, loadFightTable) {
  *
  * @param {HTMLTableElement} table - The fight table to freeze header for
  */
-function makeFrozenHeader(table) {
+export function makeFrozenHeader(table) {
   const thead = table.querySelector("thead");
   if (!thead) return;
 
@@ -574,7 +337,7 @@ function makeFrozenHeader(table) {
  * @param {HTMLTableElement} table - The fight table
  * @param {HTMLTableRowElement} row - The row element to attach listeners to
  */
-function enableHeaderHighlight(table, row, filterState) {
+export function enableHeaderHighlight(table, row, filterState) {
   row.addEventListener("mouseenter", () => {
     if (!filterState.enableColumnHighlight) return;
 
@@ -660,7 +423,7 @@ function enableHeaderHighlight(table, row, filterState) {
  * @param {Array} options - List of control definitions
  * @returns {HTMLElement} controlPanel - The constructed control panel div
  */
-function renderControlPanel(filterState, options) {
+export function renderControlPanel(filterState, options) {
   const controlPanel = document.createElement("div");
   controlPanel.classList.add("control-panel");
 
@@ -739,7 +502,7 @@ function renderControlPanel(filterState, options) {
  * @param {FightState} fightState - Per-fight state container (table, filters, buffAnalysis)
  * @param {Object} report - Report reference (for actor lookups)
  */
-function filterAndStyleTable(fightState, report) {
+export function filterAndStyleTable(fightState, report) {
   const {
     fightTable,
     buffAnalysis,
@@ -924,7 +687,7 @@ function filterAndStyleTable(fightState, report) {
  * @param {Object} event - A fightTable row event
  * @returns {string[]} Array of targeted player names
  */
-function getRowTargets(event) {
+export function getRowTargets(event) {
   if (event.actor) {
     return [event.actor];
   }
@@ -936,7 +699,7 @@ function getRowTargets(event) {
  *
  * @param {FilterState} filterState - current fight’s filter state
  */
-function updateResetButtonState(filterState) {
+export function updateResetButtonState(filterState) {
   if (!filterState.resetPlayerBtn) return; // nothing to update yet
   if (filterState.hasSelections()) {
     filterState.resetPlayerBtn.classList.remove("disable");
@@ -944,5 +707,221 @@ function updateResetButtonState(filterState) {
   } else {
     filterState.resetPlayerBtn.classList.remove("enable");
     filterState.resetPlayerBtn.classList.add("disable");
+  }
+}
+
+/**
+ * Build and return the shared fight header section.
+ *
+ * Purpose:
+ *   The fight header includes:
+ *     - Fight title (boss name + pull number)
+ *     - A vertically stacked control panel of toggle buttons
+ *       for filtering, highlighting, and table view options.
+ *
+ * Responsibilities:
+ *   • Render a consistent control panel across both detailed and condensed views.
+ *   • Bind button callbacks to the correct filtering behavior.
+ *   • Route filtering through `filterAndStyleCurrentView()`
+ *     so the correct handler is invoked for the active view mode.
+ *   • Call `reRenderCallback(fightState)` only for view structure changes
+ *     (e.g., toggling condensed ↔ detailed).
+ *
+ * Behavior:
+ *   Each control button corresponds to a filter or UI toggle:
+ *     - Show/Hide Auto-Attacks
+ *     - Show/Hide Bleeds / DoTs
+ *     - Enable/Disable Target Player Highlight
+ *     - Show Buffs (Detailed) vs Show Abilities Only
+ *     - Reset Player Filter
+ *     - Show/Hide Botched Mitigations
+ *     - Toggle Condensed / Detailed Table View
+ *
+ * Interaction Policy:
+ *   - Structural toggles (like "Show Condensed Table") → trigger full re-render.
+ *   - Style-only toggles (like "Hide Auto-Attacks") → apply immediately to the existing DOM.
+ *   - Player header clicks use `filterAndStyleCurrentView()` directly.
+ *
+ * Safety:
+ *   ✅ Safe to call before table exists — only sets up callbacks.
+ *   ✅ Callbacks check `fightState.tableEl` at runtime.
+ *   ✅ No redundant re-renders except for view mode changes.
+ *
+ * @param {FightState} fightState - The state container for this fight
+ * @param {Object} report - The parsed report data
+ * @param {Function} reRenderCallback - Function to fully rebuild view (renderFight)
+ * @returns {HTMLElement} headerContainer - Fully assembled header DOM element
+ */
+function renderFightHeader(fightState, report, reRenderCallback) {
+  const filterState = fightState.filters;
+
+  // --- Header container wrapper ---
+  const headerContainer = document.createElement("div");
+  headerContainer.classList.add("fight-header");
+
+  // --- Title element (boss + pull number) ---
+  const titleEl = document.createElement("h4");
+  titleEl.textContent = `${fightState.fightTable.name} (Pull: ${fightState.fightTable.fightId})`;
+
+  // --- Build Control Panel Definition ---
+  const controlPanel = renderControlPanel(filterState, [
+    {
+      labelOn: "Hide Auto-Attacks",
+      labelOff: "Show Auto-Attacks",
+      state: filterState.showAutoAttacks,
+      onToggle: (newState) => {
+        filterState.showAutoAttacks = newState;
+        // 🔁 Reapply filters on current view only
+        filterAndStyleCurrentView(fightState, report);
+      },
+    },
+    {
+      labelOn: "Hide Bleeds",
+      labelOff: "Show Bleeds",
+      state: filterState.showCombinedDots,
+      onToggle: (newState) => {
+        filterState.showCombinedDots = newState;
+        filterAndStyleCurrentView(fightState, report);
+      },
+    },
+    {
+      labelOn: "Disable Target Player Highlight",
+      labelOff: "Enable Target Player Highlight",
+      state: filterState.enableColumnHighlight,
+      onToggle: (newState) => {
+        filterState.enableColumnHighlight = newState;
+        // ⚙️ No filter pass needed — highlight only affects hover interaction
+      },
+    },
+    {
+      labelOn: "Show Buffs (Detailed)",
+      labelOff: "Show Abilities Only",
+      state: filterState.showAbilitiesOnly,
+      onToggle: (newState) => {
+        filterState.showAbilitiesOnly = newState;
+        filterAndStyleCurrentView(fightState, report);
+      },
+    },
+    {
+      type: "reset-player",
+      label: "Reset Player Filter",
+      state: false,
+      onClick: () => {
+        // 🧹 Clear selected players and refresh current view
+        filterState.resetPlayers();
+        filterAndStyleCurrentView(fightState, report);
+        updateResetButtonState(filterState);
+      },
+    },
+    {
+      labelOn: "Hide Botched Mitigations",
+      labelOff: "Show Botched Mitigations",
+      state: filterState.showBotchedMitigations,
+      onToggle: (newState) => {
+        filterState.showBotchedMitigations = newState;
+        filterAndStyleCurrentView(fightState, report);
+      },
+    },
+    {
+      labelOn: "Show Detailed Table", // when condensed view is active
+      labelOff: "Show Condensed Table", // when detailed view is active
+      state: filterState.showCondensedView,
+      onToggle: (newState) => {
+        filterState.showCondensedView = newState;
+        log.info(`[ControlPanel] Condensed view → ${newState ? "ON" : "OFF"}`);
+
+        // 🔁 Full re-render required for structural switch
+        reRenderCallback(fightState);
+      },
+    },
+  ]);
+
+  // --- Assemble Header ---
+  headerContainer.appendChild(titleEl);
+  headerContainer.appendChild(controlPanel);
+
+  return headerContainer;
+}
+
+/**
+ * filterAndStyleCurrentView()
+ * --------------------------------------------------------------
+ * 🔧 Purpose:
+ *   Provides a **centralized routing layer** for applying filters and style updates
+ *   to whichever table view (Detailed or Condensed) is currently active.
+ *
+ * 🧠 Why this function exists:
+ *   Both `filterAndStyleTable()` (detailed) and `filterAndStyleCondensedTable()` (condensed)
+ *   share identical triggers:
+ *     • Control panel toggles (Auto-Attacks, Bleeds, Buffs, Botched Mitigation, etc.)
+ *     • Player header clicks
+ *     • Reset Player Filter
+ *     • Async buff name resolution callbacks
+ *
+ *   Instead of having each button or event handler check the view mode manually,
+ *   they call this one unified function. It delegates filtering to the correct
+ *   handler based on `filterState.showCondensedView`.
+ *
+ * 🚀 Workflow:
+ *   1️⃣ Check that a table is actually rendered (`fightState.tableEl`).
+ *       - If not (e.g. control panel loaded before table build), safely no-op.
+ *   2️⃣ Inspect the current view mode:
+ *       - If `showCondensedView` → route to `filterAndStyleCondensedTable()`
+ *       - Else → route to `filterAndStyleTable()`
+ *   3️⃣ Log diagnostic info (which handler executed, number of rows affected, etc.).
+ *
+ * ⚙️ Integration Points:
+ *   - Called by:
+ *       → Control panel toggle buttons (renderFightHeader)
+ *       → Player header clicks (both Detailed & Condensed)
+ *       → Async buff repaint callbacks
+ *   - Called automatically after table build by `renderDetailedTable()` and `renderCondensedTable()`
+ *
+ * 🧩 Safety & Guarantees:
+ *   ✅ Idempotent — can be safely re-run any time
+ *   ✅ No DOM rebuild — delegates to existing table structure
+ *   ✅ Handles early calls gracefully (no table yet)
+ *   ✅ Unified logging and error handling
+ *
+ * ⚠️ Implementation Notes:
+ *   - This replaces the earlier `window.filterAndStyleCondensedTable` placeholder.
+ *   - `filterAndStyleCondensedTable` must be imported at the top of this file:
+ *
+ *       import {
+ *         renderCondensedTable,
+ *         filterAndStyleCondensedTable,
+ *       } from "./reportRendererCondensed.js";
+ *
+ * @param {FightState} fightState - Per-fight state container (table, filters, buffAnalysis)
+ * @param {Object} report - Parsed report object (actors, fights, metadata)
+ */
+export function filterAndStyleCurrentView(fightState, report) {
+  const filterState = fightState.filters;
+  const table = fightState.tableEl;
+
+  // 🧱 Guard: Table may not yet exist (e.g. header renders before table)
+  if (!table) {
+    console.debug(
+      "[filterAndStyleCurrentView] No tableEl found — skipping filter update."
+    );
+    return;
+  }
+
+  try {
+    if (filterState.showCondensedView) {
+      // 🧩 Condensed (Grouped) View Path
+      filterAndStyleCondensedTable(fightState, report);
+      log.debug(
+        `[filterAndStyleCurrentView] Condensed filter pass applied (auto=${filterState.showAutoAttacks}, bleeds=${filterState.showCombinedDots}, botched=${filterState.showBotchedMitigations})`
+      );
+    } else {
+      // 🧩 Detailed View Path
+      filterAndStyleTable(fightState, report);
+      log.debug(
+        `[filterAndStyleCurrentView] Detailed filter pass applied (auto=${filterState.showAutoAttacks}, bleeds=${filterState.showCombinedDots}, botched=${filterState.showBotchedMitigations})`
+      );
+    }
+  } catch (err) {
+    console.error("[filterAndStyleCurrentView] Filter routing failed:", err);
   }
 }

@@ -94,6 +94,7 @@ export function parseBuffEvents(events, fight, actorById, abilityById) {
 
   return parsed;
 }
+
 /**
  * Parse raw damage-taken events into normalized objects for the FightTable.
  *
@@ -584,12 +585,6 @@ export function buildFightTable(
 
   // ✅ Final pass: replace null/unknown appliers with all players in this fight
   buffAnalysis.resolveMissingBuffSources(table, actorById, fight);
-
-  log.info(
-    `Fight ${fight.id}: FightTable built with ${
-      Object.keys(table.rows).length
-    } rows and ${table.friendlyPlayerIds.length} players`
-  );
 
   return table;
 }

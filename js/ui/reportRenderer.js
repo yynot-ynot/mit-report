@@ -3,19 +3,15 @@ import {
   setModuleLogLevel,
   envLogLevel,
 } from "../utility/logger.js";
-import { formatRelativeTime } from "../utility/dataUtils.js";
-import { getRoleClass, sortActorsByJob } from "../config/AppConfig.js";
 import { FilterState } from "./filterState.js";
-import { renderDetailedTable } from "./reportRendererDetailed.js";
+import {
+  renderDetailedTable,
+  filterAndStyleDetailedTable,
+} from "./reportRendererDetailed.js";
 import {
   renderCondensedTable,
   filterAndStyleCondensedTable,
 } from "./reportRendererCondensed.js";
-import {
-  repaintDamageCell,
-  shouldHideEvent,
-  shouldShowRowForPlayerSelection,
-} from "./reportRendererUtils.js";
 
 setModuleLogLevel("ReportRenderer", envLogLevel("info", "warn"));
 const log = getLogger("ReportRenderer");
@@ -470,178 +466,6 @@ export function renderControlPanel(filterState, options) {
 }
 
 /**
- * Incrementally refresh buff cells and row visibility.
- *
- * Purpose:
- *   - Avoids full table rebuild when toggles or async lookups change.
- *   - Keeps DOM stable (no flicker, no row reallocation).
- *
- * Behavior:
- *   - Iterates over fight rows and applies filters:
- *       • Hides Auto-Attacks if filterState.showAutoAttacks = false
- *       • Hides Bleeds if filterState.showCombinedDots = false
- *       • Hides rows with non-matching player targets if selections exist
- *   - Updates buff cells per player:
- *       • Raw buffs or collapsed into abilities (based on filterState.showAbilitiesOnly)
- *       • Styles vulnerabilities in red, known job abilities in black, unknowns in green
- *       • ⚠️ Buff cells are fully repainted each call (innerHTML replaced).
- *         → Current contents: <div><span style="color:...">BuffName</span></div>
- *         → Any custom DOM (icons, tooltips, event listeners) must be
- *           injected inside this function, or else it will be wiped.
- *   - Updates header greying to match selected players.
- *   - Updates Reset Player Filter button state.
- *   - Logs row visibility statistics (total, visible, hidden).
- *
- * ✅ Safe operations (allowed here):
- *   - Show/hide rows using CSS (`row.style.display`).
- *   - Update buff cells’ innerHTML and styling (paint-only ownership).
- *   - Toggle header cell classes for selection state.
- *   - Update external UI controls (reset button).
- *
- * 🚫 Constraints (must avoid here):
- *   - Do NOT add/remove <tr> rows or <td>/<th> cells.
- *   - Do NOT modify Timestamp, Attack Name, or Damage cells.
- *   - Do NOT mutate fightTable.rows (source of truth).
- *   - Do NOT introduce side effects outside rendering (idempotency required).
- *
- * @param {FightState} fightState - Per-fight state container (table, filters, buffAnalysis)
- * @param {Object} report - Report reference (for actor lookups)
- */
-export function filterAndStyleTable(fightState, report) {
-  const {
-    fightTable,
-    buffAnalysis,
-    filters: filterState,
-    tableEl,
-  } = fightState;
-  const table = tableEl;
-  if (!table) return;
-
-  const tbody = table.querySelector("tbody");
-  if (!tbody) return;
-
-  // Restore all rows before applying filters
-  Array.from(tbody.rows).forEach((row) => {
-    row.style.display = ""; // reset visibility
-  });
-
-  const timestamps = Object.keys(fightTable.rows)
-    .map((n) => parseInt(n, 10))
-    .sort((a, b) => a - b);
-
-  // Sorted player columns (same as in renderFight)
-  const allActors = fightTable.friendlyPlayerIds
-    .map((id) => report.actorById.get(id))
-    .filter(
-      (a) =>
-        a &&
-        a.type === "Player" &&
-        a.name !== "Multiple Players" &&
-        a.name !== "Limit Break"
-    );
-  const sortedActors = sortActorsByJob(allActors);
-
-  timestamps.forEach((ms, rowIndex) => {
-    const event = fightTable.rows[ms];
-    const row = tbody.rows[rowIndex];
-    if (!row) return;
-
-    // 🚫 Hide Auto-Attacks / DoTs
-    if (shouldHideEvent(event.ability, filterState)) {
-      row.style.display = "none";
-      return;
-    } else {
-      row.style.display = "";
-    }
-
-    // 🚫 Hide rows if they don’t match selected players
-    if (!shouldShowRowForPlayerSelection(event, filterState)) {
-      row.style.display = "none";
-      return;
-    } else {
-      row.style.display = "";
-    }
-
-    // Update mitigation visibility dynamically
-    const tdDamage = row.cells[2];
-    if (tdDamage && event.mitigationPct != null) {
-      repaintDamageCell(tdDamage, event, filterState);
-    }
-
-    sortedActors.forEach((actor, colIndex) => {
-      // Columns offset by 3 (Timestamp, Ability, Damage)
-      const td = row.cells[colIndex + 3];
-      if (!td) return;
-
-      // Buffs applied to this actor at this timestamp
-      const rawBuffs = [];
-      for (const [buffName, appliers] of Object.entries(event.buffs)) {
-        if (appliers.includes(actor.name)) {
-          rawBuffs.push(buffName);
-        }
-      }
-
-      let displayBuffs = rawBuffs;
-      if (filterState.showAbilitiesOnly) {
-        displayBuffs = buffAnalysis.resolveBuffsToAbilities(rawBuffs);
-      }
-
-      const styledBuffs = displayBuffs.map((buff) => {
-        const matched = buffAnalysis.isJobAbility(buff, actor.subType);
-        const isVuln = buffAnalysis.isVulnerability(buff);
-
-        let color = "#000"; // default (black)
-        if (isVuln) {
-          color = "#b91c1c"; // 🔴 redish, readable
-        } else if (!matched) {
-          color = "#228B22"; // 🟢 fallback for unknown buffs
-        }
-
-        return `<div><span style="color:${color}">${buff}</span></div>`;
-      });
-
-      td.innerHTML = styledBuffs.length > 0 ? styledBuffs.join("") : "";
-    });
-  });
-
-  // 🔹 After processing all rows, log visibility stats
-  const allRows = Array.from(tbody.rows);
-  const visibleRows = allRows.filter((r) => r.style.display !== "none");
-  const hiddenRows = allRows.filter((r) => r.style.display === "none");
-
-  log.debug(
-    `[filterAndStyleTable] Total rows=${allRows.length}, visible=${
-      visibleRows.length
-    }, hidden=${hiddenRows.length}, selectedPlayers=[${Array.from(
-      filterState.selectedPlayers
-    ).join(", ")}]`
-  );
-
-  // 🔹 Update header styling to reflect selected players
-  const liveHeaders = table.querySelectorAll("thead th");
-  const frozen = table.parentNode.parentNode.querySelector(".frozen-header");
-  const frozenHeaders = frozen ? frozen.querySelectorAll("th") : [];
-
-  sortedActors.forEach((actor, idx) => {
-    const headerCell = liveHeaders[idx + 3]; // offset: timestamp, ability, damage
-    const frozenCell = frozenHeaders[idx + 3];
-
-    if (
-      filterState.selectedPlayers.size > 0 &&
-      !filterState.selectedPlayers.has(actor.name)
-    ) {
-      headerCell?.classList.add("player-deselected");
-      frozenCell?.classList.add("player-deselected");
-    } else {
-      headerCell?.classList.remove("player-deselected");
-      frozenCell?.classList.remove("player-deselected");
-    }
-  });
-
-  updateResetButtonState(filterState);
-}
-
-/**
  * Determine which player(s) are the target of a given event row.
  *
  * Current behavior:
@@ -882,7 +706,7 @@ export function filterAndStyleCurrentView(fightState, report) {
       );
     } else {
       // 🧩 Detailed View Path
-      filterAndStyleTable(fightState, report);
+      filterAndStyleDetailedTable(fightState, report);
       log.debug(
         `[filterAndStyleCurrentView] Detailed filter pass applied (auto=${filterState.showAutoAttacks}, bleeds=${filterState.showCombinedDots}, botched=${filterState.showBotchedMitigations})`
       );

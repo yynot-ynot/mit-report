@@ -18,6 +18,13 @@ import {
   setModuleLogLevel,
   envLogLevel,
 } from "../utility/logger.js";
+import {
+  createDamageCell,
+  repaintDamageCell,
+  shouldHideEvent,
+  renderBuffCell,
+  shouldShowRowForPlayerSelection,
+} from "./reportRendererUtils.js";
 
 setModuleLogLevel("ReportRendererCondensed", envLogLevel("debug", "warn"));
 const log = getLogger("ReportRendererCondensed");
@@ -161,17 +168,17 @@ export function renderCondensedTable(fightState, report, section) {
       const pData = set.players[actor.name];
       if (pData) {
         const buffs = pData.buffs || [];
-        td.innerHTML =
-          buffs.length > 0
-            ? buffs
-                .map(
-                  (buff) =>
-                    `<div><span style="color:${
-                      pData.wasTargeted ? "#000" : "#b45309"
-                    }">${buff}</span></div>`
-                )
-                .join("")
-            : "";
+
+        // 🧩 Store raw buffs for repainting later
+        td.dataset.rawBuffs = JSON.stringify(buffs);
+
+        // Initial paint
+        td.innerHTML = renderBuffCell({
+          buffs,
+          actorSubType: actor.subType,
+          buffAnalysis: fightState.buffAnalysis,
+          filterState,
+        });
 
         // Greyed-out if dead
         if (pData.dead) {
@@ -226,6 +233,14 @@ export function renderCondensedTable(fightState, report, section) {
         !!(child.actor && set.players?.[child.actor]?.wasTargeted)
       );
 
+      // --- Store mitigation data for repainting botched mitigations ---
+      if (typeof child.intendedMitPct === "number") {
+        miniRow.dataset.intendedMit = child.intendedMitPct;
+      }
+      if (typeof child.mitigationPct === "number") {
+        miniRow.dataset.mitigationPct = child.mitigationPct;
+      }
+
       // Timestamp cell
       const tdCTime = document.createElement("td");
       tdCTime.textContent = formatRelativeTime(child.timestamp, 0);
@@ -237,16 +252,7 @@ export function renderCondensedTable(fightState, report, section) {
       miniRow.appendChild(tdCAbility);
 
       // Damage cell
-      const tdCDamage = document.createElement("td");
-      if (
-        child.amount != null &&
-        child.unmitigatedAmount != null &&
-        child.mitigationPct != null
-      ) {
-        tdCDamage.innerHTML = `${child.unmitigatedAmount} → ${child.amount} (${child.mitigationPct}%)`;
-      } else {
-        tdCDamage.textContent = "-";
-      }
+      const tdCDamage = createDamageCell(child, fightState.filters);
       miniRow.appendChild(tdCDamage);
 
       // Per-player buff cells
@@ -269,10 +275,16 @@ export function renderCondensedTable(fightState, report, section) {
             if (appliers.includes(actor.name)) buffs.push(buffName);
           }
         }
-        td.innerHTML =
-          buffs.length > 0
-            ? buffs.map((b) => `<div><span>${b}</span></div>`).join("")
-            : "";
+        // 🧩 Store raw buffs for future repaint
+        td.dataset.rawBuffs = JSON.stringify(buffs);
+
+        // Initial paint using shared helper
+        td.innerHTML = renderBuffCell({
+          buffs,
+          actorSubType: actor.subType,
+          buffAnalysis: fightState.buffAnalysis,
+          filterState,
+        });
 
         // Mark if this actor is the target
         if (child.actor === actor.name) td.classList.add("target-cell");
@@ -415,11 +427,7 @@ export function filterAndStyleCondensedTable(fightState, report) {
     const isBleed = ability.includes("dot") || ability.includes("bleed");
 
     // --- (1️⃣) Auto-Attack / Bleed filter ---
-    if (
-      (!filterState.showAutoAttacks && isAutoAttack) ||
-      (!filterState.showCombinedDots && isBleed)
-    ) {
-      // Collapse this parent and its mini-table
+    if (shouldHideEvent(set.ability, filterState)) {
       row.classList.remove("expanded");
       row.style.display = "none";
       const childRow = row.nextElementSibling;
@@ -431,23 +439,14 @@ export function filterAndStyleCondensedTable(fightState, report) {
     }
 
     // --- (2️⃣) Player selection filter ---
-    if (filterState.selectedPlayers.size > 0) {
-      const players = set.players || {};
-      const intersects = Object.entries(players).some(
-        ([playerName, pdata]) =>
-          filterState.selectedPlayers.has(playerName) &&
-          pdata.wasTargeted === true
-      );
-
-      if (!intersects) {
-        row.classList.remove("expanded"); // ensure it won’t re-expand automatically
-        row.style.display = "none";
-        const childRow = row.nextElementSibling;
-        if (childRow?.classList.contains("child-row"))
-          childRow.style.display = "none";
-        hiddenCount++;
-        return;
-      }
+    if (!shouldShowRowForPlayerSelection(set, filterState)) {
+      row.classList.remove("expanded");
+      row.style.display = "none";
+      const childRow = row.nextElementSibling;
+      if (childRow?.classList.contains("child-row"))
+        childRow.style.display = "none";
+      hiddenCount++;
+      return;
     }
 
     // ✅ Visible parent
@@ -456,22 +455,24 @@ export function filterAndStyleCondensedTable(fightState, report) {
 
     // --- (3️⃣) Repaint Buff Cells (Abilities vs Buffs) ---
     const playerCells = Array.from(row.querySelectorAll("td")).slice(2);
-    playerCells.forEach((td) => {
-      const spans = td.querySelectorAll("span");
-      if (spans.length === 0) return;
+    playerCells.forEach((td, idx) => {
+      const actor = sortedActors[idx];
+      if (!actor) return;
 
-      const buffs = Array.from(spans).map((s) => s.textContent);
-      const displayBuffs = filterState.showAbilitiesOnly
-        ? fightState.buffAnalysis.resolveBuffsToAbilities(buffs)
-        : buffs;
+      // Retrieve raw buff list from dataset for correct toggle repaint
+      let rawBuffs = [];
+      try {
+        rawBuffs = JSON.parse(td.dataset.rawBuffs || "[]");
+      } catch {
+        rawBuffs = [];
+      }
 
-      const styled = displayBuffs.map((buff) => {
-        const isVuln = fightState.buffAnalysis.isVulnerability(buff);
-        const color = isVuln ? "#b91c1c" : "#000";
-        return `<div><span style="color:${color}">${buff}</span></div>`;
+      td.innerHTML = renderBuffCell({
+        buffs: rawBuffs,
+        actorSubType: actor.subType,
+        buffAnalysis: fightState.buffAnalysis,
+        filterState,
       });
-
-      td.innerHTML = styled.join("");
     });
 
     // --- (4️⃣) Child mini-table update (if expanded) ---
@@ -633,10 +634,8 @@ export function updateMiniChildTable(
     const isBleed = ability.includes("dot") || ability.includes("bleed");
 
     // 🚫 Hide filtered-out abilities
-    if (
-      (!filterState.showAutoAttacks && isAutoAttack) ||
-      (!filterState.showCombinedDots && isBleed)
-    ) {
+    const abilityName = abilityCell.textContent || "";
+    if (shouldHideEvent(abilityName, filterState)) {
       row.style.display = "none";
       return;
     }
@@ -645,31 +644,8 @@ export function updateMiniChildTable(
     row.style.display = "";
 
     // --- 1️⃣ Show Botched Mitigations (intendedMitPct > mitigationPct)
-    if (damageCell && damageCell.innerHTML.includes("→")) {
-      const intendedMit = row.dataset.intendedMit
-        ? parseInt(row.dataset.intendedMit)
-        : null;
-      const match = damageCell.textContent.match(/\((\d+)%\)/);
-      const actualMit = match ? parseInt(match[1]) : null;
-
-      if (filterState.showBotchedMitigations) {
-        if (
-          intendedMit &&
-          actualMit &&
-          intendedMit > actualMit &&
-          !damageCell.querySelector(".intended-mit")
-        ) {
-          damageCell.innerHTML = damageCell.innerHTML.replace(
-            /\)$/,
-            `, <span class="intended-mit">${intendedMit}%</span>)`
-          );
-        }
-      } else {
-        // Remove intended mitigation annotations
-        damageCell
-          .querySelectorAll(".intended-mit")
-          .forEach((el) => el.remove());
-      }
+    if (damageCell && row.__childEvent__) {
+      repaintDamageCell(damageCell, row.__childEvent__, filterState);
     }
 
     // --- 2️⃣ Buff repaint per player column
@@ -677,44 +653,26 @@ export function updateMiniChildTable(
       const td = row.cells[idx + 3];
       if (!td) return;
 
-      const buffs = Array.from(td.querySelectorAll("span")).map(
-        (s) => s.textContent
-      );
+      // Retrieve raw buff data from dataset for consistent toggle repaint
+      let rawBuffs = [];
+      try {
+        rawBuffs = JSON.parse(td.dataset.rawBuffs || "[]");
+      } catch {
+        rawBuffs = [];
+      }
 
-      const displayBuffs = filterState.showAbilitiesOnly
-        ? buffAnalysis.resolveBuffsToAbilities(buffs)
-        : buffs;
-
-      td.innerHTML = displayBuffs
-        .map((buff) => {
-          const isVuln = buffAnalysis.isVulnerability(buff);
-          const isJobBuff = buffAnalysis.isJobAbility(buff, actor.subType);
-          const color = isVuln ? "#b91c1c" : isJobBuff ? "#000" : "#228B22";
-          return `<div><span style="color:${color}">${buff}</span></div>`;
-        })
-        .join("");
+      td.innerHTML = renderBuffCell({
+        buffs: rawBuffs,
+        actorSubType: actor.subType,
+        buffAnalysis,
+        filterState,
+      });
     });
 
     // --- 3️⃣ Player selection filtering (row-based via dataset.actor) ---
-    if (filterState.selectedPlayers.size > 0) {
-      const selectedPlayers = [...filterState.selectedPlayers];
-      const rowActor = row.dataset.actor || "";
-      const wasTargeted = row.dataset.wasTargeted === "true";
-
-      // Only show this row if it matches a selected player AND that player was targeted
-      const visible =
-        rowActor && wasTargeted && selectedPlayers.includes(rowActor);
-
-      row.style.display = visible ? "" : "none";
-
-      // 🧾 Log precise filtering decision
-      log.debug(
-        `[MiniFilter] ${visible ? "✅ KEEP" : "❌ HIDE"} ` +
-          `rowActor="${rowActor}" (wasTargeted=${wasTargeted}) ` +
-          `| ability="${condensedSet.ability}" ` +
-          `| childAbility="${abilityCell.textContent}" ` +
-          `| selected=[${selectedPlayers.join(", ")}]`
-      );
+    if (!shouldShowRowForPlayerSelection(row, filterState)) {
+      row.style.display = "none";
+      return;
     }
   });
 
@@ -725,153 +683,4 @@ export function updateMiniChildTable(
   log.debug(
     `[MiniFilter] "${condensedSet.ability}" visibleRows=${visibleRows}/${rows.length}`
   );
-}
-
-/**
- * buildMiniTable()
- * --------------------------------------------------------------
- * Rebuilds a fresh mini detailed table from a condensed set,
- * applying current filters (auto-attacks, DoTs, player selection, etc.)
- * as if the user had just expanded it.
- *
- * @param {Object} setData - The parent condensedSet data
- * @param {FightState} fightState - current fight context
- * @param {Object} report - report reference
- * @returns {HTMLTableElement} miniTable
- */
-function buildMiniTable(setData, fightState, report) {
-  const { filters: filterState, buffAnalysis } = fightState;
-  const sortedActors = sortActorsByJob(
-    fightState.fightTable.friendlyPlayerIds
-      .map((id) => report.actorById.get(id))
-      .filter(
-        (a) =>
-          a &&
-          a.type === "Player" &&
-          a.name !== "Multiple Players" &&
-          a.name !== "Limit Break"
-      )
-  );
-
-  const miniTable = document.createElement("table");
-  miniTable.classList.add("mini-detailed-table");
-
-  // --- Header ---
-  const miniThead = document.createElement("thead");
-  const miniHeader = document.createElement("tr");
-  miniHeader.innerHTML = `
-    <th>Timestamp</th>
-    <th>Attack Name</th>
-    <th class="damage-col">Damage</th>
-  `;
-  sortedActors.forEach((actor) => {
-    const th = document.createElement("th");
-    th.classList.add(getRoleClass(actor.subType));
-    th.textContent = actor.name;
-    miniHeader.appendChild(th);
-  });
-  miniThead.appendChild(miniHeader);
-  miniTable.appendChild(miniThead);
-
-  // --- Body ---
-  const miniTbody = document.createElement("tbody");
-
-  for (const child of setData.children) {
-    const ability = child.ability?.toLowerCase() ?? "";
-    const isAutoAttack = ["attack", "攻撃"].includes(ability);
-    const isBleed = ability.includes("dot") || ability.includes("bleed");
-
-    // Skip filtered abilities
-    if (
-      (!filterState.showAutoAttacks && isAutoAttack) ||
-      (!filterState.showCombinedDots && isBleed)
-    ) {
-      continue;
-    }
-
-    // Player selection: skip if no selected players are involved
-    if (filterState.selectedPlayers.size > 0) {
-      const involvedPlayers = new Set();
-      if (child.actor) involvedPlayers.add(child.actor);
-      if (child.buffs) {
-        for (const [, appliers] of Object.entries(child.buffs)) {
-          appliers.forEach((a) => involvedPlayers.add(a));
-        }
-      }
-      const show = [...filterState.selectedPlayers].some((p) =>
-        involvedPlayers.has(p)
-      );
-      if (!show) continue;
-    }
-
-    // --- Row ---
-    const row = document.createElement("tr");
-
-    const tdTime = document.createElement("td");
-    tdTime.textContent = formatRelativeTime(child.timestamp, 0);
-    row.appendChild(tdTime);
-
-    const tdAbility = document.createElement("td");
-    tdAbility.textContent = child.ability;
-    row.appendChild(tdAbility);
-
-    const tdDamage = document.createElement("td");
-    if (
-      child.amount != null &&
-      child.unmitigatedAmount != null &&
-      child.mitigationPct != null
-    ) {
-      let mitHTML = `(${child.mitigationPct}%)`;
-      if (
-        filterState.showBotchedMitigations &&
-        typeof child.intendedMitPct === "number" &&
-        child.intendedMitPct > child.mitigationPct
-      ) {
-        mitHTML = `(${child.mitigationPct}%, <span class="intended-mit">${child.intendedMitPct}%</span>)`;
-      }
-      tdDamage.innerHTML = `${child.unmitigatedAmount} → ${child.amount} ${mitHTML}`;
-    } else {
-      tdDamage.textContent = "-";
-    }
-    row.appendChild(tdDamage);
-
-    sortedActors.forEach((actor) => {
-      const td = document.createElement("td");
-      td.classList.add(getRoleClass(actor.subType));
-
-      if (child.deaths?.includes(actor.name)) {
-        td.style.color = "#6b7280";
-        td.style.backgroundColor = "#f3f4f6";
-        row.appendChild(td);
-        return;
-      }
-
-      const buffs = [];
-      if (child.buffs) {
-        for (const [buff, appliers] of Object.entries(child.buffs)) {
-          if (appliers.includes(actor.name)) buffs.push(buff);
-        }
-      }
-
-      const displayBuffs = filterState.showAbilitiesOnly
-        ? buffAnalysis.resolveBuffsToAbilities(buffs)
-        : buffs;
-
-      const styled = displayBuffs.map((buff) => {
-        const isVuln = buffAnalysis.isVulnerability(buff);
-        const color = isVuln ? "#b91c1c" : "#000";
-        return `<div><span style="color:${color}">${buff}</span></div>`;
-      });
-
-      td.innerHTML = styled.join("");
-      if (child.actor === actor.name) td.classList.add("target-cell");
-
-      row.appendChild(td);
-    });
-
-    miniTbody.appendChild(row);
-  }
-
-  miniTable.appendChild(miniTbody);
-  return miniTable;
 }

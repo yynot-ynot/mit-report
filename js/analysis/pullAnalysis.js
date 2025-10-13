@@ -30,25 +30,40 @@
  *   name: string,
  *   condensedSets: [
  *     {
- *       timestamp: number,          // timestamp of the first attack in the group
- *       ability: string,            // name of the attack being grouped
+ *       timestamp: number,          // earliest timestamp among grouped attacks
+ *       ability: string,            // name of the attack group
  *
- *       // --- Per-player summary (stats + buffs + death state) ---
+ *       // --- Aggregated per-player summary (stats + buffs + death state) ---
  *       players: {
  *         [playerName: string]: {
- *           buffs: [ "Buff1", "Buff2", ... ], // unique merged list of all buffs this player applied
- *           unmitigatedAmount: number,        // total unmitigated damage across all hits
- *           amount: number,                   // total post-mitigation damage taken
- *           absorbed: number,                 // total absorbed/shielded amount
- *           mitigationPct: number,            // average % mitigated (from event data)
- *           intendedMitPct: number,           // average % intended (based on buffs)
- *           dead: boolean,                    // true if player appears in any row's death list
- *           wasTargeted: boolean              // true if this player was targeted by any attack in the set
+ *           buffs: [ "Buff1", "Buff2", ... ],  // merged list of buffs applied by this player
+ *           unmitigatedAmount: number,         // total unmitigated damage across all grouped hits
+ *           amount: number,                    // total mitigated damage taken
+ *           absorbed: number,                  // total absorbed/shielded amount
+ *           mitigationPct: number,             // average % mitigated (mean of all hits)
+ *           intendedMitPct: number,            // average intended mitigation (mean of all hits)
+ *           dead: boolean,                     // true if dead in any hit within the group
+ *           wasTargeted: boolean               // true if this player was the target (actor) in any hit
  *         }
  *       },
  *
- *       // --- Original attacks in this group ---
- *       children: [ { ...fightTableRow }, ... ]
+ *       // --- Child events (subset of FightTable.rows entries) ---
+ *       children: [
+ *         {
+ *           timestamp: number,
+ *           actor: string,               // player who took the hit
+ *           ability: string,             // ability name
+ *           amount: number,              // post-mitigation damage
+ *           unmitigatedAmount: number,   // pre-mitigation damage
+ *           absorbed: number,            // shielded value
+ *           mitigationPct: number,       // % mitigated from data
+ *           intendedMitPct: number,      // % intended from buffs
+ *           buffs: { [buffName]: [appliers...] }, // buffs active during hit
+ *           deaths: [string],            // players dead at that time
+ *           source?: string              // attacker name (if available)
+ *         },
+ *         ...
+ *       ]
  *     },
  *     ...
  *   ]

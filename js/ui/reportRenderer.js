@@ -11,6 +11,11 @@ import {
   renderCondensedTable,
   filterAndStyleCondensedTable,
 } from "./reportRendererCondensed.js";
+import {
+  repaintDamageCell,
+  shouldHideEvent,
+  shouldShowRowForPlayerSelection,
+} from "./reportRendererUtils.js";
 
 setModuleLogLevel("ReportRenderer", envLogLevel("info", "warn"));
 const log = getLogger("ReportRenderer");
@@ -541,16 +546,8 @@ export function filterAndStyleTable(fightState, report) {
     const row = tbody.rows[rowIndex];
     if (!row) return;
 
-    const AUTO_ATTACK_NAMES = new Set(["attack", "攻撃"]);
-
-    const abilityName = event.ability ? event.ability.toLowerCase() : "";
-    const isAutoAttack = AUTO_ATTACK_NAMES.has(abilityName);
-
     // 🚫 Hide Auto-Attacks / DoTs
-    if (
-      (!filterState.showAutoAttacks && isAutoAttack) ||
-      (!filterState.showCombinedDots && event.ability === "Combined DoTs")
-    ) {
+    if (shouldHideEvent(event.ability, filterState)) {
       row.style.display = "none";
       return;
     } else {
@@ -558,48 +555,17 @@ export function filterAndStyleTable(fightState, report) {
     }
 
     // 🚫 Hide rows if they don’t match selected players
-    if (filterState.selectedPlayers.size > 0) {
-      const targets = getRowTargets(event);
-      const hasMatch = targets.some((t) => filterState.selectedPlayers.has(t));
-      row.style.display = hasMatch ? "" : "none";
+    if (!shouldShowRowForPlayerSelection(event, filterState)) {
+      row.style.display = "none";
+      return;
     } else {
       row.style.display = "";
     }
 
     // Update mitigation visibility dynamically
-    const tdDamage = row.cells[2]; // 3rd column = damage column
+    const tdDamage = row.cells[2];
     if (tdDamage && event.mitigationPct != null) {
-      const intendedSpan = tdDamage.querySelector(".intended-mit");
-
-      if (filterState.showBotchedMitigations) {
-        // Show if applicable and hidden previously
-        if (
-          !intendedSpan &&
-          typeof event.intendedMitPct === "number" &&
-          event.intendedMitPct > event.mitigationPct
-        ) {
-          const baseSpan = tdDamage.querySelector("span");
-          if (baseSpan) {
-            const mitDisplay = `<span class="intended-mit"> ${event.intendedMitPct}%</span>`;
-
-            // find the closing parenthesis inside the mitigation text, and insert before it
-            const currentHTML = baseSpan.innerHTML;
-            const insertIndex = currentHTML.lastIndexOf(")");
-            if (insertIndex !== -1) {
-              baseSpan.innerHTML =
-                currentHTML.slice(0, insertIndex) +
-                mitDisplay +
-                currentHTML.slice(insertIndex);
-            } else {
-              // fallback if no parentheses found
-              baseSpan.insertAdjacentHTML("beforeend", mitDisplay);
-            }
-          }
-        }
-      } else {
-        // Hide intended mitigation spans when toggle is off
-        tdDamage.querySelectorAll(".intended-mit").forEach((el) => el.remove());
-      }
+      repaintDamageCell(tdDamage, event, filterState);
     }
 
     sortedActors.forEach((actor, colIndex) => {

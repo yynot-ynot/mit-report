@@ -21,6 +21,7 @@ import {
   setModuleLogLevel,
   envLogLevel,
 } from "../utility/logger.js";
+import { createDamageCell, renderBuffCell } from "./reportRendererUtils.js";
 
 setModuleLogLevel("ReportRendererDetailed", envLogLevel("info", "warn"));
 const log = getLogger("ReportRendererDetailed");
@@ -168,33 +169,7 @@ export function renderDetailedTable(fightState, report, section) {
     row.appendChild(tdAbility);
 
     // Damage column
-    const tdDamage = document.createElement("td");
-    tdDamage.classList.add("damage-col");
-    if (
-      event.amount != null &&
-      event.unmitigatedAmount != null &&
-      event.mitigationPct != null
-    ) {
-      const unmit =
-        event.unmitigatedAmount === 0 ? "?" : event.unmitigatedAmount;
-      let mitDisplay = `${event.mitigationPct}%`;
-
-      // Show intended mitigation if toggle is on and applicable
-      if (
-        filterState.showBotchedMitigations &&
-        typeof event.intendedMitPct === "number" &&
-        event.intendedMitPct > event.mitigationPct
-      ) {
-        mitDisplay += ` <span class="intended-mit">${event.intendedMitPct}%</span>`;
-      }
-
-      tdDamage.innerHTML = `
-        &nbsp;${unmit}&nbsp;→&nbsp;${event.amount}<br>
-        <span>A: ${event.absorbed || 0} | (${mitDisplay})</span>
-      `;
-    } else {
-      tdDamage.textContent = "-";
-    }
+    const tdDamage = createDamageCell(event, filterState);
     row.appendChild(tdDamage);
 
     // ========================================================
@@ -223,14 +198,12 @@ export function renderDetailedTable(fightState, report, section) {
         displayBuffs = buffAnalysis.resolveBuffsToAbilities(rawBuffs);
       }
 
-      const styledBuffs = displayBuffs.map((buff) => {
-        const matched = buffAnalysis.isJobAbility(buff, actor.subType);
-        const isVuln = buffAnalysis.isVulnerability(buff);
-        const color = isVuln ? "#b91c1c" : matched ? "#000" : "#228B22";
-        return `<div><span style="color:${color}">${buff}</span></div>`;
+      td.innerHTML = renderBuffCell({
+        buffs: rawBuffs,
+        actorSubType: actor.subType,
+        buffAnalysis,
+        filterState,
       });
-
-      td.innerHTML = styledBuffs.length > 0 ? styledBuffs.join("") : "";
 
       // Target marker
       const targets = getRowTargets(event);

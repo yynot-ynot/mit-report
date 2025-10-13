@@ -1,0 +1,371 @@
+/**
+ * reportRendererUtils.js
+ *
+ * Shared rendering helpers used across both the Detailed and Condensed (mini-table)
+ * fight views. Designed to centralize DOM fragment generation logic so that
+ * display of damage/mitigation data and related styling remains perfectly
+ * consistent across view modes.
+ *
+ * All helpers here are **pure** (no DOM mutations outside their own node)
+ * and side-effect–free. They take in structured data and return either
+ * a ready-to-insert HTML string or an element.
+ */
+
+import {
+  getLogger,
+  setModuleLogLevel,
+  envLogLevel,
+} from "../utility/logger.js";
+
+setModuleLogLevel("ReportRendererUtils", envLogLevel("info", "warn"));
+const log = getLogger("ReportRendererUtils");
+
+/**
+ * Generate HTML for the damage cell in any table view (Detailed or Condensed).
+ *
+ * 🧩 Purpose:
+ *   Render a single `<td>` containing damage, absorption, and mitigation info.
+ *   Handles both actual and intended mitigation percentage display, depending
+ *   on the user's filter toggles.
+ *
+ * 💡 Input assumptions:
+ *   - The provided `event` object matches the schema from `fightTable.rows[...]`
+ *     or from a condensed set's `children[]` array (identical shape).
+ *   - The helper does **not** mutate the event object.
+ *
+ * 🧱 Output:
+ *   A fully populated `<td class="damage-col">` DOM element ready to insert
+ *   into a `<tr>`. Example rendered output:
+ *
+ *   ```
+ *   <td class="damage-col">
+ *     81793 → 59627<br>
+ *     <span>A: 0 | (27% <span class="intended-mit">31%</span>)</span>
+ *   </td>
+ *   ```
+ *
+ * ⚙️ Filter Behavior:
+ *   - If `filterState.showBotchedMitigations` is true, the helper will display
+ *     the intended mitigation percentage (`event.intendedMitPct`) **only**
+ *     when it is greater than the actual (`event.mitigationPct`).
+ *   - If false, only the actual mitigation % is shown.
+ *
+ * 🚫 Exclusions:
+ *   - Does not perform any filtering or visibility logic (handled upstream).
+ *   - Does not format timestamps or actor names.
+ *   - Does not handle buffs or vuln visuals — use buffAnalysis helpers for that.
+ *
+ * @param {Object} event - Damage event row (from fightTable or condensed.children)
+ * @param {Object} filterState - Current FilterState (controls toggles)
+ * @returns {HTMLTableCellElement} td - A fully populated damage `<td>` element
+ */
+export function createDamageCell(event, filterState) {
+  const td = document.createElement("td");
+  td.classList.add("damage-col");
+
+  if (
+    event.amount != null &&
+    event.unmitigatedAmount != null &&
+    event.mitigationPct != null
+  ) {
+    // Fallback for unknown values
+    const unmit = event.unmitigatedAmount === 0 ? "?" : event.unmitigatedAmount;
+    const absorbed = event.absorbed || 0;
+
+    // Base mitigation text
+    let mitDisplay = `${event.mitigationPct}%`;
+
+    // Optionally append intended mitigation if higher than actual
+    if (
+      filterState.showBotchedMitigations &&
+      typeof event.intendedMitPct === "number" &&
+      event.intendedMitPct > event.mitigationPct
+    ) {
+      mitDisplay += ` <span class="intended-mit">${event.intendedMitPct}%</span>`;
+    }
+
+    td.innerHTML = `
+      &nbsp;${unmit}&nbsp;→&nbsp;${event.amount}<br>
+      <span>A: ${absorbed} | (${mitDisplay})</span>
+    `;
+  } else {
+    td.textContent = "-";
+  }
+
+  log.debug(
+    `[createDamageCell] ability="${event.ability}" actor="${event.actor}" ` +
+      `mit=${event.mitigationPct}% intended=${event.intendedMitPct}% absorbed=${event.absorbed}`
+  );
+
+  return td;
+}
+
+/**
+ * Update an *existing* damage cell (in-place repaint) when filter toggles change.
+ *
+ * 🧩 Purpose:
+ *   Enables consistent repainting of damage cells when the user toggles
+ *   “Show Botched Mitigations” without rebuilding the entire table.
+ *
+ * ✅ Safe for both Detailed and Condensed mini-table rows.
+ *
+ * @param {HTMLTableCellElement} tdDamage - The existing <td> element to repaint
+ * @param {Object} event - Original event object used for this row
+ * @param {Object} filterState - Current FilterState (controls toggles)
+ */
+export function repaintDamageCell(tdDamage, event, filterState) {
+  if (!tdDamage) return;
+
+  // Remove old intended mitigation display
+  tdDamage.querySelectorAll(".intended-mit").forEach((el) => el.remove());
+
+  // Repaint only if the toggle is active and data qualifies
+  if (
+    filterState.showBotchedMitigations &&
+    typeof event.intendedMitPct === "number" &&
+    event.intendedMitPct > event.mitigationPct
+  ) {
+    const baseSpan = tdDamage.querySelector("span");
+    if (baseSpan) {
+      const mitDisplay = `<span class="intended-mit">${event.intendedMitPct}%</span>`;
+      const currentHTML = baseSpan.innerHTML;
+      const insertIndex = currentHTML.lastIndexOf(")");
+      if (insertIndex !== -1) {
+        baseSpan.innerHTML =
+          currentHTML.slice(0, insertIndex) +
+          " " +
+          mitDisplay +
+          currentHTML.slice(insertIndex);
+      } else {
+        baseSpan.insertAdjacentHTML("beforeend", mitDisplay);
+      }
+    }
+  }
+}
+
+/**
+ * repaintAllDamageCells()
+ * --------------------------------------------------------------
+ * Bulk-repaint helper to apply Show Botched Mitigation toggles
+ * across all visible rows in a given table.
+ *
+ * Intended for condensed mini-tables, but safe for any table structure.
+ *
+ * @param {HTMLTableElement} table - Target table (e.g., mini-detailed-table)
+ * @param {Object} filterState - Active FilterState (controls toggles)
+ */
+export function repaintAllDamageCells(table, filterState) {
+  if (!table) return;
+  const rows = table.querySelectorAll("tbody tr");
+  rows.forEach((row) => {
+    const tdDamage = row.querySelector(".damage-col");
+    const event = row.__childEvent__;
+    if (tdDamage && event) {
+      repaintDamageCell(tdDamage, event, filterState);
+    }
+  });
+}
+
+/**
+ * shouldHideEvent()
+ * --------------------------------------------------------------
+ * 🔧 Purpose:
+ *   Centralized logic for determining whether an event (row or
+ *   grouped attack set) should be hidden based on current filter
+ *   settings for Auto-Attacks and DoTs/Bleeds.
+ *
+ * 🧠 Why:
+ *   - Previously duplicated across:
+ *       • filterAndStyleTable()
+ *       • filterAndStyleCondensedTable()
+ *       • updateMiniChildTable()
+ *   - Each version defined its own `AUTO_ATTACK_NAMES` and
+ *     manual string comparisons.
+ *   - This helper unifies that logic for consistent visibility
+ *     behavior across all table types.
+ *
+ * ⚙️ Behavior:
+ *   - Case-insensitive comparison of ability name.
+ *   - Hides if:
+ *       1️⃣ Auto-attacks are disabled (`showAutoAttacks = false`)
+ *           AND ability is “attack” or localized equivalent (“攻撃”).
+ *       2️⃣ Bleeds/DoTs are disabled (`showCombinedDots = false`)
+ *           AND ability name contains “dot” or “bleed”.
+ *
+ * 🧾 Usage Examples:
+ *   if (shouldHideEvent(event.ability, filterState)) {
+ *       row.style.display = "none";
+ *       return;
+ *   }
+ *
+ * @param {string} abilityName - The ability name to evaluate.
+ * @param {FilterState} filterState - Current filter state toggles.
+ * @returns {boolean} true if the event should be hidden; false otherwise.
+ */
+export function shouldHideEvent(abilityName, filterState) {
+  if (!abilityName || !filterState) return false;
+
+  const name = abilityName.toLowerCase().trim();
+  const AUTO_ATTACK_NAMES = new Set(["attack", "攻撃"]);
+  const isAutoAttack = AUTO_ATTACK_NAMES.has(name);
+  const isBleed =
+    name.includes("dot") ||
+    name.includes("bleed") ||
+    name.includes("damage over time");
+
+  // 🚫 Hide based on toggle states
+  if (
+    (!filterState.showAutoAttacks && isAutoAttack) ||
+    (!filterState.showCombinedDots && isBleed)
+  ) {
+    return true;
+  }
+
+  return false;
+}
+
+/**
+ * renderBuffCell()
+ * --------------------------------------------------------------
+ * 🔧 Purpose:
+ *   Generate consistent HTML for a player’s buff cell across all
+ *   table types (Detailed, Condensed, Mini tables).
+ *
+ * 🧠 Why:
+ *   - The same “resolve → color → render” logic was repeated
+ *     in multiple places:
+ *       • reportRendererDetailed.js (main table)
+ *       • reportRendererCondensed.js (parent rows)
+ *       • updateMiniChildTable() (mini tables)
+ *   - This helper ensures *identical visual and logical behavior* everywhere.
+ *
+ * ⚙️ Behavior:
+ *   - Resolves buffs → ability names if `showAbilitiesOnly` is true.
+ *   - Applies color coding:
+ *       🔴 Vulnerability  → "#b91c1c"
+ *       ⚫ Known job buff → "#000000"
+ *       🟢 Unknown/other  → "#228B22"
+ *   - Accepts either:
+ *       • raw buff list from fight event
+ *       • pre-resolved display buff list
+ *
+ * 🧾 Example Usage:
+ *   td.innerHTML = renderBuffCell({
+ *     buffs: ["Reprisal", "Vulnerability Up"],
+ *     actorSubType: "TANK",
+ *     buffAnalysis,
+ *     filterState,
+ *   });
+ *
+ * @param {Object} params - Configuration object
+ * @param {string[]} params.buffs - List of buff names for this cell
+ * @param {string} params.actorSubType - Player's job/subtype (e.g. "TANK", "HEALER")
+ * @param {Object} params.buffAnalysis - Buff analysis utility
+ * @param {Object} params.filterState - Active FilterState (for showAbilitiesOnly toggle)
+ * @returns {string} HTML string to inject into the cell
+ */
+export function renderBuffCell({
+  buffs = [],
+  actorSubType,
+  buffAnalysis,
+  filterState,
+}) {
+  if (!buffs || buffs.length === 0) return "";
+
+  // Optionally resolve raw buffs → ability names
+  const displayBuffs = filterState?.showAbilitiesOnly
+    ? buffAnalysis.resolveBuffsToAbilities(buffs)
+    : buffs;
+
+  // Map buffs to styled HTML spans
+  return displayBuffs
+    .map((buff) => {
+      const isVuln = buffAnalysis.isVulnerability(buff);
+      const isJobBuff = buffAnalysis.isJobAbility(buff, actorSubType);
+
+      let color = "#000";
+      if (isVuln) color = "#b91c1c";
+      else if (!isJobBuff) color = "#228B22";
+
+      return `<div><span style="color:${color}">${buff}</span></div>`;
+    })
+    .join("");
+}
+
+/**
+ * shouldShowRowForPlayerSelection()
+ * --------------------------------------------------------------
+ * 🔧 Purpose:
+ *   Centralize logic for determining whether a given row (event or set)
+ *   should remain visible when one or more players are selected.
+ *
+ * 🧠 Why:
+ *   - The detailed table, condensed parent rows, and mini-tables each
+ *     have slightly different implementations of “show this row if any
+ *     selected player is involved or targeted.”
+ *   - This helper unifies that logic, ensuring consistent visibility
+ *     behavior across all table types.
+ *
+ * ⚙️ Behavior:
+ *   - Returns `true` if:
+ *       1️⃣ No players are currently selected (everything visible)
+ *       2️⃣ At least one selected player appears in:
+ *           • The event’s `actor` (targeted player)
+ *           • The event’s `targets[]` array (multi-target support)
+ *           • The condensed set’s `players` object where
+ *             `players[name].wasTargeted === true`
+ *   - Returns `false` otherwise.
+ *
+ * 🧾 Usage Examples:
+ *   if (!shouldShowRowForPlayerSelection(event, filterState)) {
+ *       row.style.display = "none";
+ *       return;
+ *   }
+ *
+ *   if (!shouldShowRowForPlayerSelection(condensedSet, filterState)) {
+ *       parentRow.style.display = "none";
+ *   }
+ *
+ * ⚠️ Supports multiple data shapes:
+ *   - Detailed event rows (`{ actor: string }`)
+ *   - Condensed grouped sets (`{ players: { [name]: { wasTargeted } } }`)
+ *   - Mini-table child rows (`{ dataset.actor, dataset.wasTargeted }`)
+ *
+ * @param {Object|HTMLElement} item - Event object, condensed set, or <tr> with dataset.actor
+ * @param {Object} filterState - Current FilterState (shared between views)
+ * @returns {boolean} true if the row/set should remain visible
+ */
+export function shouldShowRowForPlayerSelection(item, filterState) {
+  // 🧱 Case 1: No player selected → always visible
+  if (!filterState || filterState.selectedPlayers.size === 0) {
+    return true;
+  }
+
+  const selectedPlayers = filterState.selectedPlayers;
+  let actorName = "";
+  let wasTargeted = false;
+
+  // 🧩 Case 2: Mini-table <tr> with dataset.actor
+  if (item instanceof HTMLElement && item.dataset) {
+    actorName = item.dataset.actor || "";
+    wasTargeted = item.dataset.wasTargeted === "true";
+    return actorName && wasTargeted && selectedPlayers.has(actorName);
+  }
+
+  // 🧩 Case 3: Condensed parent set
+  if (item.players) {
+    const players = item.players || {};
+    return Object.entries(players).some(
+      ([playerName, p]) =>
+        selectedPlayers.has(playerName) && p.wasTargeted === true
+    );
+  }
+
+  // 🧩 Case 4: Detailed table event object
+  if (item.actor) {
+    return selectedPlayers.has(item.actor);
+  }
+
+  // Default: visible
+  return true;
+}

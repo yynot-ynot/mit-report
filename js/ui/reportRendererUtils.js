@@ -369,3 +369,52 @@ export function shouldShowRowForPlayerSelection(item, filterState) {
   // Default: visible
   return true;
 }
+
+/**
+ * attachStickyHeaderHighlight()
+ * --------------------------------------------------------------
+ * Shared hover → header highlight logic for all table views.
+ *
+ * Works with native CSS `position: sticky` headers (no frozen clones).
+ * Automatically:
+ *   • Highlights the corresponding <th> when hovering a targeted row.
+ *   • Adds a small “Target” badge inside the header.
+ *   • Cleans up on mouseleave.
+ *
+ * @param {HTMLTableElement} table - Target table (detailed, condensed, or mini)
+ * @param {HTMLTableRowElement} row - The row to attach hover listeners to
+ * @param {FilterState} filterState - Controls highlight toggle
+ */
+export function attachStickyHeaderHighlight(table, row, filterState) {
+  row.addEventListener("mouseenter", () => {
+    if (!filterState.enableColumnHighlight) return;
+
+    const targetCell = row.querySelector(".target-cell");
+    if (!targetCell) return;
+
+    const cellIndex = Array.from(row.children).indexOf(targetCell);
+    const headerCell = table.querySelector(
+      `thead th:nth-child(${cellIndex + 1})`
+    );
+    if (!headerCell) return;
+
+    headerCell.classList.add("highlight-header");
+
+    if (!headerCell.querySelector(".target-label")) {
+      const label = document.createElement("span");
+      label.className = "target-label";
+      label.textContent = "Target";
+      headerCell.appendChild(label);
+    }
+  });
+
+  row.addEventListener("mouseleave", () => {
+    if (!filterState.enableColumnHighlight) return;
+
+    table.querySelectorAll("thead th.highlight-header").forEach((th) => {
+      th.classList.remove("highlight-header");
+      const badge = th.querySelector(".target-label");
+      if (badge) badge.remove();
+    });
+  });
+}

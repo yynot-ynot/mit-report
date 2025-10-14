@@ -5,7 +5,12 @@
     width: fit-content;
     /* match .time-table */
     max-width: none;
-    overflow: visible;
+    overflow-x: auto;
+    /* ✅ allow horizontal scroll */
+    overflow-y: auto;
+    max-height: 100vh;
+        /* ✅ optional: keeps table from being too tall */
+    /* optional; keep vertical flow */
     /* no scroll here */
     box-sizing: border-box;
 }
@@ -25,9 +30,7 @@
 
 /* Shared cell styling */
 .time-table th,
-.time-table td,
-.frozen-header th,
-.frozen-header td {
+.time-table td {
     border: 1px solid #ccc;
     padding: 0.4rem 0.6rem;
     text-align: center;
@@ -44,8 +47,7 @@
 }
 
 /* Shared header styling */
-.time-table th,
-.frozen-header th {
+.time-table th {
     background: #f2f2f2;
     font-weight: 600;
     font-size: 0.9rem;
@@ -61,10 +63,18 @@
     /* break long names if needed */
 }
 
+/* Sticky table headers (replaces frozen header cloning) */
+.time-table thead th {
+    position: sticky;
+    top: 0;
+    background: #fff;
+    z-index: 5;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+}
+
 /* First column special styling */
 .time-table td:first-child,
-.time-table th:first-child,
-.frozen-header th:first-child {
+.time-table th:first-child {
     text-align: right;
     font-family: monospace;
     background: #f9f9f9;
@@ -121,9 +131,8 @@
     /* light yellow/orange fill */
 }
 
-/* Column role-based coloring (applies to both table + frozen header) */
-.time-table th.tank-col,
-.frozen-header th.tank-col {
+/* Column role-based coloring */
+.time-table th.tank-col {
     background-color: #dbeafe;
     /* solid blue */
 }
@@ -132,8 +141,7 @@
     background-color: rgba(59, 130, 246, 0.08);
 }
 
-.time-table th.healer-col,
-.frozen-header th.healer-col {
+.time-table th.healer-col {
     background-color: #d1fae5;
     /* solid green */
 }
@@ -142,8 +150,7 @@
     background-color: rgba(16, 185, 129, 0.08);
 }
 
-.time-table th.dps-col,
-.frozen-header th.dps-col {
+.time-table th.dps-col {
     background-color: #fee2e2;
     /* solid red */
 }
@@ -152,8 +159,7 @@
     background-color: rgba(239, 68, 68, 0.08);
 }
 
-.time-table th.unknown-col,
-.frozen-header th.unknown-col {
+.time-table th.unknown-col {
     background-color: #f2f2f2;
     /* fallback */
 }
@@ -162,28 +168,18 @@
     background-color: inherit;
 }
 
-/* Frozen header container */
-.frozen-header {
-    border-collapse: collapse;
-    table-layout: fixed;
-    /* force fixed layout */
-    background: transparent;
-}
-
-/* Highlight target player header (live and frozen) */
-.time-table th.highlight-header,
-.frozen-header th.highlight-header {
+/* Highlight target player header (for hover highlight) */
+.time-table th.highlight-header {
     border: 2px solid #ffd580;
     /* light yellow/orange border */
     background-color: #fff8dc;
     /* light yellow/orange fill */
+    transition: background-color 0.2s ease;
 }
 
 /* Wider column for Damage */
 .time-table th.damage-col,
-.frozen-header th.damage-col,
-.time-table td.damage-col,
-.frozen-header td.damage-col {
+.time-table td.damage-col {
     width: 160px;
     /* adjust until it looks right */
     white-space: normal;
@@ -193,8 +189,7 @@
     /* tighter vertical spacing */
 }
 
-.time-table td.damage-col .intended-mit,
-.frozen-header td.damage-col .intended-mit{
+.time-table td.damage-col .intended-mit {
     text-align: justify;
     text-align-last: justify;
     /* ensures last line also spreads */
@@ -207,8 +202,7 @@
 }
 
 /* Damage header layout */
-.time-table th.damage-col,
-.frozen-header th.damage-col {
+.time-table th.damage-col {
     font-family: monospace;
     line-height: 1.2;
     text-align: center;
@@ -226,7 +220,7 @@
 /* "Target" label styled as a badge/stamp above header cell */
 .target-label {
     position: absolute;
-    top: -1.1rem;
+    top: 2.1rem;
     /* move slightly above the cell */
     left: 50%;
     transform: translateX(-50%);
@@ -245,17 +239,17 @@
 }
 
 /* Ensure the header cell can position the label */
-.time-table th,
-.frozen-header th {
+.time-table th {
     position: relative;
     /* needed for absolute positioning inside */
+    overflow: visible;
 }
 
-.frozen-header th {
-    position: relative;
-    /* already present */
-    overflow: visible !important;
-    /* 🔑 allow the label to spill outside */
+/* Player deselection (greyed out headers) */
+.time-table th.player-deselected {
+    background-color: #e5e5e5 !important;
+    color: #888 !important;
+    opacity: 0.7;
 }
 
 .control-panel {
@@ -293,14 +287,6 @@
     /* ensures centered text */
     white-space: nowrap;
     /* prevent multi-line wrapping */
-}
-
-/* Greyed out header when not selected */
-.time-table th.player-deselected,
-.frozen-header th.player-deselected {
-    background-color: #e5e5e5 !important;
-    color: #888 !important;
-    opacity: 0.7;
 }
 
 /* Intended mitigation percentage (struck-through, greyed out) */

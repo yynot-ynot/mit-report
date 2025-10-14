@@ -8,8 +8,6 @@
 import { formatRelativeTime } from "../utility/dataUtils.js";
 import { getRoleClass, sortActorsByJob } from "../config/AppConfig.js";
 import {
-  makeFrozenHeader,
-  enableHeaderHighlight,
   getRowTargets,
   updateResetButtonState,
   filterAndStyleCurrentView,
@@ -18,6 +16,7 @@ import {
   repaintDamageCell,
   shouldHideEvent,
   shouldShowRowForPlayerSelection,
+  attachStickyHeaderHighlight,
 } from "./reportRendererUtils.js";
 import {
   getLogger,
@@ -218,7 +217,7 @@ export function renderDetailedTable(fightState, report, section) {
     });
 
     tbody.appendChild(row);
-    enableHeaderHighlight(table, row, filterState);
+    attachStickyHeaderHighlight(table, row, filterState);
   });
 
   table.appendChild(tbody);
@@ -229,9 +228,6 @@ export function renderDetailedTable(fightState, report, section) {
   // ============================================================
   // Apply filter set immediately once DOM exists
   filterAndStyleCurrentView(fightState, report);
-
-  // Enable frozen header sync and resizing
-  makeFrozenHeader(table, section);
 
   // ============================================================
   // 🧩 Async Buff Lookup Completion
@@ -392,22 +388,17 @@ export function filterAndStyleDetailedTable(fightState, report) {
 
   // 🔹 Update header styling to reflect selected players
   const liveHeaders = table.querySelectorAll("thead th");
-  const frozen = table.parentNode.parentNode.querySelector(".frozen-header");
-  const frozenHeaders = frozen ? frozen.querySelectorAll("th") : [];
 
   sortedActors.forEach((actor, idx) => {
     const headerCell = liveHeaders[idx + 3]; // offset: timestamp, ability, damage
-    const frozenCell = frozenHeaders[idx + 3];
 
     if (
       filterState.selectedPlayers.size > 0 &&
       !filterState.selectedPlayers.has(actor.name)
     ) {
       headerCell?.classList.add("player-deselected");
-      frozenCell?.classList.add("player-deselected");
     } else {
       headerCell?.classList.remove("player-deselected");
-      frozenCell?.classList.remove("player-deselected");
     }
   });
 

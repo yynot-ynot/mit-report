@@ -65,10 +65,11 @@
 
 /* Sticky table headers (replaces frozen header cloning) */
 .time-table thead th {
+    height: 52px;
     position: sticky;
     top: 0;
     background: #fff;
-    z-index: 5;
+    z-index: 30;
     box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
 }
 
@@ -81,7 +82,6 @@
     min-width: 120px;
     width: auto;
     color: #555;
-    z-index: 2;
 }
 
 /* Row striping (only live table) */
@@ -334,4 +334,109 @@ table.mini-detailed-table td {
 table.mini-detailed-table th {
     background-color: #f3f4f6;
     font-weight: 600;
+}
+
+/* ==========================================================
+   INLINE CHILD-EVENT ROWS (Condensed View)
+   ----------------------------------------------------------
+   Visual hierarchy for expanded inline child rows under
+   condensed parent groups — compact, aligned, and readable.
+   ========================================================== */
+
+tr.child-event-row {
+    background-color: #fafafa;
+    /* soft neutral background */
+    font-size: 0.82em;
+    /* slightly smaller text than parent */
+    border-top: 1px dashed #e5e7eb;
+    /* separation from parent row */
+}
+
+/* Compact vertical spacing */
+tr.child-event-row td {
+    padding-top: 0.15rem;
+    padding-bottom: 0.15rem;
+    line-height: 1.1;
+    text-align: center;
+    vertical-align: middle;
+    border-color: #ccc;
+    /* ensure borders remain crisp */
+}
+
+/* Timestamp cell — lighter, monospace, slightly indented */
+tr.child-event-row td:first-child {
+    color: #555;
+    font-family: monospace;
+    text-align: left;
+    padding-left: 2.75rem;
+    /* small visual indent */
+    position: relative;
+}
+
+/* Connector line to visually tie children to parent */
+tr.child-event-row td:first-child::before {
+    content: "";
+    position: absolute;
+    top: 0.3rem;
+    bottom: 0.3rem;
+    left: 2.2rem;
+    border-left: 2px solid #d1d5db;
+    opacity: 0.7;
+}
+
+/* Other cells slightly larger for readability */
+tr.child-event-row td:not(:first-child) {
+    font-size: 1em;
+    line-height: 1.2;
+    color: #333;
+}
+
+/* Role-based coloring (inherits parent logic but lighter) */
+tr.child-event-row td.tank {
+    background: rgba(59, 130, 246, 0.10);
+}
+
+tr.child-event-row td.healer {
+    background: rgba(16, 185, 129, 0.10);
+}
+
+tr.child-event-row td.dps {
+    background: rgba(239, 68, 68, 0.10);
+}
+
+/* Hover highlight (match parent tone) */
+tr.child-event-row:hover {
+    background-color: #fff8dc;
+}
+
+/* Keep target cell highlight strong */
+tr.child-event-row:hover td.target-cell {
+    border: 2px solid #ffd580;
+    background-color: #fff8dc;
+}
+
+/* Spacing before/after each group */
+tr.child-event-row:first-of-type {
+    border-top: 3px solid transparent;
+    /* visual breathing room above */
+    padding-top: 0.25rem;
+}
+
+tr.child-event-row:last-of-type {
+    border-bottom: 3px solid transparent;
+    /* visual breathing room below */
+    padding-bottom: 0.25rem;
+}
+
+/* Divider between different parent groups */
+tr.child-event-row+tr.condensed-row {
+    border-top: 2px solid #d1d5db;
+}
+
+/* Botched mitigation text */
+.child-event-row .intended-mit {
+    text-decoration: line-through;
+    color: #9ca3af;
+    opacity: 0.9;
+    font-weight: 500;
 }

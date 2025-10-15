@@ -25,7 +25,7 @@ export class FilterState {
     this.showCombinedDots = false;
 
     /** @type {boolean} Whether to show condensed (grouped) view by default */
-    this.showCondensedView = false;
+    this.showCondensedView = true;
 
     /** @type {Set<string>} Set of currently selected player names for filtering */
     this.selectedPlayers = new Set();

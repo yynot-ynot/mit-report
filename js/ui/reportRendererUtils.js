@@ -296,77 +296,88 @@ export function renderBuffCell({
  * shouldShowRowForPlayerSelection()
  * --------------------------------------------------------------
  * 🔧 Purpose:
- *   Centralize logic for determining whether a given row (event or set)
- *   should remain visible when one or more players are selected.
+ *   Determine whether a given event, grouped set, or DOM row should
+ *   remain visible when one or more players are selected in the filter.
  *
- * 🧠 Why:
- *   - The detailed table, condensed parent rows, and mini-tables each
- *     have slightly different implementations of “show this row if any
- *     selected player is involved or targeted.”
- *   - This helper unifies that logic, ensuring consistent visibility
- *     behavior across all table types.
+ * 🧠 Context:
+ *   This helper is the single source of truth for player-selection
+ *   visibility logic across **all view types**:
+ *     • Detailed Table (per-event rows)
+ *     • Condensed Parent Rows (group summaries)
+ *     • Legacy Mini-Tables
+ *     • 🆕 Inline Child Rows (`<tr class="child-event-row">`)
  *
- * ⚙️ Behavior:
- *   - Returns `true` if:
- *       1️⃣ No players are currently selected (everything visible)
- *       2️⃣ At least one selected player appears in:
- *           • The event’s `actor` (targeted player)
- *           • The event’s `targets[]` array (multi-target support)
- *           • The condensed set’s `players` object where
- *             `players[name].wasTargeted === true`
- *   - Returns `false` otherwise.
+ * ⚙️ Behavior Rules:
+ *   - ✅ If no players are selected, all rows remain visible.
+ *   - ✅ For parent condensed rows:
+ *       Visible if **any** selected player in `set.players` has
+ *       `{ wasTargeted: true }`.
+ *   - ✅ For inline child rows (new structure):
+ *       Visible if:
+ *         → `row.dataset.actor` matches a selected player, **and**
+ *         → `row.dataset.wasTargeted === "true"`.
+ *   - ✅ For legacy mini-table `<tr>` rows:
+ *       Same dataset logic (identical to inline).
+ *   - ✅ For detailed event objects:
+ *       Visible if `event.actor` (target) matches any selected player.
  *
- * 🧾 Usage Examples:
- *   if (!shouldShowRowForPlayerSelection(event, filterState)) {
- *       row.style.display = "none";
- *       return;
- *   }
+ * 🚫 Hides:
+ *   - Rows whose associated actor(s) are not part of the current
+ *     `filterState.selectedPlayers` set.
+ *   - Inline child rows that do not target a selected player.
  *
- *   if (!shouldShowRowForPlayerSelection(condensedSet, filterState)) {
- *       parentRow.style.display = "none";
- *   }
+ * 🧩 Example Inputs:
+ *   • Condensed Parent Row:  shouldShowRowForPlayerSelection(set, filterState)
+ *   • Inline Child Row:      shouldShowRowForPlayerSelection(row, filterState)
+ *   • Detailed Event:        shouldShowRowForPlayerSelection(event, filterState)
  *
- * ⚠️ Supports multiple data shapes:
- *   - Detailed event rows (`{ actor: string }`)
- *   - Condensed grouped sets (`{ players: { [name]: { wasTargeted } } }`)
- *   - Mini-table child rows (`{ dataset.actor, dataset.wasTargeted }`)
- *
- * @param {Object|HTMLElement} item - Event object, condensed set, or <tr> with dataset.actor
- * @param {Object} filterState - Current FilterState (shared between views)
- * @returns {boolean} true if the row/set should remain visible
+ * @param {Object|HTMLElement} item - The row, set, or event to evaluate
+ * @param {FilterState} filterState - Current global filter state
+ * @returns {boolean} - true if row/set/event should remain visible
  */
 export function shouldShowRowForPlayerSelection(item, filterState) {
-  // 🧱 Case 1: No player selected → always visible
+  // 🧱 Case 1: No player selected → show all
   if (!filterState || filterState.selectedPlayers.size === 0) {
     return true;
   }
 
   const selectedPlayers = filterState.selectedPlayers;
-  let actorName = "";
-  let wasTargeted = false;
 
-  // 🧩 Case 2: Mini-table <tr> with dataset.actor
+  // ============================================================
+  // 🧩 Case 2 — New Inline or Legacy Mini-Table <tr>
+  // ============================================================
   if (item instanceof HTMLElement && item.dataset) {
-    actorName = item.dataset.actor || "";
-    wasTargeted = item.dataset.wasTargeted === "true";
+    const actorName = item.dataset.actor || "";
+    const wasTargeted = item.dataset.wasTargeted === "true";
+
+    // 🧠 Behavior proof:
+    // In inline rows, actorName comes directly from child.actor.
+    // `wasTargeted` mirrors parent set.players[actor].wasTargeted.
+    // Therefore this check reproduces identical semantics to parent filter.
     return actorName && wasTargeted && selectedPlayers.has(actorName);
   }
 
-  // 🧩 Case 3: Condensed parent set
+  // ============================================================
+  // 🧩 Case 3 — Condensed Parent Set (grouped attacks)
+  // ============================================================
   if (item.players) {
     const players = item.players || {};
+    // Visible if any selected player participated as a target
     return Object.entries(players).some(
-      ([playerName, p]) =>
-        selectedPlayers.has(playerName) && p.wasTargeted === true
+      ([name, data]) => selectedPlayers.has(name) && data.wasTargeted === true
     );
   }
 
-  // 🧩 Case 4: Detailed table event object
+  // ============================================================
+  // 🧩 Case 4 — Detailed Table Event Object
+  // ============================================================
   if (item.actor) {
     return selectedPlayers.has(item.actor);
   }
 
-  // Default: visible
+  // ============================================================
+  // 🧩 Case 5 — Fallback (unknown structure)
+  // ============================================================
   return true;
 }
 

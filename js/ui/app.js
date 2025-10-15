@@ -90,7 +90,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       // Cache fight tables to avoid refetching the same pull multiple times
       const fightTableCache = new Map();
 
-      // Helper to build fight table for a single pull
+      // Helper to build fight table for a single pull (optimized + profiled)
       async function loadFightTable(pull) {
         if (fightTableCache.has(pull.id)) {
           return fightTableCache.get(pull.id);
@@ -98,110 +98,162 @@ document.addEventListener("DOMContentLoaded", async () => {
 
         log.info(`Loading fight table for Fight ${pull.id} (${pull.name})`);
 
-        // --- Fetch buffs applied to players/NPCs ---
+        // === PARALLEL FETCH PHASE ===
+        // We start timing each individual fetch, even though they all run concurrently.
         profiler.start("Fetch Buffs");
-        const buffs = await fetchFightBuffs(accessToken, reportCode, pull);
-        profiler.stop("Fetch Buffs", "Fetch", `Pull ${pull.id}`);
-        log.debug(`Pull ${pull.id}: raw Buffs fetched`, buffs);
+        const buffsPromise = fetchFightBuffs(
+          accessToken,
+          reportCode,
+          pull
+        ).finally(() =>
+          profiler.stop("Fetch Buffs", "Fetch", `Pull ${pull.id}`)
+        );
 
-        // --- Fetch debuffs applied to enemies ---
         profiler.start("Fetch Enemy Debuffs");
-        const debuffsEnemies = await fetchFightDebuffs(
+        const debuffsEnemiesPromise = fetchFightDebuffs(
           accessToken,
           reportCode,
           pull,
           HostilityType.ENEMIES
-        );
-        profiler.stop("Fetch Enemy Debuffs", "Fetch", `Pull ${pull.id}`);
-        log.debug(
-          `Pull ${pull.id}: raw Debuffs (enemies) fetched`,
-          debuffsEnemies
+        ).finally(() =>
+          profiler.stop("Fetch Enemy Debuffs", "Fetch", `Pull ${pull.id}`)
         );
 
-        // Merge buffs and enemy debuffs into one status list
-        const allStatusEvents = [...buffs, ...debuffsEnemies];
-        profiler.start("Parse Buffs and Enemy Debuffs");
-        const parsedBuffs = parseBuffEvents(
-          allStatusEvents,
-          pull,
-          report.actorById,
-          report.abilityById
-        );
-        profiler.stop(
-          "Parse Buffs and Enemy Debuffs",
-          "Parse",
-          `Pull ${pull.id}`
-        );
-        log.info(`Pull ${pull.id}: parsed Buffs/Debuffs`, parsedBuffs);
-
-        // --- Fetch vulnerabilities (debuffs applied to friendlies) ---
         profiler.start("Fetch Player Debuffs");
-        const vulnerabilitiesTaken = await fetchFightDebuffs(
+        const vulnerabilitiesTakenPromise = fetchFightDebuffs(
           accessToken,
           reportCode,
           pull,
           HostilityType.FRIENDLIES
+        ).finally(() =>
+          profiler.stop("Fetch Player Debuffs", "Fetch", `Pull ${pull.id}`)
         );
-        profiler.stop("Fetch Player Debuffs", "Fetch", `Pull ${pull.id}`);
+
+        profiler.start("Fetch Damage Taken");
+        const damageTakenPromise = fetchFightDamageTaken(
+          accessToken,
+          reportCode,
+          pull
+        ).finally(() =>
+          profiler.stop("Fetch Damage Taken", "Fetch", `Pull ${pull.id}`)
+        );
+
+        profiler.start("Fetch Player Deaths");
+        const deathsPromise = fetchFightDeaths(
+          accessToken,
+          reportCode,
+          pull
+        ).finally(() =>
+          profiler.stop("Fetch Player Deaths", "Fetch", `Pull ${pull.id}`)
+        );
+
+        // Await all fetches concurrently
+        const [
+          buffs,
+          debuffsEnemies,
+          vulnerabilitiesTaken,
+          damageTaken,
+          deaths,
+        ] = await Promise.all([
+          buffsPromise,
+          debuffsEnemiesPromise,
+          vulnerabilitiesTakenPromise,
+          damageTakenPromise,
+          deathsPromise,
+        ]);
+
+        log.debug(`Pull ${pull.id}: raw Buffs fetched`, buffs);
+        log.debug(
+          `Pull ${pull.id}: raw Debuffs (enemies) fetched`,
+          debuffsEnemies
+        );
         log.debug(
           `Pull ${pull.id}: raw Vulnerabilities (debuffs on friendlies) fetched`,
           vulnerabilitiesTaken
         );
-
-        profiler.start("Parse Player Debuffs");
-        const parsedVulnerabilities = parseBuffEvents(
-          vulnerabilitiesTaken,
-          pull,
-          report.actorById,
-          report.abilityById
-        );
-        profiler.stop("Parse Player Debuffs", "Parse", `Pull ${pull.id}`);
-        log.info(
-          `Pull ${pull.id}: parsed Vulnerabilities (debuffs on friendlies)`,
-          parsedVulnerabilities
-        );
-
-        // --- Fetch damage taken events ---
-        profiler.start("Fetch Damage Taken");
-        const damageTaken = await fetchFightDamageTaken(
-          accessToken,
-          reportCode,
-          pull
-        );
-        profiler.stop("Fetch Damage Taken", "Fetch", `Pull ${pull.id}`);
         log.debug(`Pull ${pull.id}: raw DamageTaken fetched`, damageTaken);
-
-        profiler.start("Parse Damage Taken");
-        const parsedDamageTaken = parseFightDamageTaken(
-          damageTaken,
-          pull,
-          report.actorById,
-          report.abilityById
-        );
-        profiler.stop("Parse Damage Taken", "Parse", `Pull ${pull.id}`);
-        log.info(`Pull ${pull.id}: parsed DamageTaken`, parsedDamageTaken);
-
-        // --- Fetch death events ---
-        profiler.start("Fetch Player Deaths");
-        const deaths = await fetchFightDeaths(accessToken, reportCode, pull);
-        profiler.stop("Fetch Player Deaths", "Fetch", `Pull ${pull.id}`);
         log.debug(`Pull ${pull.id}: raw Deaths fetched`, deaths);
 
-        profiler.start("Parse Player Deaths");
-        const parsedDeaths = parseFightDeaths(
-          deaths,
-          pull,
-          report.actorById,
-          report.abilityById
-        );
-        profiler.stop("Parse Player Deaths", "Parse", `Pull ${pull.id}`);
-        log.info(`Pull ${pull.id}: parsed Deaths`, parsedDeaths);
+        // === PARSING PHASE ===
+        // Each parser runs after its own data is available.
+        const allStatusEvents = [...buffs, ...debuffsEnemies];
 
-        // Wrap fightTable in FightState (adds filters + buffAnalysis first)
+        profiler.start("Parse Buffs and Enemy Debuffs");
+        const parsedBuffsPromise = Promise.resolve().then(() => {
+          const result = parseBuffEvents(
+            allStatusEvents,
+            pull,
+            report.actorById,
+            report.abilityById
+          );
+          profiler.stop(
+            "Parse Buffs and Enemy Debuffs",
+            "Parse",
+            `Pull ${pull.id}`
+          );
+          log.info(`Pull ${pull.id}: parsed Buffs/Debuffs`, result);
+          return result;
+        });
+
+        profiler.start("Parse Player Debuffs");
+        const parsedVulnerabilitiesPromise = Promise.resolve().then(() => {
+          const result = parseBuffEvents(
+            vulnerabilitiesTaken,
+            pull,
+            report.actorById,
+            report.abilityById
+          );
+          profiler.stop("Parse Player Debuffs", "Parse", `Pull ${pull.id}`);
+          log.info(
+            `Pull ${pull.id}: parsed Vulnerabilities (debuffs on friendlies)`,
+            result
+          );
+          return result;
+        });
+
+        profiler.start("Parse Damage Taken");
+        const parsedDamageTakenPromise = Promise.resolve().then(() => {
+          const result = parseFightDamageTaken(
+            damageTaken,
+            pull,
+            report.actorById,
+            report.abilityById
+          );
+          profiler.stop("Parse Damage Taken", "Parse", `Pull ${pull.id}`);
+          log.info(`Pull ${pull.id}: parsed DamageTaken`, result);
+          return result;
+        });
+
+        profiler.start("Parse Player Deaths");
+        const parsedDeathsPromise = Promise.resolve().then(() => {
+          const result = parseFightDeaths(
+            deaths,
+            pull,
+            report.actorById,
+            report.abilityById
+          );
+          profiler.stop("Parse Player Deaths", "Parse", `Pull ${pull.id}`);
+          log.info(`Pull ${pull.id}: parsed Deaths`, result);
+          return result;
+        });
+
+        // Await all parsing concurrently (they don't depend on each other)
+        const [
+          parsedBuffs,
+          parsedVulnerabilities,
+          parsedDamageTaken,
+          parsedDeaths,
+        ] = await Promise.all([
+          parsedBuffsPromise,
+          parsedVulnerabilitiesPromise,
+          parsedDamageTakenPromise,
+          parsedDeathsPromise,
+        ]);
+
+        // === TABLE BUILD PHASE ===
         const fightState = new FightState(null);
 
         profiler.start("Build FightTable");
-        // --- Build fight table with damage, buffs, vulnerabilities ---
         const fightTable = buildFightTable(
           parsedDamageTaken,
           parsedBuffs,
@@ -212,23 +264,17 @@ document.addEventListener("DOMContentLoaded", async () => {
           fightState.buffAnalysis
         );
         profiler.stop("Build FightTable", "Processing", `Pull ${pull.id}`);
-
-        // Log the final built FightTable for this pull
         log.info(`Pull ${pull.id}: built FightTable`, fightTable);
 
-        // Build condensed pull analysis from the FightTable
+        // Build condensed pull analysis
         const condensedPull = generateCondensedPullTable(fightTable);
-
-        // Attach data to existing fightState to preserve BuffAnalysis
         fightState.fightTable = fightTable;
         fightState.condensedPull = condensedPull;
 
         fightTableCache.set(pull.id, fightState);
-
-        // Log the final condensed pull table for this fight
         log.info(`Pull ${pull.id}: built condensed PullTable`, condensedPull);
 
-        profiler.print();
+        profiler.print(); // Prints full timing summary for this pull
 
         return fightState;
       }

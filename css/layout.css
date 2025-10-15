@@ -58,9 +58,21 @@
 
     overflow-x: auto;
     /* only scroll here */
-    overflow-y: visible;
 
     box-sizing: border-box;
+
+    overflow: hidden;
+    /* default state (no scroll) */
+    /* Prevents nested scrollbars:
+       - Ensures the main page handles vertical scrolling until this
+         container takes over (via JS handoff or layout logic)
+       - Stops inner elements (like the time-table) from creating their
+         own independent scroll areas
+       - Avoids "scroll bleed" or dual-scroll conflicts between the
+         table, container, and page
+    */
+    max-height: 100vh;
+    /* ensures sticky header still works */
 }
 
 /* Container for the fight table */
@@ -74,7 +86,7 @@
     width: fit-content;
     max-width: none;
 
-    overflow: visible;
     /* no scroll here */
     display: block;
+
 }

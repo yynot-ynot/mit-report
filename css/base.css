@@ -26,8 +26,21 @@ h2 {
 }
 
 h4 {
-    color: #4b5563;
-    /* softer gray for subheaders */
+    font-family: "Inter", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    font-weight: 700;
+    /* slightly bolder for definition */
+    font-size: 1.25rem;
+    /* larger, more readable */
+    line-height: 1.4;
+    color: #111827;
+    /* strong neutral gray */
+    letter-spacing: 0.01em;
+    /* subtle breathing room */
+    margin-bottom: 0.4rem;
+
+    /* optional polish */
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
 }
 
 input,

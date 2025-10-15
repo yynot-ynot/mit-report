@@ -202,59 +202,164 @@ export function renderReport(outputEl, report, loadFightTable) {
 }
 
 /**
- * Build a control panel of buttons for fight display options.
+ * renderControlPanel()
+ * --------------------------------------------------------------
+ * 🧩 Purpose:
+ *   Dynamically builds the control panel section that appears below
+ *   each fight header title. It supports both:
+ *     - Flat arrays of button definitions (legacy behavior)
+ *     - Grouped objects with labeled categories (new layout)
  *
- * Supports two types of controls:
- *   1. Toggle buttons:
- *      - Have on/off labels and maintain an internal state.
- *      - State changes call the provided `onToggle` callback.
- *   2. Action buttons (e.g. Reset Player Filter):
- *      - Always display the same label.
- *      - Trigger `onClick` only when conditions are met
- *        (e.g. only active if players are selected).
+ * 💡 Layout Summary:
+ *   The control panel is **center-aligned** and split into 3 labeled groups:
  *
- * Styling:
- *   - .toggle-btn.enable (lit, active)
- *   - .toggle-btn.disable (greyed out, inactive)
+ *   ┌──────────────────────────────────────────────────────────────┐
+ *   │ Filters        Analysis             Interaction / View       │
+ *   │ [AutoAtk] [Bleeds]   [Buff Names] [Botched]   [Highlight] [View Mode] │
+ *   │                                                  [Reset Player Filter] │
+ *   └──────────────────────────────────────────────────────────────┘
  *
- * @param {Array} options - List of control definitions
- * @returns {HTMLElement} controlPanel - The constructed control panel div
+ *   - Groups are displayed side-by-side (horizontally centered).
+ *   - Each group has a small label above its button cluster.
+ *   - The "Interaction / View" group displays its Reset button
+ *     on a second row for better balance and visual clarity.
+ *
+ * ⚙️ Behavior:
+ *   - Toggle buttons flip between `labelOn` / `labelOff` text
+ *     and trigger `onToggle(newState)`.
+ *   - Action buttons (`type: "reset-player"`) remain static
+ *     and trigger `onClick()` when applicable.
+ *   - Button states update immediately, ensuring reactive UI.
+ *
+ * 🧱 Output DOM Structure:
+ *   <div class="control-panel">
+ *     <div class="control-group filters">
+ *       <div class="group-label">Filters</div>
+ *       <div class="group-buttons"> ...buttons... </div>
+ *     </div>
+ *     <div class="control-group analysis"> ... </div>
+ *     <div class="control-group interaction"> ... </div>
+ *   </div>
+ *
+ * 📁 Styling Notes:
+ *   Corresponding CSS should define:
+ *     - `.control-panel { display: flex; justify-content: center; }`
+ *     - `.control-group { display: flex; flex-direction: column; align-items: center; }`
+ *     - `.group-buttons { display: flex; justify-content: center; gap: 0.5rem; }`
+ *     - `.interaction .group-buttons { flex-direction: column; }`
+ *
+ * @param {FilterState} filterState - Current filter state object (tracks toggle flags)
+ * @param {Array|Object} groupsOrOptions - Either:
+ *        • An array of button definitions (legacy flat layout)
+ *        • An object with named groups: { filters: [], analysis: [], interaction: [] }
+ * @returns {HTMLElement} controlPanel - Fully constructed control panel container
  */
-export function renderControlPanel(filterState, options) {
+export function renderControlPanel(filterState, groupsOrOptions) {
   const controlPanel = document.createElement("div");
   controlPanel.classList.add("control-panel");
 
-  options.forEach((opt) => {
+  // 🧠 Determine structure type: grouped or flat
+  const isGrouped =
+    groupsOrOptions &&
+    !Array.isArray(groupsOrOptions) &&
+    typeof groupsOrOptions === "object";
+
+  /**
+   * 🧩 Internal helper to build a button element from definition.
+   * Keeps legacy logic intact for toggles and reset buttons.
+   */
+  function createButton(opt) {
     const btn = document.createElement("button");
 
     if (opt.type === "reset-player") {
-      // 🔹 Reset Player Filter special case
+      // 🔹 Special: Reset Player Filter
       btn.textContent = opt.label;
-      btn.className = "toggle-btn disable"; // default greyed out
+      btn.className = "toggle-btn disable";
       btn.addEventListener("click", () => {
         if (filterState.selectedPlayers.size > 0) {
           opt.onClick();
         }
       });
-
-      // Save ref for external updates
-      filterState.resetPlayerBtn = btn;
+      filterState.resetPlayerBtn = btn; // external reference
     } else {
       // 🔹 Normal toggle buttons
-      function updateBtn() {
+      const updateBtn = () => {
         btn.textContent = opt.state ? opt.labelOn : opt.labelOff;
         btn.className = opt.state ? "toggle-btn disable" : "toggle-btn enable";
-      }
-
+      };
       btn.addEventListener("click", () => {
         opt.state = !opt.state;
         opt.onToggle(opt.state);
         updateBtn();
       });
-
       updateBtn();
     }
 
+    return btn;
+  }
+
+  // ============================================================
+  // 🧩 Case 1 — Grouped structure (new layout)
+  // ============================================================
+  if (isGrouped) {
+    const groupOrder = ["filters", "analysis", "interaction"];
+    const groupLabels = {
+      filters: "Filters",
+      analysis: "Analysis",
+      interaction: "Interaction / View",
+    };
+
+    groupOrder.forEach((groupKey) => {
+      const defs = groupsOrOptions[groupKey];
+      if (!defs || defs.length === 0) return;
+
+      const wrapper = document.createElement("div");
+      wrapper.classList.add("control-group", groupKey);
+
+      const labelEl = document.createElement("div");
+      labelEl.className = "group-label";
+      labelEl.textContent = groupLabels[groupKey];
+      wrapper.appendChild(labelEl);
+
+      const btnContainer = document.createElement("div");
+      btnContainer.classList.add("group-buttons");
+
+      // Render buttons inside this group
+      defs.forEach((opt) => {
+        const btn = createButton(opt);
+        btnContainer.appendChild(btn);
+      });
+
+      // 🪄 Layout tweak for "interaction" group (2-row arrangement)
+      if (groupKey === "interaction") {
+        // Wrap last button ("Reset Player Filter") in its own line
+        const buttons = btnContainer.querySelectorAll("button");
+        if (buttons.length > 2) {
+          const topRow = document.createElement("div");
+          topRow.className = "interaction-top-row";
+          topRow.append(buttons[0], buttons[1]);
+
+          const bottomRow = document.createElement("div");
+          bottomRow.className = "interaction-bottom-row";
+          bottomRow.append(buttons[2]);
+
+          btnContainer.innerHTML = ""; // clear
+          btnContainer.append(topRow, bottomRow);
+        }
+      }
+
+      wrapper.appendChild(btnContainer);
+      controlPanel.appendChild(wrapper);
+    });
+
+    return controlPanel;
+  }
+
+  // ============================================================
+  // 🧩 Case 2 — Flat array (legacy behavior)
+  // ============================================================
+  groupsOrOptions.forEach((opt) => {
+    const btn = createButton(opt);
     controlPanel.appendChild(btn);
   });
 
@@ -297,45 +402,47 @@ export function updateResetButtonState(filterState) {
 }
 
 /**
- * Build and return the shared fight header section.
+ * renderFightHeader()
+ * --------------------------------------------------------------
+ * 🧩 Purpose:
+ *   Builds the fight header section containing:
+ *     - The fight title (boss name + pull number)
+ *     - A **centered, grouped control panel** of toggle buttons
+ *       divided into three labeled categories:
+ *         1️⃣ Filters
+ *         2️⃣ Analysis
+ *         3️⃣ Interaction / View
  *
- * Purpose:
- *   The fight header includes:
- *     - Fight title (boss name + pull number)
- *     - A vertically stacked control panel of toggle buttons
- *       for filtering, highlighting, and table view options.
+ * 💡 Layout Summary:
+ *   The control panel now has a *horizontal*, centered layout:
  *
- * Responsibilities:
- *   • Render a consistent control panel across both detailed and condensed views.
- *   • Bind button callbacks to the correct filtering behavior.
- *   • Route filtering through `filterAndStyleCurrentView()`
- *     so the correct handler is invoked for the active view mode.
- *   • Call `reRenderCallback(fightState)` only for view structure changes
- *     (e.g., toggling condensed ↔ detailed).
+ *   ┌──────────────────────────────────────────────────────────┐
+ *   │ Filters        Analysis             Interaction / View   │
+ *   │ [AutoAtk] [Bleeds]   [Buff Names] [Botched]   [Highlight] [View Mode] │
+ *   │                                                [Reset Player Filter]   │
+ *   └──────────────────────────────────────────────────────────┘
  *
- * Behavior:
- *   Each control button corresponds to a filter or UI toggle:
- *     - Show/Hide Auto-Attacks
- *     - Show/Hide Bleeds / DoTs
- *     - Enable/Disable Target Player Highlight
- *     - Show Buffs (Detailed) vs Show Abilities Only
- *     - Reset Player Filter
- *     - Show/Hide Botched Mitigations
- *     - Toggle Condensed / Detailed Table View
+ *   - Groups are visually labeled and horizontally centered.
+ *   - “Reset Player Filter” sits below the Highlight/View buttons.
  *
- * Interaction Policy:
- *   - Structural toggles (like "Show Condensed Table") → trigger full re-render.
- *   - Style-only toggles (like "Hide Auto-Attacks") → apply immediately to the existing DOM.
- *   - Player header clicks use `filterAndStyleCurrentView()` directly.
+ * ⚙️ Behavior Notes:
+ *   - Toggles still call `filterAndStyleCurrentView()` for immediate DOM updates.
+ *   - Structural toggles (Condensed ↔ Detailed view) trigger full re-render.
+ *   - The “Show Buff Names” toggle corresponds to `filterState.showAbilitiesOnly`.
  *
- * Safety:
- *   ✅ Safe to call before table exists — only sets up callbacks.
- *   ✅ Callbacks check `fightState.tableEl` at runtime.
- *   ✅ No redundant re-renders except for view mode changes.
+ * 🧱 DOM Hierarchy:
+ *   <div class="fight-header">
+ *     <h4>Futures Rewritten (Pull: 13)</h4>
+ *     <div class="control-panel">
+ *       <div class="control-group filters"> ... </div>
+ *       <div class="control-group analysis"> ... </div>
+ *       <div class="control-group interaction"> ... </div>
+ *     </div>
+ *   </div>
  *
- * @param {FightState} fightState - The state container for this fight
- * @param {Object} report - The parsed report data
- * @param {Function} reRenderCallback - Function to fully rebuild view (renderFight)
+ * @param {FightState} fightState - Per-fight state container (filters, table, etc.)
+ * @param {Object} report - Parsed report data
+ * @param {Function} reRenderCallback - Function to re-render when structure changes
  * @returns {HTMLElement} headerContainer - Fully assembled header DOM element
  */
 function renderFightHeader(fightState, report, reRenderCallback) {
@@ -348,16 +455,21 @@ function renderFightHeader(fightState, report, reRenderCallback) {
   // --- Title element (boss + pull number) ---
   const titleEl = document.createElement("h4");
   titleEl.textContent = `${fightState.fightTable.name} (Pull: ${fightState.fightTable.bossPullNumber})`;
+  headerContainer.appendChild(titleEl);
 
-  // --- Build Control Panel Definition ---
-  const controlPanel = renderControlPanel(filterState, [
+  // --- Build grouped control panel ---
+  // 3 logical groups: Filters, Analysis, Interaction/View
+  const controlPanel = document.createElement("div");
+  controlPanel.classList.add("control-panel");
+
+  // ====== 1️⃣ Filters Group ======
+  const filtersGroup = renderControlPanel(filterState, [
     {
       labelOn: "Hide Auto-Attacks",
       labelOff: "Show Auto-Attacks",
       state: filterState.showAutoAttacks,
       onToggle: (newState) => {
         filterState.showAutoAttacks = newState;
-        // 🔁 Reapply filters on current view only
         filterAndStyleCurrentView(fightState, report);
       },
     },
@@ -370,33 +482,23 @@ function renderFightHeader(fightState, report, reRenderCallback) {
         filterAndStyleCurrentView(fightState, report);
       },
     },
+  ]);
+  const filtersLabel = document.createElement("div");
+  filtersLabel.className = "group-label";
+  filtersLabel.textContent = "Filters";
+  const filtersWrapper = document.createElement("div");
+  filtersWrapper.className = "control-group filters";
+  filtersWrapper.append(filtersLabel, filtersGroup);
+
+  // ====== 2️⃣ Analysis Group ======
+  const analysisGroup = renderControlPanel(filterState, [
     {
-      labelOn: "Disable Target Player Highlight",
-      labelOff: "Enable Target Player Highlight",
-      state: filterState.enableColumnHighlight,
-      onToggle: (newState) => {
-        filterState.enableColumnHighlight = newState;
-        // ⚙️ No filter pass needed — highlight only affects hover interaction
-      },
-    },
-    {
-      labelOn: "Show Buffs (Detailed)",
-      labelOff: "Show Abilities Only",
+      labelOn: "Show Ability Names",
+      labelOff: "Show Buff Names",
       state: filterState.showAbilitiesOnly,
       onToggle: (newState) => {
         filterState.showAbilitiesOnly = newState;
         filterAndStyleCurrentView(fightState, report);
-      },
-    },
-    {
-      type: "reset-player",
-      label: "Reset Player Filter",
-      state: false,
-      onClick: () => {
-        // 🧹 Clear selected players and refresh current view
-        filterState.resetPlayers();
-        filterAndStyleCurrentView(fightState, report);
-        updateResetButtonState(filterState);
       },
     },
     {
@@ -408,22 +510,57 @@ function renderFightHeader(fightState, report, reRenderCallback) {
         filterAndStyleCurrentView(fightState, report);
       },
     },
+  ]);
+  const analysisLabel = document.createElement("div");
+  analysisLabel.className = "group-label";
+  analysisLabel.textContent = "Analysis";
+  const analysisWrapper = document.createElement("div");
+  analysisWrapper.className = "control-group analysis";
+  analysisWrapper.append(analysisLabel, analysisGroup);
+
+  // ====== 3️⃣ Interaction / View Group ======
+  const interactionGroup = renderControlPanel(filterState, [
     {
-      labelOn: "Show Detailed Table", // when condensed view is active
-      labelOff: "Show Condensed Table", // when detailed view is active
+      labelOn: "Disable Target Highlight",
+      labelOff: "Enable Target Highlight",
+      state: filterState.enableColumnHighlight,
+      onToggle: (newState) => {
+        filterState.enableColumnHighlight = newState;
+        // ⚙️ Highlight only affects hover interaction, no re-filter needed
+      },
+    },
+    {
+      labelOn: "Show Detailed Table", // when condensed view active
+      labelOff: "Show Condensed Table", // when detailed view active
       state: filterState.showCondensedView,
       onToggle: (newState) => {
         filterState.showCondensedView = newState;
         log.info(`[ControlPanel] Condensed view → ${newState ? "ON" : "OFF"}`);
-
-        // 🔁 Full re-render required for structural switch
-        reRenderCallback(fightState);
+        reRenderCallback(fightState); // full rebuild
+      },
+    },
+    {
+      type: "reset-player",
+      label: "Reset Player Filter",
+      state: false,
+      onClick: () => {
+        filterState.resetPlayers();
+        filterAndStyleCurrentView(fightState, report);
+        updateResetButtonState(filterState);
       },
     },
   ]);
+  const interactionLabel = document.createElement("div");
+  interactionLabel.className = "group-label";
+  interactionLabel.textContent = "Interaction / View";
+  const interactionWrapper = document.createElement("div");
+  interactionWrapper.className = "control-group interaction";
+  interactionWrapper.append(interactionLabel, interactionGroup);
 
-  // --- Assemble Header ---
-  headerContainer.appendChild(titleEl);
+  // --- Assemble final control panel ---
+  controlPanel.append(filtersWrapper, analysisWrapper, interactionWrapper);
+
+  // --- Add to header ---
   headerContainer.appendChild(controlPanel);
 
   return headerContainer;

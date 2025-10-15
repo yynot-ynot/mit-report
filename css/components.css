@@ -67,18 +67,3 @@
     color: white;
     border-color: #2563eb;
 }
-
-.fight-header {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-    /* align left */
-    gap: 0.5rem;
-    margin-bottom: 0.5rem;
-}
-
-.control-panel {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.5rem;
-}

@@ -1,0 +1,151 @@
+/* ============================================================
+   controlPanel.css
+   ------------------------------------------------------------
+   💡 Purpose:
+   Dedicated styling for the grouped, centered Control Panel UI
+   displayed under each fight header.
+
+   Layout Overview:
+     ┌───────────────────────────────────────────────┐
+     │ Filters       Analysis        Interaction/View│
+     │ [AutoAtk] [Bleeds] [Buff Names] [Botched]    │
+     │                              [Highlight] [View]
+     │                              [Reset Player]   │
+     └───────────────────────────────────────────────┘
+
+   ============================================================ */
+
+/* ---------- Base container ---------- */
+.control-panel {
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    flex-wrap: nowrap;
+    gap: 1.5rem;
+    /* slightly tighter than before */
+    margin-top: 0.25rem;
+    margin-bottom: 0.5rem;
+    text-align: center;
+}
+
+/* Faint divider between groups */
+.control-group:not(:last-child) {
+    border-right: 1px solid #ddd;
+    padding-right: 1.5rem;
+}
+
+/* ---------- Each group block ---------- */
+.control-group {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.35rem;
+    min-width: 180px;
+}
+
+/* ---------- Filters group alignment (centered like others) ---------- */
+.control-group.filters {
+    align-items: center;
+    text-align: center;
+}
+
+/* ---------- Group label (Filters / Analysis / Interaction) ---------- */
+.group-label {
+    font-family: "Inter", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    font-weight: 600;
+    font-size: 0.95rem;
+    /* larger and more readable */
+    color: #222;
+    text-align: center;
+    /* ✅ all group names centered, including Filters */
+    margin-bottom: 0.4rem;
+    padding: 3px 8px;
+
+    /* Sleek modern visual treatment */
+    background: #fafafa;
+    border: 1px solid #e4e4e4;
+    border-radius: 6px;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+    letter-spacing: 0.02em;
+    text-transform: none;
+    /* remove uppercase for a cleaner look */
+}
+
+/* ---------- Button rows within a group ---------- */
+.group-buttons {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 0.25rem;
+}
+
+/* ---------- Interaction group: 2-row layout ---------- */
+.control-group.interaction .group-buttons {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.4rem;
+}
+
+.interaction-top-row {
+    display: flex;
+    justify-content: center;
+    gap: 0.4rem;
+}
+
+.interaction-bottom-row {
+    display: flex;
+    justify-content: center;
+}
+
+/* ---------- Toggle buttons ---------- */
+.toggle-btn {
+    padding: 6px 10px;
+    cursor: pointer;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    background: #f8f8f8;
+    transition: background-color 0.2s, opacity 0.2s;
+    text-align: center;
+    white-space: nowrap;
+    min-width: 130px;
+}
+
+/* Active (enabled) state */
+.toggle-btn.enable {
+    background-color: #dcfce7;
+    /* light green */
+    border-color: #22c55e;
+    color: #166534;
+}
+
+/* Inactive (disabled) state */
+.toggle-btn.disable {
+    background-color: #e0e0e0;
+    border-color: #bbb;
+    color: #666;
+    opacity: 0.8;
+    cursor: default;
+}
+
+/* ---------- Responsive adjustments ---------- */
+@media (max-width: 900px) {
+    .control-panel {
+        flex-wrap: wrap;
+        gap: 1rem;
+    }
+
+    .control-group {
+        min-width: 140px;
+    }
+}
+
+/* ---------- Fight Header alignment fix ---------- */
+.fight-header {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    /* ← left aligned title */
+    gap: 0.5rem;
+    margin-bottom: 0.5rem;
+}

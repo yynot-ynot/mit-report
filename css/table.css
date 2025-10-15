@@ -257,7 +257,6 @@
 .time-table th.player-deselected {
     background-color: #e5e5e5 !important;
     color: #888 !important;
-    opacity: 0.7;
 }
 
 /* Intended mitigation percentage (struck-through, greyed out) */

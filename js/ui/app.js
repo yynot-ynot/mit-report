@@ -97,6 +97,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         }
 
         log.info(`Loading fight table for Fight ${pull.id} (${pull.name})`);
+        const startTime = performance.now();
 
         // === PARALLEL FETCH PHASE ===
         // We start timing each individual fetch, even though they all run concurrently.
@@ -275,6 +276,9 @@ document.addEventListener("DOMContentLoaded", async () => {
         log.info(`Pull ${pull.id}: built condensed PullTable`, condensedPull);
 
         profiler.print(); // Prints full timing summary for this pull
+
+        const totalTime = ((performance.now() - startTime) / 1000).toFixed(2);
+        log.info(`Pull ${pull.id}: total analysis time = ${totalTime}s`);
 
         return fightState;
       }

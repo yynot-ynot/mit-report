@@ -163,7 +163,7 @@ export function buildStatusList(parsedEvents, fight) {
         );
       } else {
         // 🟠 TODO: Handle mid-fight removes without apply
-        log.error(
+        log.warn(
           `Unmatched REMOVE event @${relTs}ms (${formatRelativeTime(
             ev.rawTimestamp,
             fight.startTime

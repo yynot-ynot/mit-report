@@ -157,6 +157,13 @@ export function renderReport(outputEl, report, loadFightTable) {
 
         fightContainer.innerHTML = "Loading fight data...";
         const fightState = await loadFightTable(f);
+
+        // Add per-boss pull number
+        f.bossPullNumber = idx + 1;
+
+        // Ensure the pull number persists
+        fightState.fightTable.bossPullNumber = f.bossPullNumber;
+
         renderFight(fightState);
       });
 
@@ -340,7 +347,7 @@ function renderFightHeader(fightState, report, reRenderCallback) {
 
   // --- Title element (boss + pull number) ---
   const titleEl = document.createElement("h4");
-  titleEl.textContent = `${fightState.fightTable.name} (Pull: ${fightState.fightTable.fightId})`;
+  titleEl.textContent = `${fightState.fightTable.name} (Pull: ${fightState.fightTable.bossPullNumber})`;
 
   // --- Build Control Panel Definition ---
   const controlPanel = renderControlPanel(filterState, [

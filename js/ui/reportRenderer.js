@@ -493,8 +493,8 @@ function renderFightHeader(fightState, report, reRenderCallback) {
   // ====== 2️⃣ Analysis Group ======
   const analysisGroup = renderControlPanel(filterState, [
     {
-      labelOn: "Show Ability Names",
-      labelOff: "Show Buff Names",
+      labelOn: "Show Buff Names",
+      labelOff: "Show Ability Names",
       state: filterState.showAbilitiesOnly,
       onToggle: (newState) => {
         filterState.showAbilitiesOnly = newState;

@@ -16,7 +16,7 @@ export class FilterState {
     this.enableColumnHighlight = true;
 
     /** @type {boolean} Collapse buffs into originating abilities */
-    this.showAbilitiesOnly = true;
+    this.showAbilitiesOnly = false;
 
     /** @type {boolean} Whether to display auto-attacks in fight tables */
     this.showAutoAttacks = false;
@@ -34,7 +34,7 @@ export class FilterState {
     this.resetPlayerBtn = null;
 
     /** @type {boolean} Whether to show botched mitigation comparisons */
-    this.showBotchedMitigations = false;
+    this.showBotchedMitigations = true;
   }
 
   /**

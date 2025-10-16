@@ -429,3 +429,83 @@ export function attachStickyHeaderHighlight(table, row, filterState) {
     });
   });
 }
+
+/**
+ * applyAdaptiveScrollPadding()
+ * --------------------------------------------------------------
+ * 🔧 Purpose:
+ *   Dynamically adds bottom padding to a scrollable table wrapper
+ *   (usually `.time-table-wrapper`) so the last rows aren’t clipped
+ *   when scrolled to the bottom.
+ *
+ * 💡 Why:
+ *   Fixed padding (e.g. `16rem`) doesn't adapt to varying table lengths.
+ *   This function measures the rendered table height and computes an
+ *   adaptive "scroll buffer" that scales proportionally.
+ *
+ * ⚙️ Behavior:
+ *   - Waits until the browser has painted the table (via requestAnimationFrame).
+ *   - Measures the table’s total scroll height once layout is stable.
+ *   - Adds bottom padding to the wrapper equal to a configurable % of the height.
+ *   - Automatically retries measurement if tableHeight is 0 (e.g. async render).
+ *   - Clamps padding between defined min and max pixel values.
+ *   - Safe for repeated calls (updates existing padding idempotently).
+ *
+ * 🧩 Example:
+ *   const wrapper = container.querySelector('.time-table-wrapper');
+ *   applyAdaptiveScrollPadding(wrapper);
+ *
+ * 🪄 Notes:
+ *   - Works for both **Detailed** and **Condensed** renderers.
+ *   - Reacts gracefully to async updates (filters, buffs, etc.).
+ *   - Should be called *after* table is appended to the DOM.
+ *   - Padding is applied to the wrapper, not the table itself.
+ *
+ * @param {HTMLElement} wrapper - The scrollable wrapper element (e.g. `.time-table-wrapper`)
+ * @param {HTMLElement} [table] - Optional table element to measure. Defaults to first `<table>` inside wrapper.
+ * @param {Object} [options] - Optional configuration overrides.
+ * @param {number} [options.ratio=0.12] - Fraction of table height used as padding (12% by default).
+ * @param {number} [options.min=100] - Minimum padding in pixels.
+ * @param {number} [options.max=320] - Maximum padding in pixels.
+ */
+export function applyAdaptiveScrollPadding(wrapper, table, options = {}) {
+  if (!wrapper) return;
+
+  const config = {
+    ratio: options.ratio ?? 0.12,
+    min: options.min ?? 100,
+    max: options.max ?? 320,
+  };
+
+  const targetTable = table || wrapper.querySelector("table");
+  if (!targetTable) return;
+
+  // ✅ Delay measurement until after next paint cycle
+  requestAnimationFrame(() => {
+    // Sometimes table updates asynchronously (filters, buffs, etc.)
+    // So check again a bit later to ensure proper height
+    const measureAndApply = () => {
+      const tableHeight =
+        targetTable.scrollHeight || targetTable.offsetHeight || 0;
+
+      if (tableHeight === 0) {
+        // Recheck shortly if layout isn't ready yet
+        setTimeout(measureAndApply, 100);
+        return;
+      }
+
+      const buffer = Math.min(
+        Math.max(tableHeight * config.ratio, config.min),
+        config.max
+      );
+
+      wrapper.style.paddingBottom = `${buffer}px`;
+
+      console.debug(
+        `[applyAdaptiveScrollPadding] ✅ Table height=${tableHeight}px → padding=${buffer}px`
+      );
+    };
+
+    measureAndApply();
+  });
+}

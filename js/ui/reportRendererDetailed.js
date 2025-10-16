@@ -17,6 +17,7 @@ import {
   shouldHideEvent,
   shouldShowRowForPlayerSelection,
   attachStickyHeaderHighlight,
+  applyAdaptiveScrollPadding,
 } from "./reportRendererUtils.js";
 import {
   getLogger,
@@ -236,6 +237,11 @@ export function renderDetailedTable(fightState, report, section) {
     // Re-apply filters + repaint after buff names resolve
     filterAndStyleCurrentView(fightState, report);
   });
+
+  // ============================================================
+  // 🧩 Adaptive scroll padding for end-of-table visibility
+  // ============================================================
+  applyAdaptiveScrollPadding(wrapper, table);
 }
 
 /**

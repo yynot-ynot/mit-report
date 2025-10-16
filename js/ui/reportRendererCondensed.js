@@ -21,6 +21,7 @@ import {
   renderBuffCell,
   shouldShowRowForPlayerSelection,
   attachStickyHeaderHighlight,
+  applyAdaptiveScrollPadding,
 } from "./reportRendererUtils.js";
 
 setModuleLogLevel("ReportRendererCondensed", envLogLevel("debug", "warn"));
@@ -233,6 +234,11 @@ export function renderCondensedTable(fightState, report, section) {
   fightState.buffAnalysis.waitForBuffLookups(() => {
     filterAndStyleCondensedTable(fightState, report);
   });
+
+  // ============================================================
+  // 🧩 Adaptive scroll padding for end-of-table visibility
+  // ============================================================
+  applyAdaptiveScrollPadding(wrapper, table);
 }
 
 /**

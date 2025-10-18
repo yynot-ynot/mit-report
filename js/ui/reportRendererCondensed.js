@@ -22,6 +22,7 @@ import {
   shouldShowRowForPlayerSelection,
   attachStickyHeaderHighlight,
   applyAdaptiveScrollPadding,
+  getDamageTypeIconHTML,
 } from "./reportRendererUtils.js";
 
 setModuleLogLevel("ReportRendererCondensed", envLogLevel("debug", "warn"));
@@ -147,7 +148,11 @@ export function renderCondensedTable(fightState, report, section) {
 
     // Attack Name
     const tdAbility = document.createElement("td");
-    tdAbility.textContent = set.ability || "(Unknown)";
+    const beforeIcon = getDamageTypeIconHTML(set.damageType);
+    const afterIcon = getDamageTypeIconHTML(set.damageType);
+    tdAbility.innerHTML = `${beforeIcon}${
+      set.ability || "(Unknown)"
+    }${afterIcon}`;
     parentRow.appendChild(tdAbility);
 
     // Per-player buff contributions

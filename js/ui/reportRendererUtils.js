@@ -509,3 +509,32 @@ export function applyAdaptiveScrollPadding(wrapper, table, options = {}) {
     measureAndApply();
   });
 }
+
+/**
+ * getDamageTypeIconHTML()
+ * --------------------------------------------------------------
+ * Returns an HTML <img> element string for a given damage type.
+ *
+ * @param {"physical"|"magical"|"unique"|null} damageType - The attack's damage type
+ * @param {Object} [options] - Optional configuration
+ * @param {boolean} [options.includeSpacing=true] - Adds small margin spacing
+ * @returns {string} - HTML string for the icon (may be empty if damageType is null)
+ */
+export function getDamageTypeIconHTML(damageType, options = {}) {
+  const includeSpacing = options.includeSpacing !== false;
+
+  if (!damageType) return "";
+
+  const iconMap = {
+    physical: "js/config/damage_icons/Physical_Damage_Icon.png",
+    magical: "js/config/damage_icons/Magic_Damage_Icon.png",
+    unique: "js/config/damage_icons/Unique_Damage_Icon.png",
+  };
+
+  const src = iconMap[damageType];
+  if (!src) return "";
+
+  const spacing = includeSpacing ? "margin: 0 0.25rem;" : "";
+
+  return `<img src="${src}" alt="${damageType} icon" style="height: 1em; vertical-align: middle; ${spacing}">`;
+}

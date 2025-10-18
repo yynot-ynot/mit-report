@@ -184,11 +184,20 @@ export function parseFightDamageTaken(events, fight, actorById, abilityById) {
       const unmitigated = ev.unmitigatedAmount ?? amount;
       const mitigated = unmitigated - amount - absorbed;
 
-      // Determine the translated damage type label (e.g. "physical" | "magical")
-      const damageType =
-        ability?.type && typeCodeToDamageType[ability.type]
-          ? typeCodeToDamageType[ability.type]
-          : null;
+      // Determine the translated damage type label (physical | magical | unique | null)
+      let damageType = null;
+
+      if (ability?.type != null) {
+        if (typeCodeToDamageType[ability.type]) {
+          damageType = typeCodeToDamageType[ability.type];
+        } else {
+          // Ability has a defined type, but it's not in our map — treat as "unique"
+          damageType = "unique";
+        }
+      } else {
+        // ability.type is missing entirely — keep null
+        damageType = null;
+      }
 
       // 1. Actual mitigation from event data
       const mitigationPct =
@@ -213,6 +222,7 @@ export function parseFightDamageTaken(events, fight, actorById, abilityById) {
         mitigated,
         mitigationPct, // actual % from data
         intendedMitPct, // theoretical % from buffs
+        damageType,
         buffs: buffNames, // include parsed buffs
       };
     })
@@ -566,6 +576,7 @@ export function buildFightTable(
       mitigated: ev.mitigated,
       mitigationPct: ev.mitigationPct,
       intendedMitPct: ev.intendedMitPct, // theoretical % from buffs
+      damageType: ev.damageType,
       buffs: {},
       vulns: {}, // active vulnerabilities (per-target, no sources)
       deaths: [], // all players dead at this timestamp

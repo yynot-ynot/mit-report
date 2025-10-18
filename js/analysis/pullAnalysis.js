@@ -345,5 +345,6 @@ function buildCondensedGroup(group) {
     ability,
     players: finalizedPlayers,
     children: rows,
+    damageType: rows[0]?.damageType ?? null,
   };
 }

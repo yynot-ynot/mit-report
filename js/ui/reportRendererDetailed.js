@@ -18,6 +18,7 @@ import {
   shouldShowRowForPlayerSelection,
   attachStickyHeaderHighlight,
   applyAdaptiveScrollPadding,
+  getDamageTypeIconHTML,
 } from "./reportRendererUtils.js";
 import {
   getLogger,
@@ -165,9 +166,11 @@ export function renderDetailedTable(fightState, report, section) {
     tdTime.textContent = formatRelativeTime(event.timestamp, 0);
     row.appendChild(tdTime);
 
-    // Ability column
+    // Ability column with damage type icons
     const tdAbility = document.createElement("td");
-    tdAbility.textContent = event.ability || "";
+    const beforeIcon = getDamageTypeIconHTML(event.damageType);
+    const afterIcon = getDamageTypeIconHTML(event.damageType);
+    tdAbility.innerHTML = `${beforeIcon}${event.ability || ""}${afterIcon}`;
     row.appendChild(tdAbility);
 
     // Damage column

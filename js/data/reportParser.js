@@ -145,8 +145,8 @@ export function parseFightDamageTaken(events, fight, actorById, abilityById) {
   // Store translation from numeric type code → readable label
   const typeCodeToDamageType = {
     32: "magical",
-    128: "physical",
-    1024: "magical",
+    128: "physical", // Regular physical
+    1024: "magical", // Regular magical
   };
 
   const parsed = events

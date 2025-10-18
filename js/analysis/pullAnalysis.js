@@ -179,6 +179,15 @@ export function generateCondensedPullTable(fightTable) {
     (a, b) => a.timestamp - b.timestamp
   );
 
+  if (allRows.length === 0) {
+    return {
+      fightId: fightTable.fightId,
+      encounterId: fightTable.encounterId,
+      name: fightTable.name,
+      condensedSets: [],
+    };
+  }
+
   const activeGroups = new Map(); // abilityName → current group object
 
   for (const row of allRows) {

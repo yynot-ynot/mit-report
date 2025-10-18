@@ -176,6 +176,10 @@
     background-color: inherit;
 }
 
+.time-table td.ability-cell {
+    white-space: nowrap;
+}
+
 /* Highlight target player header (for hover highlight) */
 .time-table th.highlight-header {
     border: 2px solid #ffd580;

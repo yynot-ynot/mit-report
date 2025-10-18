@@ -255,16 +255,18 @@ export function parseFightDamageTaken(events, fight, actorById, abilityById) {
  * @param {Array} damageEvents - Parsed damage-taken events (with ev.buffs)
  * @param {Object} fightTable - FightTable being constructed
  * @param {Object} fight - Fight metadata for logging context
+ * @param {Map<string, Object>} rowMap - Prebuilt lookup map of fight table rows keyed by `${timestamp}_${actor}`
  */
 function applyBuffsToAttacks(
   statusList,
   damageEvents,
   fightTable,
   fight,
-  buffAnalysis
+  buffAnalysis,
+  rowMap
 ) {
   damageEvents.forEach((ev) => {
-    const row = fightTable.rows[ev.relative];
+    const row = rowMap.get(`${ev.relative}_${ev.actor}`);
     if (!row) return;
 
     ev.buffs.forEach((buffName) => {
@@ -353,15 +355,17 @@ function applyBuffsToAttacks(
  * @param {Array} damageEvents - Parsed damage-taken events
  * @param {Object} fightTable - FightTable being constructed
  * @param {Object} fight - Fight metadata for logging context
+ * @param {Map<string, Object>} rowMap - Prebuilt lookup map of fight table rows keyed by `${timestamp}_${actor}`
  */
 function applyVulnsToAttacks(
   vulnerabilityStatusList,
   damageEvents,
   fightTable,
-  fight
+  fight,
+  rowMap
 ) {
   damageEvents.forEach((ev) => {
-    const row = fightTable.rows[ev.relative];
+    const row = rowMap.get(`${ev.relative}_${ev.actor}`);
     if (!row) return;
 
     if (!row.vulns) {
@@ -412,15 +416,17 @@ function applyVulnsToAttacks(
  * @param {Array} damageEvents - Parsed damage-taken events
  * @param {Object} fightTable - FightTable being constructed
  * @param {Object} fight - Fight metadata for logging context
+ * @param {Map<string, Object>} rowMap - Prebuilt lookup map of fight table rows keyed by `${timestamp}_${actor}`
  */
 function applyDeathsToAttacks(
   deathStatusList,
   damageEvents,
   fightTable,
-  fight
+  fight,
+  rowMap
 ) {
   damageEvents.forEach((ev) => {
-    const row = fightTable.rows[ev.relative];
+    const row = rowMap.get(`${ev.relative}_${ev.actor}`);
     if (!row) return;
 
     if (!row.deaths) {
@@ -541,47 +547,73 @@ export function buildFightTable(
     fightId: fight.id,
     encounterId: fight.encounterID,
     name: fight.name,
-    rows: {},
+    rows: [],
     // Instead of duplicating actor metadata, only keep friendly player IDs
     friendlyPlayerIds: fight.friendlyPlayers || [],
   };
 
   // Populate rows from damage events
   damageEvents.forEach((ev) => {
-    const ts = ev.relative;
-    if (!table.rows[ts]) {
-      table.rows[ts] = {
-        source: ev.source,
-        actor: ev.actor, // target actor name
-        targetID: ev.targetID ?? null, // optional: add ID for safer matching
-        ability: ev.ability,
-        amount: ev.amount,
-        absorbed: ev.absorbed,
-        unmitigatedAmount: ev.unmitigatedAmount,
-        mitigated: ev.mitigated,
-        mitigationPct: ev.mitigationPct,
-        intendedMitPct: ev.intendedMitPct, // theoretical % from buffs
-        buffs: {},
-        vulns: {}, // active vulnerabilities (per-target, no sources)
-        deaths: [], // all players dead at this timestamp
-      };
-    }
+    table.rows.push({
+      timestamp: ev.relative,
+      source: ev.source,
+      actor: ev.actor, // target actor name
+      targetID: ev.targetID ?? null, // optional: add ID for safer matching
+      ability: ev.ability,
+      amount: ev.amount,
+      absorbed: ev.absorbed,
+      unmitigatedAmount: ev.unmitigatedAmount,
+      mitigated: ev.mitigated,
+      mitigationPct: ev.mitigationPct,
+      intendedMitPct: ev.intendedMitPct, // theoretical % from buffs
+      buffs: {},
+      vulns: {}, // active vulnerabilities (per-target, no sources)
+      deaths: [], // all players dead at this timestamp
+    });
 
+    const newRow = table.rows[table.rows.length - 1];
     ev.buffs.forEach((buffName) => {
-      if (!table.rows[ts].buffs[buffName]) {
-        table.rows[ts].buffs[buffName] = [];
+      if (!newRow.buffs[buffName]) {
+        newRow.buffs[buffName] = [];
       }
     });
   });
 
+  // Sort rows by timestamp (just to guarantee chronological order)
+  table.rows.sort(
+    (a, b) => a.timestamp - b.timestamp || a.actor.localeCompare(b.actor)
+  );
+
+  // Build one shared lookup map for efficient row access
+  // Prebuild a quick lookup map: key = `${timestamp}_${actor}`
+  // ⚡ Optimization: `fightTable.rows` is now an array, not keyed by timestamp.
+  // Build a lookup map once per call to avoid O(n²) .find() scans.
+  const rowMap = new Map();
+  for (const row of table.rows) {
+    rowMap.set(`${row.timestamp}_${row.actor}`, row);
+  }
+
   // Fill in applier names based on buff timelines
-  applyBuffsToAttacks(statusList, damageEvents, table, fight, buffAnalysis);
+  applyBuffsToAttacks(
+    statusList,
+    damageEvents,
+    table,
+    fight,
+    buffAnalysis,
+    rowMap
+  );
 
   // Fill in vulnerabilities based on target timelines
-  applyVulnsToAttacks(vulnerabilityStatusList, damageEvents, table, fight);
+  applyVulnsToAttacks(
+    vulnerabilityStatusList,
+    damageEvents,
+    table,
+    fight,
+    rowMap
+  );
 
   // Fill in deaths based on death timelines
-  applyDeathsToAttacks(deathStatusList, damageEvents, table, fight);
+  applyDeathsToAttacks(deathStatusList, damageEvents, table, fight, rowMap);
 
   // ✅ Final pass: replace null/unknown appliers with all players in this fight
   buffAnalysis.resolveMissingBuffSources(table, actorById, fight);

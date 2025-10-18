@@ -192,8 +192,9 @@ export function renderCondensedTable(fightState, report, section) {
 
       // Collapse: hide existing inline child rows
       if (!expanded) {
+        const parentKey = `${set.timestamp}_${set.ability}`;
         const existingChildren = tbody.querySelectorAll(
-          `tr.child-event-row[data-parent-id="${set.id ?? set.timestamp}"]`
+          `tr.child-event-row[data-parent-id="${parentKey}"]`
         );
         existingChildren.forEach((r) => r.remove());
         log.debug(`[CondensedTable] Collapsed "${set.ability}"`);
@@ -327,7 +328,7 @@ export function filterAndStyleCondensedTable(fightState, report) {
       }
 
       const inlineChildren = tbody.querySelectorAll(
-        `tr.child-event-row[data-parent-id="${set.id ?? set.timestamp}"]`
+        `tr.child-event-row[data-parent-id="${set.timestamp}_${set.ability}"]`
       );
       inlineChildren.forEach((r) => (r.style.display = "none"));
 
@@ -380,7 +381,7 @@ export function filterAndStyleCondensedTable(fightState, report) {
     // --- NEW inline child-event-row support ---
     const inlineChildren = Array.from(
       tbody.querySelectorAll(
-        `tr.child-event-row[data-parent-id="${set.id ?? set.timestamp}"]`
+        `tr.child-event-row[data-parent-id="${set.timestamp}_${set.ability}"]`
       )
     );
     if (inlineChildren.length > 0) {
@@ -681,7 +682,8 @@ export function insertChildEventRows(set, parentRow, fightState, report) {
   for (const child of set.children) {
     const row = document.createElement("tr");
     row.classList.add("child-event-row");
-    row.dataset.parentId = set.id ?? set.timestamp;
+    const parentKey = `${set.timestamp}_${set.ability}`;
+    row.dataset.parentId = parentKey;
     row.__childEvent__ = child;
 
     // --- dataset setup for filtering compatibility ---

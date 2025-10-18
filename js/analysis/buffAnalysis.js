@@ -244,7 +244,7 @@ export class BuffAnalysis {
    * @param {Object} fight - Fight metadata (for logging)
    */
   resolveMissingBuffSources(table, actorById, fight) {
-    for (const [ts, row] of Object.entries(table.rows)) {
+    for (const row of table.rows) {
       for (const [buffName, appliers] of Object.entries(row.buffs)) {
         if (
           appliers.length === 0 ||
@@ -253,7 +253,7 @@ export class BuffAnalysis {
           if (!this.isVulnerability(buffName)) {
             log.warn(
               `Fight ${fight.id}, ts=${formatRelativeTime(
-                Number(ts) + fight.startTime,
+                row.timestamp + fight.startTime,
                 fight.startTime
               )}: Buff ${buffName} had no valid source, ` +
                 `crediting damage target "${row.actor}" instead`

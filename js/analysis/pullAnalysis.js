@@ -174,9 +174,10 @@ export function generateCondensedPullTable(fightTable) {
   }
 
   const condensedSets = [];
-  const allRows = Object.entries(fightTable.rows)
-    .map(([ts, row]) => ({ ...row, timestamp: Number(ts) }))
-    .sort((a, b) => a.timestamp - b.timestamp);
+  // Rows are already an array — just clone & ensure sorted by timestamp
+  const allRows = [...fightTable.rows].sort(
+    (a, b) => a.timestamp - b.timestamp
+  );
 
   const activeGroups = new Map(); // abilityName → current group object
 

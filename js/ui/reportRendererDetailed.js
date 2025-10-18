@@ -72,9 +72,9 @@ export function renderDetailedTable(fightState, report, section) {
   );
 
   // --- Extract and sort all event timestamps ---
-  const timestamps = Object.keys(fightTable.rows)
-    .map((n) => parseInt(n, 10))
-    .sort((a, b) => a - b);
+  const allRows = [...fightTable.rows].sort(
+    (a, b) => a.timestamp - b.timestamp
+  );
 
   // --- Resolve player metadata ---
   const allActors = fightTable.friendlyPlayerIds
@@ -91,7 +91,7 @@ export function renderDetailedTable(fightState, report, section) {
   const sortedActors = sortActorsByJob(allActors);
 
   // --- Early Exit: No events recorded ---
-  if (timestamps.length === 0) {
+  if (allRows.length === 0) {
     const msg = document.createElement("div");
     msg.textContent = "No events recorded for this pull.";
     section.appendChild(msg);
@@ -157,13 +157,12 @@ export function renderDetailedTable(fightState, report, section) {
   // ============================================================
   const tbody = document.createElement("tbody");
 
-  timestamps.forEach((ms) => {
-    const event = fightTable.rows[ms];
+  allRows.forEach((event) => {
     const row = document.createElement("tr");
 
     // Timestamp column
     const tdTime = document.createElement("td");
-    tdTime.textContent = formatRelativeTime(ms, 0);
+    tdTime.textContent = formatRelativeTime(event.timestamp, 0);
     row.appendChild(tdTime);
 
     // Ability column
@@ -300,9 +299,10 @@ export function filterAndStyleDetailedTable(fightState, report) {
     row.style.display = ""; // reset visibility
   });
 
-  const timestamps = Object.keys(fightTable.rows)
-    .map((n) => parseInt(n, 10))
-    .sort((a, b) => a - b);
+  // Rows are now an array — clone and sort by timestamp
+  const allRows = [...fightTable.rows].sort(
+    (a, b) => a.timestamp - b.timestamp
+  );
 
   // Sorted player columns (same as in renderFight)
   const allActors = fightTable.friendlyPlayerIds
@@ -316,8 +316,7 @@ export function filterAndStyleDetailedTable(fightState, report) {
     );
   const sortedActors = sortActorsByJob(allActors);
 
-  timestamps.forEach((ms, rowIndex) => {
-    const event = fightTable.rows[ms];
+  allRows.forEach((event, rowIndex) => {
     const row = tbody.rows[rowIndex];
     if (!row) return;
 
@@ -380,12 +379,12 @@ export function filterAndStyleDetailedTable(fightState, report) {
   });
 
   // 🔹 After processing all rows, log visibility stats
-  const allRows = Array.from(tbody.rows);
-  const visibleRows = allRows.filter((r) => r.style.display !== "none");
-  const hiddenRows = allRows.filter((r) => r.style.display === "none");
+  const domRows = Array.from(tbody.rows);
+  const visibleRows = domRows.filter((r) => r.style.display !== "none");
+  const hiddenRows = domRows.filter((r) => r.style.display === "none");
 
   log.debug(
-    `[filterAndStyleTable] Total rows=${allRows.length}, visible=${
+    `[filterAndStyleTable] Total rows=${domRows.length}, visible=${
       visibleRows.length
     }, hidden=${hiddenRows.length}, selectedPlayers=[${Array.from(
       filterState.selectedPlayers

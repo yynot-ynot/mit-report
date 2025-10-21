@@ -23,6 +23,7 @@ import {
   attachStickyHeaderHighlight,
   applyAdaptiveScrollPadding,
   getDamageTypeIconHTML,
+  logCrossJobBuffAnomalies,
 } from "./reportRendererUtils.js";
 
 setModuleLogLevel("ReportRendererCondensed", envLogLevel("debug", "warn"));
@@ -165,9 +166,27 @@ export function renderCondensedTable(fightState, report, section) {
         const buffs = pData.buffs || [];
         td.dataset.rawBuffs = JSON.stringify(buffs);
 
+        // Pass the actual caster’s job subtype when available, instead of target’s
+        const firstApplier = (set.players?.[actor.name]?.buffSources || [])[0];
+        let casterJob = actor.subType;
+        if (firstApplier) {
+          const caster = report.actorByName.get(firstApplier);
+          if (caster && caster.subType) casterJob = caster.subType;
+        }
+
+        // 🧩 Check for cross-job buff anomalies (e.g., Sage buffs on DarkKnight with no source)
+        logCrossJobBuffAnomalies({
+          set,
+          actor,
+          buffs,
+          firstApplier,
+          report,
+          logger: log,
+        });
+
         td.innerHTML = renderBuffCell({
           buffs,
-          actorSubType: actor.subType,
+          actorSubType: casterJob,
           buffAnalysis: fightState.buffAnalysis,
           filterState,
         });
@@ -358,9 +377,27 @@ export function filterAndStyleCondensedTable(fightState, report) {
         rawBuffs = [];
       }
 
+      // Repaint using the actual caster’s job subtype when available
+      const firstApplier = (set.players?.[actor.name]?.buffSources || [])[0];
+      let casterJob = actor.subType;
+      if (firstApplier) {
+        const caster = report.actorByName.get(firstApplier);
+        if (caster && caster.subType) casterJob = caster.subType;
+      }
+
+      // Check for cross-job buff anomalies (e.g., Sage buffs on DarkKnight with no source)
+      logCrossJobBuffAnomalies({
+        set,
+        actor,
+        buffs: rawBuffs,
+        firstApplier,
+        report,
+        logger: log,
+      });
+
       td.innerHTML = renderBuffCell({
         buffs: rawBuffs,
-        actorSubType: actor.subType,
+        actorSubType: casterJob, // 🆕 true caster job
         buffAnalysis: fightState.buffAnalysis,
         filterState,
       });
@@ -579,9 +616,28 @@ export function updateMiniChildTable(condensedSet, fightState, report, target) {
         rawBuffs = [];
       }
 
+      // Determine true caster job if buffSources exist
+      const firstApplier = (condensedSet.players?.[actor.name]?.buffSources ||
+        [])[0];
+      let casterJob = actor.subType;
+      if (firstApplier) {
+        const caster = report.actorByName.get(firstApplier);
+        if (caster && caster.subType) casterJob = caster.subType;
+      }
+
+      // Check for cross-job buff anomalies (e.g., Sage buffs on DarkKnight with no source)
+      logCrossJobBuffAnomalies({
+        set: condensedSet,
+        actor,
+        buffs: rawBuffs,
+        firstApplier,
+        report,
+        logger: log,
+      });
+
       td.innerHTML = renderBuffCell({
         buffs: rawBuffs,
-        actorSubType: actor.subType,
+        actorSubType: casterJob,
         buffAnalysis,
         filterState,
       });
@@ -739,9 +795,28 @@ export function insertChildEventRows(set, parentRow, fightState, report) {
       }
 
       td.dataset.rawBuffs = JSON.stringify(buffs);
+
+      // Pass the actual caster’s job subtype when available, instead of target’s
+      const firstApplier = Object.values(child.buffs || {})[0]?.[0];
+      let casterJob = actor.subType;
+      if (firstApplier) {
+        const caster = report.actorByName.get(firstApplier);
+        if (caster && caster.subType) casterJob = caster.subType;
+      }
+
+      // Check for cross-job buff anomalies (e.g., Sage buffs on DarkKnight with no source)
+      logCrossJobBuffAnomalies({
+        set: child, // or parent set if available (replace with set if in scope)
+        actor,
+        buffs,
+        firstApplier,
+        report,
+        logger: log,
+      });
+
       td.innerHTML = renderBuffCell({
         buffs,
-        actorSubType: actor.subType,
+        actorSubType: casterJob, // true caster job
         buffAnalysis,
         filterState,
       });

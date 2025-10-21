@@ -9,6 +9,7 @@ import {
   fetchFightDeaths,
   fetchFightBuffs,
   fetchFightDebuffs,
+  fetchFightCasts,
   HostilityType,
 } from "../data/fflogsApi.js";
 import {
@@ -101,6 +102,15 @@ document.addEventListener("DOMContentLoaded", async () => {
 
         // === PARALLEL FETCH PHASE ===
         // We start timing each individual fetch, even though they all run concurrently.
+        profiler.start("Fetch Casts");
+        const castsPromise = fetchFightCasts(
+          accessToken,
+          reportCode,
+          pull
+        ).finally(() =>
+          profiler.stop("Fetch Casts", "Fetch", `Pull ${pull.id}`)
+        );
+
         profiler.start("Fetch Buffs");
         const buffsPromise = fetchFightBuffs(
           accessToken,
@@ -155,14 +165,17 @@ document.addEventListener("DOMContentLoaded", async () => {
           vulnerabilitiesTaken,
           damageTaken,
           deaths,
+          casts,
         ] = await Promise.all([
           buffsPromise,
           debuffsEnemiesPromise,
           vulnerabilitiesTakenPromise,
           damageTakenPromise,
           deathsPromise,
+          castsPromise,
         ]);
 
+        log.debug(`Pull ${pull.id}: raw Casts fetched`, casts);
         log.debug(`Pull ${pull.id}: raw Buffs fetched`, buffs);
         log.debug(
           `Pull ${pull.id}: raw Debuffs (enemies) fetched`,
@@ -280,6 +293,35 @@ document.addEventListener("DOMContentLoaded", async () => {
         const totalTime = ((performance.now() - startTime) / 1000).toFixed(2);
         log.info(`Pull ${pull.id}: total analysis time = ${totalTime}s`);
 
+        // 🕓 Wait for all async BuffLookups to finish, then dump final map
+        fightState.buffAnalysis.waitForBuffLookups(() => {
+          try {
+            const entries = [
+              ...fightState.buffAnalysis.buffToAbilityMap.entries(),
+            ];
+            if (entries.length === 0) {
+              log.info(
+                `[BuffCacheDump][Final] Pull ${pull.id}: Buff → Ability map snapshot (still empty after lookups!)`
+              );
+            } else {
+              const formatted = entries
+                .map(([buff, ability]) => {
+                  const paddedBuff = buff.padEnd(22, " ");
+                  return `  ${paddedBuff} → ${ability ?? "null"}`;
+                })
+                .join("\n");
+              log.info(
+                `[BuffCacheDump][Final] Pull ${pull.id}: Final Buff → Ability map snapshot\n${formatted}`
+              );
+            }
+          } catch (err) {
+            log.warn(
+              `[BuffCacheDump][Final] Failed to dump buff cache for pull ${pull.id}`,
+              err
+            );
+          }
+        });
+
         return fightState;
       }
 
@@ -308,5 +350,13 @@ document.addEventListener("DOMContentLoaded", async () => {
   analyzeBtn.addEventListener("click", async () => {
     const url = urlInput.value.trim();
     await analyze(url);
+  });
+
+  // Allow pressing "Enter" in the input to trigger Analyze
+  urlInput.addEventListener("keydown", async (event) => {
+    if (event.key === "Enter") {
+      const url = urlInput.value.trim();
+      await analyze(url);
+    }
   });
 });

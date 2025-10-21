@@ -9,6 +9,7 @@ import { getMitigationPercent } from "../utility/jobConfigHelper.js";
  */
 
 import { loadJobConfig } from "../config/AppConfig.js";
+import { KNOWN_BUFF_JOBS, getKnownBuffJob } from "../config/knownBuffJobs.js";
 import linkedAbilities from "../config/linkedAbilities.js";
 import { formatRelativeTime } from "../utility/dataUtils.js";
 import {
@@ -183,14 +184,32 @@ export class BuffAnalysis {
     setTimeout(() => {
       let foundAction = null;
 
-      for (const [actionName, action] of Object.entries(jobConfig.actions)) {
-        if (Array.isArray(action.effects)) {
-          const match = action.effects.find(
-            (effect) => effect.toLowerCase().includes(normalizedBuff) // fuzzy match
+      // 1️⃣ Check knownBuffJobs first (direct mapping)
+      const knownJobs = getKnownBuffJob(buffName);
+      if (knownJobs && Array.isArray(knownJobs) && knownJobs.length > 0) {
+        // If the current job matches any of the known jobs (case-insensitive)
+        const jobMatch = knownJobs.some(
+          (j) => j.trim().toLowerCase() === job.trim().toLowerCase()
+        );
+        if (jobMatch) {
+          foundAction = buffName; // Directly map buff to itself (known for this job)
+          log.debug(
+            `[BuffLookup] Direct match via knownBuffJobs: buff="${buffName}" → job=${job}`
           );
-          if (match) {
-            foundAction = actionName;
-            break;
+        }
+      }
+
+      // 2️⃣ Fallback: Fuzzy search through jobConfig if not found above
+      if (!foundAction) {
+        for (const [actionName, action] of Object.entries(jobConfig.actions)) {
+          if (Array.isArray(action.effects)) {
+            const match = action.effects.find(
+              (effect) => effect.toLowerCase().includes(normalizedBuff) // fuzzy match
+            );
+            if (match) {
+              foundAction = actionName;
+              break;
+            }
           }
         }
       }
@@ -243,24 +262,90 @@ export class BuffAnalysis {
    * @param {Map} actorById - Map of actorID → actor metadata
    * @param {Object} fight - Fight metadata (for logging)
    */
-  resolveMissingBuffSources(table, actorById, fight) {
+  resolveMissingBuffSources(table, actorById, fight, report = null) {
     for (const row of table.rows) {
       for (const [buffName, appliers] of Object.entries(row.buffs)) {
-        if (
-          appliers.length === 0 ||
-          appliers.some((a) => !a || a.startsWith("Unknown"))
-        ) {
-          if (!this.isVulnerability(buffName)) {
-            log.warn(
-              `Fight ${fight.id}, ts=${formatRelativeTime(
-                row.timestamp + fight.startTime,
-                fight.startTime
-              )}: Buff ${buffName} had no valid source, ` +
-                `crediting damage target "${row.actor}" instead`
+        const hasValidApplier =
+          appliers.length > 0 &&
+          !appliers.some((a) => !a || a.startsWith("Unknown"));
+
+        if (hasValidApplier) continue;
+
+        if (!this.isVulnerability(buffName)) {
+          const knownJobs = getKnownBuffJob(buffName);
+
+          if (
+            buffName.trim().toLowerCase() === "stem the tide" &&
+            row.actor === "Artemis Greyheart"
+          ) {
+            const normalizedKey = buffName.trim().toLowerCase();
+            const keysNearby = Object.keys(KNOWN_BUFF_JOBS)
+              .filter((k) => k.includes("stem") || k.includes("flow"))
+              .slice(0, 10); // context of similar keys
+          }
+
+          // Try heuristic attribution by job
+          if (knownJobs && Array.isArray(knownJobs) && knownJobs.length > 0) {
+            let foundPlayer = null;
+
+            // Loop over known jobs → pick the first matching actor
+            for (const job of knownJobs) {
+              for (const [_, actor] of actorById.entries()) {
+                if (
+                  actor?.subType &&
+                  actor.subType.trim().toLowerCase() ===
+                    job.trim().toLowerCase()
+                ) {
+                  foundPlayer = actor.name;
+                  break;
+                }
+              }
+              if (foundPlayer) break;
+            }
+
+            if (foundPlayer) {
+              row.buffs[buffName] = [foundPlayer];
+              log.info(
+                `Fight ${fight.id}, ts=${formatRelativeTime(
+                  row.timestamp + fight.startTime,
+                  fight.startTime
+                )}: Buff "${buffName}" had no valid source → heuristically attributed to "${foundPlayer}" (job=${
+                  knownJobs[0]
+                })`
+              );
+
+              // TODO: This attribution is a heuristic guess based on job match.
+              // TODO: We need to consult the cast table in the future for confirmation.
+              continue;
+            }
+          }
+
+          if (
+            buffName.trim().toLowerCase() === "stem the tide" &&
+            row.actor === "Artemis Greyheart"
+          ) {
+            const actorJobs = Array.from(actorById.values()).map(
+              (a) => `${a.name}:${a.subType}`
+            );
+            log.info(
+              `[Debug][StemTheTide] No actor match found — checked jobs ${JSON.stringify(
+                knownJobs
+              )} against actors ${JSON.stringify(actorJobs)}`
             );
           }
-          row.buffs[buffName] = [row.actor];
+
+          // ⚠️ Fallback: credit damage target
+          log.warn(
+            `Fight ${fight.id}, ts=${formatRelativeTime(
+              row.timestamp + fight.startTime,
+              fight.startTime
+            )}: Buff "${buffName}" still unresolved → crediting target "${
+              row.actor
+            }"`
+          );
         }
+
+        row.buffs[buffName] = [row.actor];
       }
     }
   }

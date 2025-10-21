@@ -32,11 +32,17 @@ export function parseReport(gqlData) {
   const actorById = new Map(actors.map((a) => [a.id, a]));
   const abilityById = new Map(abilities.map((a) => [a.gameID, a]));
 
+  // Build name → actor mapping for convenience in renderers
+  const actorByName = new Map();
+  actors.forEach((a) => {
+    if (a?.name) actorByName.set(a.name, a);
+  });
+
   log.debug(
     `Parsed report "${title}" with ${fights.length} fights, ${actors.length} actors, ${abilities.length} abilities`
   );
 
-  return { title, fights, actorById, abilityById };
+  return { title, fights, actorById, abilityById, actorByName };
 }
 
 /**
@@ -236,9 +242,9 @@ export function parseFightDamageTaken(events, fight, actorById, abilityById) {
     })
   );
 
-  log.debug(`[DamageTaken] Unique ability types for Fight ${fight.id}:`);
+  log.info(`[DamageTaken] Unique ability types for Fight ${fight.id}:`);
   typeSummary.forEach(({ type, abilities }) => {
-    log.debug(`- Type ${type}: ${abilities.join(", ")}`);
+    log.info(`- Type ${type}: ${abilities.join(", ")}`);
   });
   log.debug(`Fight ${fight.id}: parsed ${parsed.length} damage taken events`);
   return parsed;

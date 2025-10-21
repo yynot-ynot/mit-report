@@ -36,6 +36,7 @@
     text-align: center;
     min-width: 80px;
     box-sizing: border-box;
+    white-space: nowrap;
 }
 
 .time-table td span {

@@ -16,6 +16,7 @@ import {
   setModuleLogLevel,
   envLogLevel,
 } from "../utility/logger.js";
+import { getKnownBuffJob } from "../config/knownBuffJobs.js";
 
 setModuleLogLevel("ReportRendererUtils", envLogLevel("info", "warn"));
 const log = getLogger("ReportRendererUtils");
@@ -211,6 +212,7 @@ export function shouldHideEvent(abilityName, filterState) {
   const isBleed =
     name.includes("dot") ||
     name.includes("bleed") ||
+    name.includes("dark vengeance") ||
     name.includes("damage over time");
 
   // 🚫 Hide based on toggle states
@@ -537,4 +539,64 @@ export function getDamageTypeIconHTML(damageType, options = {}) {
   const spacing = includeSpacing ? "margin: 0 0.25rem;" : "";
 
   return `<img src="${src}" alt="${damageType} icon" style="height: 1em; vertical-align: middle; ${spacing}">`;
+}
+
+/**
+ * logCrossJobBuffAnomalies()
+ * --------------------------------------------------------------
+ * 🧠 Purpose:
+ *   Detects and logs cases where a player (target) has buffs applied
+ *   that normally belong to a *different job family*, according to
+ *   `knownBuffJobs.js`, **and** the event has no recorded buff source.
+ *
+ * 💡 Why:
+ *   Helps diagnose missing buff-source attribution (e.g., "Panhaima"
+ *   showing on DarkKnight with no Sage applier). This catches
+ *   mismatched job→buff pairings that likely indicate a resolution issue.
+ *
+ * ⚙️ Behavior:
+ *   - Iterates over each buff for the target player.
+ *   - For each buff, retrieves known associated jobs from KNOWN_BUFF_JOBS.
+ *   - If the buff’s known job list does *not* include the actor’s job
+ *     and there is *no valid applier*, logs a warning.
+ *
+ * 🧾 Example Log:
+ *   [ReportRendererCondensed] [WARN] [CrossJobBuffMissingSource]
+ *   timestamp=102591, ability="Combined DoTs", target="Apple Crunch" (job=DarkKnight)
+ *   → cross-job buffs=["Panhaima","Temperance"] with no applier.
+ *
+ * @param {Object} params
+ * @param {Object} params.set - Condensed set (parent row object)
+ * @param {Object} params.actor - The player (target) object { name, subType }
+ * @param {string[]} params.buffs - List of buff names on this target
+ * @param {string|null} params.firstApplier - Name of the first buff source (if any)
+ * @param {Object} params.report - Parsed report (for logging context)
+ * @param {Object} [params.logger=console] - Optional logger (default: console)
+ */
+export function logCrossJobBuffAnomalies({
+  set,
+  actor,
+  buffs,
+  firstApplier,
+  report,
+  logger = getLogger("ReportRendererCondensed"),
+}) {
+  if (!buffs || buffs.length === 0 || !actor) return;
+
+  const crossJobBuffs = buffs.filter((b) => {
+    const knownJobs = getKnownBuffJob?.(b);
+    // Only consider if buff has a defined job list
+    return knownJobs && !knownJobs.includes(actor.subType);
+  });
+
+  // Only log if cross-job buffs exist AND no applier found
+  if (crossJobBuffs.length > 0 && !firstApplier) {
+    logger.warn(
+      `[ReportRendererCondensed] [WARN] [CrossJobBuffMissingSource] ` +
+        `timestamp=${set.timestamp}, ability="${set.ability}", ` +
+        `target="${actor.name}" (${actor.subType}) has cross-job buffs ` +
+        `${JSON.stringify(crossJobBuffs)} but no applier found.`,
+      set
+    );
+  }
 }

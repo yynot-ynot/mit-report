@@ -19,6 +19,7 @@ import {
   attachStickyHeaderHighlight,
   applyAdaptiveScrollPadding,
   getDamageTypeIconHTML,
+  logCrossJobBuffAnomalies,
 } from "./reportRendererUtils.js";
 import {
   getLogger,
@@ -203,9 +204,28 @@ export function renderDetailedTable(fightState, report, section) {
         displayBuffs = buffAnalysis.resolveBuffsToAbilities(rawBuffs);
       }
 
+      // Find the likely caster’s job (based on applier info)
+      const sources = Object.keys(event.buffs || {});
+      const sourceName = sources[0];
+      let casterJob = actor.subType;
+      if (sourceName) {
+        const caster = report.actorByName.get(sourceName);
+        if (caster && caster.subType) casterJob = caster.subType;
+      }
+
+      // Check for cross-job buff anomalies (e.g., Sage buffs on DarkKnight with no source)
+      logCrossJobBuffAnomalies({
+        set: event, // current detailed table event
+        actor,
+        buffs: rawBuffs,
+        firstApplier: sourceName,
+        report,
+        logger: log,
+      });
+
       td.innerHTML = renderBuffCell({
         buffs: rawBuffs,
-        actorSubType: actor.subType,
+        actorSubType: casterJob,
         buffAnalysis,
         filterState,
       });
@@ -363,21 +383,32 @@ export function filterAndStyleDetailedTable(fightState, report) {
         displayBuffs = buffAnalysis.resolveBuffsToAbilities(rawBuffs);
       }
 
-      const styledBuffs = displayBuffs.map((buff) => {
-        const matched = buffAnalysis.isJobAbility(buff, actor.subType);
-        const isVuln = buffAnalysis.isVulnerability(buff);
+      // Use shared utility for buff rendering (unifies logic)
+      // Pass the actual caster’s job subtype when available, instead of target’s
+      const sources = Object.keys(event.buffs || {});
+      const sourceName = sources[0];
+      let casterJob = actor.subType;
+      if (sourceName) {
+        const caster = report.actorByName.get(sourceName);
+        if (caster && caster.subType) casterJob = caster.subType;
+      }
 
-        let color = "#000"; // default (black)
-        if (isVuln) {
-          color = "#b91c1c"; // 🔴 redish, readable
-        } else if (!matched) {
-          color = "#228B22"; // 🟢 fallback for unknown buffs
-        }
-
-        return `<div><span style="color:${color}">${buff}</span></div>`;
+      // Check for cross-job buff anomalies (e.g., Sage buffs on DarkKnight with no source)
+      logCrossJobBuffAnomalies({
+        set: event, // current detailed table event
+        actor,
+        buffs: rawBuffs,
+        firstApplier: sourceName,
+        report,
+        logger: log,
       });
 
-      td.innerHTML = styledBuffs.length > 0 ? styledBuffs.join("") : "";
+      td.innerHTML = renderBuffCell({
+        buffs: rawBuffs,
+        actorSubType: casterJob,
+        buffAnalysis,
+        filterState,
+      });
     });
   });
 

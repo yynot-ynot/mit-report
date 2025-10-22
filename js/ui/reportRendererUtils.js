@@ -586,7 +586,14 @@ export function logCrossJobBuffAnomalies({
   const crossJobBuffs = buffs.filter((b) => {
     const knownJobs = getKnownBuffJob?.(b);
     // Only consider if buff has a defined job list
-    return knownJobs && !knownJobs.includes(actor.subType);
+    return (
+      knownJobs &&
+      !knownJobs.some(
+        (j) =>
+          j.trim().toLowerCase().replace(/\s+/g, "") ===
+          actor.subType.trim().toLowerCase().replace(/\s+/g, "")
+      )
+    );
   });
 
   // Only log if cross-job buffs exist AND no applier found

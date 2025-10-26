@@ -21,6 +21,30 @@ import { getKnownBuffJob } from "../config/knownBuffJobs.js";
 setModuleLogLevel("ReportRendererUtils", envLogLevel("info", "warn"));
 const log = getLogger("ReportRendererUtils");
 
+const MIT_AVAILABILITY_WRAPPER_CLASS = "mit-availability-wrapper";
+const MIT_AVAILABILITY_CONTENT_CLASS = "mit-availability-content";
+const MIT_AVAILABILITY_LAYER_CLASS = "mit-availability-layer";
+const MIT_AVAILABILITY_DOT_CONTAINER_CLASS = "mit-availability-dot-container";
+const MIT_AVAILABILITY_TOOLTIP_CLASS = "mit-availability-tooltip";
+const MIT_AVAILABILITY_TOOLTIP_GRID_CLASS = "mit-availability-tooltip-grid";
+const MAX_MIT_DOT_ROWS = 3;
+
+const mitigationIconCache = new Map();
+let mitigationHelperPromise = null;
+
+function loadMitigationHelperModules() {
+  if (!mitigationHelperPromise) {
+    mitigationHelperPromise = Promise.all([
+      import("../config/AppConfig.js"),
+      import("../utility/jobConfigHelper.js"),
+    ]).then(([appConfig, jobHelper]) => ({
+      loadJobConfig: appConfig.loadJobConfig,
+      getMitigationAbilityNames: jobHelper.getMitigationAbilityNames,
+    }));
+  }
+  return mitigationHelperPromise;
+}
+
 /**
  * Generate HTML for the damage cell in any table view (Detailed or Condensed).
  *
@@ -606,4 +630,400 @@ export function logCrossJobBuffAnomalies({
       set
     );
   }
+}
+
+/**
+ * getMitigationAbilityIcons()
+ * --------------------------------------------------------------
+ * 🔧 Purpose:
+ *   Given a job name (e.g. "Dark Knight"), fetch all mitigation
+ *   ability icons from the job’s configuration and mitigation dataset.
+ *
+ * 🧠 Data Sources:
+ *   - mitigationDataset.mitigationEffects[jobName] provides the list
+ *     of mitigation abilities for that job.
+ *   - loadJobConfig(jobName) (from AppConfig.js) provides the full job
+ *     ability data, including icon URLs.
+ *
+ * ⚙️ Behavior:
+ *   - Resolves each mitigation ability name to its icon URL from the
+ *     job’s config object.
+ *   - Skips abilities that do not have icons or that are missing from config.
+ *   - Returns an array of objects: [{ name, icon_url }, ...].
+ *
+ * 🧾 Example Output:
+ *   getMitigationAbilityIcons("Dark Knight") → [
+ *     { name: "Shadow Wall", icon_url: "https://..." },
+ *     { name: "Dark Mind", icon_url: "https://..." },
+ *     ...
+ *   ]
+ *
+ * @param {string} jobName - Full display name, e.g. "Dark Knight"
+ * @returns {Array<{name: string, icon_url: string}>} - Array of mitigation icons
+ */
+export async function getMitigationAbilityIcons(jobName) {
+  if (!jobName) return [];
+
+  if (mitigationIconCache.has(jobName)) {
+    return mitigationIconCache.get(jobName);
+  }
+
+  const helpers = await loadMitigationHelperModules();
+  const abilityNames = helpers.getMitigationAbilityNames(jobName);
+  if (!abilityNames || abilityNames.length === 0) {
+    mitigationIconCache.set(jobName, []);
+    return [];
+  }
+
+  const jobConfig = helpers.loadJobConfig(jobName);
+  if (!jobConfig || !jobConfig.actions) {
+    mitigationIconCache.set(jobName, []);
+    return [];
+  }
+
+  const icons = [];
+  for (const abilityName of abilityNames) {
+    const action = jobConfig.actions[abilityName];
+    if (action && action.icon_url) {
+      icons.push({
+        name: abilityName,
+        icon_url: action.icon_url,
+      });
+    }
+  }
+
+  mitigationIconCache.set(jobName, icons);
+  return icons;
+}
+
+/**
+ * buildMitigationIconRow()
+ * --------------------------------------------------------------
+ * 🔧 Purpose:
+ *   Build a visual row of mitigation ability icons for each player’s job.
+ *   Designed to appear *below the player header row* in both the
+ *   Detailed and Condensed fight tables.
+ *
+ * 🧠 Behavior:
+ *   - Creates a new <tr class="mitigation-row"> DOM element.
+ *   - The first columns (Timestamp, Attack Name, [Damage]) remain
+ *     empty placeholders. (2 for Condensed, 3 for Detailed)
+ *   - For each player in sortedActors:
+ *       → Determine their job via `actor.subType`.
+ *       → Fetch that job’s mitigation ability icons using
+ *         `getMitigationAbilityIcons()`.
+ *       → Deduplicate mitigation abilities by name.
+ *       → Render icons (<img>) grouped in rows of 5 per line.
+ *   - Each icon includes both `title` and `alt` attributes showing the ability name.
+ *   - Each cell uses the job’s role color class (via `getRoleClass()`).
+ *   - Icons are rendered in multiple lines if a job has more than 5 mitigation abilities.
+ *
+ * 🧱 Output Example:
+ *   <tr class="mitigation-row">
+ *     <td></td><td></td><td></td>
+ *     <td class="tank-col">
+ *       <div class="mitigation-icon-line">
+ *         <img src="..." title="Shadow Wall">
+ *         <img src="..." title="Dark Mind">
+ *         <img src="..." title="The Blackest Night">
+ *         <img src="..." title="Dark Missionary">
+ *         <img src="..." title="Rampart">
+ *       </div>
+ *       <div class="mitigation-icon-line">
+ *         <img src="..." title="Reprisal">
+ *       </div>
+ *     </td>
+ *     <td class="healer-col">
+ *       <div class="mitigation-icon-line">
+ *         <img src="..." title="Temperance">
+ *       </div>
+ *     </td>
+ *   </tr>
+ *
+ * @param {Array<Object>} sortedActors - Players sorted by job order
+ * @param {Object} report - Report object (used for job lookup)
+ * @param {number} offset - Number of non-player columns preceding player headers (e.g., 2 for condensed, 3 for detailed)
+ * @returns {HTMLTableRowElement} - Fully constructed mitigation icon row
+ */
+export async function buildMitigationIconRow(sortedActors, report, offset = 2) {
+  const { getRoleClass } = await import("../config/AppConfig.js");
+
+  const row = document.createElement("tr");
+  row.classList.add("mitigation-row");
+
+  // Detect table type (Condensed = 2 placeholders, Detailed = 3)
+  const columnCount =
+    sortedActors.length > 0 &&
+    report?.fightTable?.condensedPull == null &&
+    report?.fightTable?.rows
+      ? 3
+      : 2;
+
+  // Add empty placeholder cells
+  for (let i = 0; i < offset; i++) {
+    const td = document.createElement("td");
+    td.textContent = "";
+    row.appendChild(td);
+  }
+
+  // Build player icon cells
+  for (const actor of sortedActors) {
+    const td = document.createElement("td");
+    const roleClass = getRoleClass(actor.subType);
+    td.classList.add(roleClass);
+
+    const icons = await getMitigationAbilityIcons(actor.subType);
+
+    if (icons.length > 0) {
+      // 🧹 Deduplicate icons by ability name
+      const seen = new Set();
+      const uniqueIcons = icons.filter((icon) => {
+        if (seen.has(icon.name)) return false;
+        seen.add(icon.name);
+        return true;
+      });
+
+      // 🧩 Wrap icons after every 5 → multiple lines per player cell
+      for (let i = 0; i < uniqueIcons.length; i += 5) {
+        const lineDiv = document.createElement("div");
+        lineDiv.classList.add("mitigation-icon-line");
+
+        uniqueIcons.slice(i, i + 5).forEach((icon) => {
+          const img = document.createElement("img");
+          img.src = icon.icon_url;
+          img.title = icon.name; // hover tooltip
+          img.alt = icon.name;
+          img.classList.add("mitigation-icon");
+          lineDiv.appendChild(img);
+        });
+
+        td.appendChild(lineDiv);
+      }
+    }
+
+    row.appendChild(td);
+  }
+
+  return row;
+}
+
+/**
+ * renderAvailableMitigationIcons()
+ * --------------------------------------------------------------
+ * 🔧 Purpose:
+ *   Augment a player cell with a compact “availability” indicator that shows
+ *   which mitigation abilities are currently off cooldown. The indicator uses a
+ *   grid of colored dots (top→down, right→left) to keep table rows compact while
+ *   providing a hover/focus tooltip that lists the full icon + ability name pairs.
+ *
+ * 🧠 Behavior:
+ *   - Preserves existing cell content (buff summaries, text) by wrapping it in
+ *     a flex container alongside the mitigation layer.
+ *   - Reuses `getMitigationAbilityIcons(jobName)` to resolve ability → icon URL.
+ *     Icons are expected to be cached already via `buildMitigationIconRow`.
+ *   - When no abilities are available (or the feature is toggled off), the helper
+ *     simply restores the original content and removes any previous mitigation layer.
+ *   - Hovering/focusing the dot cluster reveals a tooltip labeled “Available
+ *     Mitigations” with a two-column icon/name layout for quick identification.
+ *   - Missing icons fall back to a neutral placeholder block while logging a warning.
+ *
+ * ⚠️ Notes:
+ *   - Intended for both condensed parent rows and detailed rows; pass an empty array
+ *     to remove any existing indicator (e.g., when hiding the feature).
+ *   - Invocations are idempotent; subsequent calls rebuild the layer based on the
+ *     latest `availableMitigations` data without accumulating DOM nodes.
+ *
+ * @param {HTMLTableCellElement} cell - Target table cell for the player column.
+ * @param {string} jobName - Player job (subType) used to resolve mitigation icons.
+ * @param {string[]} availableMitigations - Ordered list of mitigation ability names.
+ * @returns {Promise<void>} Resolves once the icon layer has been updated.
+ */
+export async function renderAvailableMitigationIcons(
+  cell,
+  jobName,
+  availableMitigations = []
+) {
+  if (!cell) return;
+
+  // Preserve the current cell markup so we can rebuild the wrapper without
+  // temporarily clearing the cell (prevents layout jumps while promises resolve).
+  const baseHTML = snapshotCellContent(cell);
+  const hadWrapper =
+    cell.querySelector(`.${MIT_AVAILABILITY_WRAPPER_CLASS}`) !== null;
+
+  // Deduplicate / sanitize the list before doing any async work.
+  const sanitizedNames = [];
+  const seen = new Set();
+  if (Array.isArray(availableMitigations)) {
+    for (const ability of availableMitigations) {
+      if (typeof ability !== "string") continue;
+      const trimmed = ability.trim();
+      if (!trimmed) continue;
+      const key = trimmed.toLowerCase();
+      if (seen.has(key)) continue;
+      seen.add(key);
+      sanitizedNames.push(trimmed);
+    }
+  }
+
+  // Always ensure every cell has a consistent wrapper structure,
+  // even if there are no available mitigations.
+  if (!jobName || sanitizedNames.length === 0) {
+    cell.textContent = ""; // clear to rebuild cleanly
+
+    const wrapper = document.createElement("div");
+    wrapper.classList.add(MIT_AVAILABILITY_WRAPPER_CLASS);
+
+    const contentWrapper = document.createElement("div");
+    contentWrapper.classList.add(MIT_AVAILABILITY_CONTENT_CLASS);
+    contentWrapper.innerHTML = baseHTML;
+
+    // No layer added — empty grid position
+    wrapper.appendChild(contentWrapper);
+
+    cell.appendChild(wrapper);
+
+    delete cell.dataset.mitLayerToken;
+    return; // exit early to skip mitigation icon building
+  }
+
+  const renderToken = `${Date.now()}-${Math.random()}`;
+  cell.dataset.mitLayerToken = renderToken;
+
+  try {
+    // Cached resolver fetches the icon set for the job only once.
+    const icons = await getMitigationAbilityIcons(jobName);
+    if (cell.dataset.mitLayerToken !== renderToken) {
+      return;
+    }
+
+    const iconMap = new Map(
+      icons.map(({ name, icon_url }) => [name.toLowerCase(), icon_url])
+    );
+
+    cell.textContent = "";
+    const wrapper = document.createElement("div");
+    wrapper.classList.add(MIT_AVAILABILITY_WRAPPER_CLASS);
+
+    const contentWrapper = document.createElement("div");
+    contentWrapper.classList.add(MIT_AVAILABILITY_CONTENT_CLASS);
+    contentWrapper.innerHTML = baseHTML;
+
+    const layer = document.createElement("div");
+    layer.classList.add(MIT_AVAILABILITY_LAYER_CLASS);
+
+    const dotContainer = document.createElement("div");
+    dotContainer.classList.add(MIT_AVAILABILITY_DOT_CONTAINER_CLASS);
+    dotContainer.setAttribute("tabindex", "0");
+
+    const dotLayer = document.createElement("div");
+    dotLayer.classList.add("mit-availability-dot-layer");
+
+    const columns = [];
+    sanitizedNames.forEach((ability, index) => {
+      const columnIndex = Math.floor(index / MAX_MIT_DOT_ROWS);
+      if (!columns[columnIndex]) {
+        columns[columnIndex] = [];
+      }
+      columns[columnIndex].push(ability);
+    });
+
+    columns.forEach((columnAbilities) => {
+      const columnDiv = document.createElement("div");
+      columnDiv.classList.add("mit-availability-column");
+
+      columnAbilities.forEach((ability) => {
+        const dot = document.createElement("span");
+        dot.classList.add("mitigation-dot");
+        dot.title = ability;
+
+        const key = ability.toLowerCase();
+        const iconUrl = iconMap.get(key);
+        if (iconUrl) {
+          dot.style.backgroundImage = `url(${iconUrl})`;
+        }
+
+        columnDiv.appendChild(dot);
+      });
+
+      dotLayer.appendChild(columnDiv);
+    });
+
+    dotContainer.appendChild(dotLayer);
+
+    const tooltip = document.createElement("div");
+    tooltip.classList.add(MIT_AVAILABILITY_TOOLTIP_CLASS);
+    const tooltipHeader = document.createElement("div");
+    tooltipHeader.classList.add("mit-availability-tooltip-header");
+    tooltipHeader.textContent = "Available DR";
+    tooltip.appendChild(tooltipHeader);
+
+    const tooltipGrid = document.createElement("div");
+    tooltipGrid.classList.add(MIT_AVAILABILITY_TOOLTIP_GRID_CLASS);
+
+    sanitizedNames.forEach((ability) => {
+      const item = document.createElement("div");
+      item.classList.add("mit-availability-tooltip-item");
+
+      const key = ability.toLowerCase();
+      const iconUrl = iconMap.get(key);
+
+      if (iconUrl) {
+        const img = document.createElement("img");
+        img.src = iconUrl;
+        img.alt = ability;
+        img.title = ability;
+        img.classList.add("mit-availability-tooltip-icon");
+        item.appendChild(img);
+      } else {
+        const fallback = document.createElement("span");
+        fallback.classList.add("mit-availability-tooltip-icon", "placeholder");
+        item.appendChild(fallback);
+        log.warn(
+          `[renderAvailableMitigationIcons] Missing icon for ability "${ability}" (${jobName})`
+        );
+      }
+
+      const label = document.createElement("span");
+      label.textContent = ability;
+      label.classList.add("mit-availability-tooltip-label");
+      item.appendChild(label);
+
+      tooltipGrid.appendChild(item);
+    });
+
+    tooltip.appendChild(tooltipGrid);
+    dotContainer.appendChild(tooltip);
+    layer.appendChild(dotContainer);
+
+    wrapper.appendChild(contentWrapper);
+    wrapper.appendChild(layer);
+
+    cell.appendChild(wrapper);
+  } catch (err) {
+    // If something fails we restore the original content so the cell never stays blank.
+    if (cell.dataset.mitLayerToken === renderToken) {
+      cell.innerHTML = baseHTML;
+    }
+    throw err;
+  } finally {
+    if (cell.dataset.mitLayerToken === renderToken) {
+      delete cell.dataset.mitLayerToken;
+    }
+  }
+}
+
+function snapshotCellContent(cell) {
+  const existingWrapper = cell.querySelector(
+    `.${MIT_AVAILABILITY_WRAPPER_CLASS}`
+  );
+  if (existingWrapper) {
+    const content = existingWrapper.querySelector(
+      `.${MIT_AVAILABILITY_CONTENT_CLASS}`
+    );
+    if (content) {
+      return content.innerHTML;
+    }
+  }
+  return cell.innerHTML;
 }

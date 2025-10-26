@@ -492,13 +492,22 @@ function renderFightHeader(fightState, report, reRenderCallback) {
 
   // ====== 2️⃣ Analysis Group ======
   const analysisGroup = renderControlPanel(filterState, [
+    // {
+    //   labelOn: "Show Buff Names",
+    //   labelOff: "Show Ability Names",
+    //   state: filterState.showAbilitiesOnly,
+    //   onToggle: (newState) => {
+    //     filterState.showAbilitiesOnly = newState;
+    //     filterAndStyleCurrentView(fightState, report);
+    //   },
+    // },
     {
-      labelOn: "Show Buff Names",
-      labelOff: "Show Ability Names",
-      state: filterState.showAbilitiesOnly,
+      labelOn: "Hide Available DRs",
+      labelOff: "Show Available DRs",
+      state: filterState.showAvailableMitigations,
       onToggle: (newState) => {
-        filterState.showAbilitiesOnly = newState;
-        filterAndStyleCurrentView(fightState, report);
+        filterState.showAvailableMitigations = newState;
+        reRenderCallback(fightState);
       },
     },
     {

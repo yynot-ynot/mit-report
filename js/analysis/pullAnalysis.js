@@ -42,9 +42,13 @@
  *           absorbed: number,                  // total absorbed/shielded amount
  *           mitigationPct: number,             // average % mitigated (mean of all hits)
  *           intendedMitPct: number,            // average intended mitigation (mean of all hits)
+ *           availableMitigations: string[],    // mitigation abilities off cooldown at the set timestamp
  *           dead: boolean,                     // true if dead in any hit within the group
  *           wasTargeted: boolean               // true if this player was the target (actor) in any hit
  *         }
+ *       },
+ *       availableMitigationsByPlayer: {        // per-set union of mitigation availability
+ *         [playerName: string]: string[]
  *       },
  *
  *       // --- Child events (subset of FightTable.rows entries) ---
@@ -58,6 +62,7 @@
  *           absorbed: number,            // shielded value
  *           mitigationPct: number,       // % mitigated from data
  *           intendedMitPct: number,      // % intended from buffs
+ *           availableMitigations: string[], // mitigation options available to the target at this instant
  *           buffs: { [buffName]: [appliers...] }, // buffs active during hit
  *           deaths: [string],            // players dead at that time
  *           source?: string              // attacker name (if available)
@@ -109,6 +114,7 @@
  *        absorbed: 0,
  *        mitigationPct: 27,
  *        intendedMitPct: 31,
+ *        availableMitigations: ["Rampart", "Shadowskin"], // example snapshot of ready mitigations
  *        dead: false,
  *        wasTargeted: true
  *      }
@@ -159,6 +165,7 @@
  *       dead: boolean,
  *       wasTargeted: boolean
  *     }>,
+ *     availableMitigationsByPlayer: Record<string, string[]>,
  *     children: Array<Object>
  *   }>
  * }}
@@ -239,6 +246,7 @@ export function generateCondensedPullTable(fightTable) {
 function buildCondensedGroup(group) {
   const { ability, firstTimestamp, rows } = group;
   const players = {};
+  const mitigationUnion = new Map(); // playerName → union of available mitigations across children
 
   for (const row of rows) {
     const playerName = row.actor || "Unknown";
@@ -250,12 +258,35 @@ function buildCondensedGroup(group) {
         absorbed: 0,
         mitigationPctValues: [],
         intendedMitPctValues: [],
+        availableMitigations: new Set(), // Track off-cooldown mitigations seen in the group
         dead: false,
         wasTargeted: false,
       };
     }
 
     const player = players[playerName];
+
+    if (row.availableMitigationsByPlayer) {
+      for (const [name, abilities] of Object.entries(
+        row.availableMitigationsByPlayer
+      )) {
+        if (!mitigationUnion.has(name)) {
+          mitigationUnion.set(name, new Set());
+        }
+        if (Array.isArray(abilities)) {
+          abilities.forEach((ability) =>
+            mitigationUnion.get(name).add(ability)
+          );
+        }
+      }
+    }
+
+    const rowAvailableMit = row.availableMitigationsByPlayer?.[playerName] ?? [];
+    if (Array.isArray(rowAvailableMit)) {
+      rowAvailableMit.forEach((ability) =>
+        player.availableMitigations.add(ability)
+      );
+    }
 
     // --- Aggregate numerical stats ---
     player.unmitigatedAmount += row.unmitigatedAmount ?? 0;
@@ -283,6 +314,7 @@ function buildCondensedGroup(group) {
               absorbed: 0,
               mitigationPctValues: [],
               intendedMitPctValues: [],
+              availableMitigations: new Set(), // Track off-cooldown mitigations seen in the group
               dead: false,
               wasTargeted: false, // ✅ buff applier only, not target
             };
@@ -316,6 +348,13 @@ function buildCondensedGroup(group) {
   // --- Convert sets and compute averages ---
   const finalizedPlayers = {};
   for (const [name, p] of Object.entries(players)) {
+    const availableMitArray =
+      p.availableMitigations instanceof Set
+        ? Array.from(p.availableMitigations)
+        : Array.isArray(p.availableMitigations)
+        ? [...p.availableMitigations]
+        : [];
+
     finalizedPlayers[name] = {
       buffs: Array.from(p.buffs).sort(),
       unmitigatedAmount: p.unmitigatedAmount,
@@ -332,13 +371,19 @@ function buildCondensedGroup(group) {
         p.intendedMitPctValues.length > 0
           ? Math.round(
               p.intendedMitPctValues.reduce((a, b) => a + b, 0) /
-                p.intendedMitPctValues.length
+              p.intendedMitPctValues.length
             )
           : 0,
+      availableMitigations: availableMitArray,
       dead: p.dead,
       wasTargeted: p.wasTargeted, // ✅ exported for analysis/visuals
     };
   }
+
+  const availableMitigationsByPlayer = {};
+  mitigationUnion.forEach((set, name) => {
+    availableMitigationsByPlayer[name] = Array.from(set);
+  });
 
   return {
     timestamp: firstTimestamp,
@@ -346,5 +391,6 @@ function buildCondensedGroup(group) {
     players: finalizedPlayers,
     children: rows,
     damageType: rows[0]?.damageType ?? null,
+    availableMitigationsByPlayer,
   };
 }

@@ -14,6 +14,7 @@ import {
 } from "./reportRenderer.js"; // reuse shared utils
 import {
   repaintDamageCell,
+  buildMitigationIconRow,
   shouldHideEvent,
   shouldShowRowForPlayerSelection,
   attachStickyHeaderHighlight,
@@ -26,7 +27,11 @@ import {
   setModuleLogLevel,
   envLogLevel,
 } from "../utility/logger.js";
-import { createDamageCell, renderBuffCell } from "./reportRendererUtils.js";
+import {
+  createDamageCell,
+  renderBuffCell,
+  renderAvailableMitigationIcons,
+} from "./reportRendererUtils.js";
 
 setModuleLogLevel("ReportRendererDetailed", envLogLevel("info", "warn"));
 const log = getLogger("ReportRendererDetailed");
@@ -68,6 +73,7 @@ const log = getLogger("ReportRendererDetailed");
  */
 export function renderDetailedTable(fightState, report, section) {
   const { fightTable, filters: filterState, buffAnalysis } = fightState;
+  const showAvailableMit = filterState.showAvailableMitigations;
 
   log.debug(
     `[RenderDetailedTable] Rendering detailed table for Pull ${fightTable.fightId}`
@@ -154,6 +160,12 @@ export function renderDetailedTable(fightState, report, section) {
   thead.appendChild(headerRow);
   table.appendChild(thead);
 
+  if (showAvailableMit) {
+    buildMitigationIconRow(sortedActors, report, 3).then((mitRow) => {
+      thead.appendChild(mitRow);
+    });
+  }
+
   // ============================================================
   // 🧩 BODY CONSTRUCTION
   // ============================================================
@@ -229,6 +241,25 @@ export function renderDetailedTable(fightState, report, section) {
         buffAnalysis,
         filterState,
       });
+
+      if (showAvailableMit) {
+        const availableMitNames = Array.isArray(
+          event.availableMitigationsByPlayer?.[actor.name]
+        )
+          ? event.availableMitigationsByPlayer[actor.name]
+          : [];
+
+        renderAvailableMitigationIcons(
+          td,
+          actor.subType,
+          availableMitNames
+        ).catch((err) =>
+          log.warn(
+            `[DetailedTable] Failed to render mitigation availability for ${actor.name}`,
+            err
+          )
+        );
+      }
 
       // Target marker
       const targets = getRowTargets(event);
@@ -403,12 +434,37 @@ export function filterAndStyleDetailedTable(fightState, report) {
         logger: log,
       });
 
+      // --- Step 1: Repaint Buff Cell (base content) ---
       td.innerHTML = renderBuffCell({
         buffs: rawBuffs,
         actorSubType: casterJob,
         buffAnalysis,
         filterState,
       });
+
+      // --- Step 2: Reapply Mitigation Availability Layer ---
+      // This was missing before — it ensures mitigation dots/icons remain visible
+      const availableMitNames = Array.isArray(
+        event.availableMitigationsByPlayer?.[actor.name]
+      )
+        ? event.availableMitigationsByPlayer[actor.name]
+        : [];
+
+      if (filterState.showAvailableMitigations) {
+        renderAvailableMitigationIcons(
+          td,
+          actor.subType,
+          availableMitNames
+        ).catch((err) =>
+          log.warn(
+            `[DetailedTable] Failed to repaint mitigation availability for ${actor.name}`,
+            err
+          )
+        );
+      } else {
+        // Clear previous mitigation layer when toggle is off
+        renderAvailableMitigationIcons(td, actor.subType, []).catch(() => {});
+      }
     });
   });
 

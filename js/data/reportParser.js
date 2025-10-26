@@ -14,6 +14,7 @@ import {
   assignLastKnownBuffSource,
   calculateTotalMitigation,
 } from "../analysis/buffAnalysis.js";
+import { populateMitigationAvailability } from "../analysis/castAnalysis.js";
 
 setModuleLogLevel("ReportParser", envLogLevel("info", "warn"));
 const log = getLogger("ReportParser");
@@ -475,6 +476,8 @@ function applyDeathsToAttacks(
  *     fightId: number,
  *     encounterId: number,
  *     name: string,
+ *     castsTimeline: Array<Object>,             // flattened cast events for the fight
+ *     availableMitigationTrackers: Array<Object>, // CastCooldownTracker metadata per ability/player
  *     friendlyPlayerIds: [id1, id2, ...],  // only player IDs (no NPCs/pets)
  *     rows: {
  *       [relativeTimestamp: number]: {
@@ -501,6 +504,7 @@ function applyDeathsToAttacks(
  *
  *         // --- Other fight context ---
  *         deaths: [string],          // list of all players dead at this timestamp
+ *         availableMitigationsByPlayer: Record<string, string[]>, // per-player mitigation availability snapshot
  *       }
  *     }
  *   }
@@ -527,11 +531,16 @@ function applyDeathsToAttacks(
  *     is tied to the correct player(s).
  *   - Vulnerability attribution ensures per-target vulnerability windows
  *     are tracked and reflected on each relevant damage event.
+ *   - Includes a flattened cast timeline to keep downstream consumers in sync
+ *     with the damage table when building timelines/UI affordances.
+ *   - Populates per-row mitigation availability via cast analysis helpers,
+ *     storing a map of player → available mitigations along with tracker metadata.
  *
  * @param {Array} damageEvents - Parsed damage-taken events (from parseFightDamageTaken)
  * @param {Array} parsedBuffs - Parsed buff/debuff events (from parseBuffEvents)
  * @param {Array} parsedVulnerabilities - Parsed vulnerabilities/debuffs on friendlies
  * @param {Array} parsedDeaths - Parsed death events (from parseFightDeaths)
+ * @param {Array} parsedCasts - Parsed cast events (from parseFightCasts)
  * @param {Object} fight - Fight metadata (id, encounterID, name, startTime, friendlyPlayers)
  * @param {Map} actorById - Map of actorID → actor metadata
  * @returns {Object} FightTable
@@ -541,6 +550,7 @@ export function buildFightTable(
   parsedBuffs,
   parsedVulnerabilities,
   parsedDeaths,
+  parsedCasts,
   fight,
   actorById,
   buffAnalysis
@@ -564,6 +574,8 @@ export function buildFightTable(
     encounterId: fight.encounterID,
     name: fight.name,
     rows: [],
+    castsTimeline: parsedCasts ?? [], // Flattened cast events aligned with this fight
+    availableMitigationTrackers: [], // mitigation cooldown metadata per ability/player
     // Instead of duplicating actor metadata, only keep friendly player IDs
     friendlyPlayerIds: fight.friendlyPlayers || [],
   };
@@ -586,6 +598,7 @@ export function buildFightTable(
       buffs: {},
       vulns: {}, // active vulnerabilities (per-target, no sources)
       deaths: [], // all players dead at this timestamp
+      availableMitigationsByPlayer: {}, // per-player mitigation availability snapshot
     });
 
     const newRow = table.rows[table.rows.length - 1];
@@ -609,6 +622,9 @@ export function buildFightTable(
   for (const row of table.rows) {
     rowMap.set(`${row.timestamp}_${row.actor}`, row);
   }
+
+  // Populate mitigation availability using cast-derived cooldown data
+  populateMitigationAvailability(table, parsedCasts, actorById, fight);
 
   // Fill in applier names based on buff timelines
   applyBuffsToAttacks(
@@ -680,4 +696,68 @@ export function parseFightDeaths(events, fight, actorById, abilityById) {
 
   log.debug(`Fight ${fight.id}: parsed ${parsed.length} death events`);
   return parsed;
+}
+
+/**
+ * Parse raw cast events into a single, chronologically sorted timeline.
+ *
+ * Each cast is enriched with human-friendly source/target names, the ability name,
+ * and relative timing information derived from the fight start time. The resulting
+ * array makes it simple to show a unified log of spell usage across all players
+ * without additional grouping logic.
+ *
+ * Returned event shape (ordered by `rawTimestamp` ascending):
+ * [
+ *   {
+ *     rawTimestamp: 2295155,          // Absolute timestamp from FFLogs
+ *     relative: 9155,                 // Offset from fight.startTime
+ *     source: "PlayerA",              // Casting actor name or fallback
+ *     target: "EnemyB",               // Target actor name or fallback
+ *     ability: "Glare III",           // Resolved ability name or "Unknown Ability"
+ *     abilityGameID: 24316,           // Raw ability identifier
+ *     type: "cast",                   // Original event type (cast, beginsCast, etc.)
+ *   },
+ *   ...
+ * ]
+ *
+ * Notes:
+ *   - Missing actors are labelled as `Unknown(<id>)` to aid debugging.
+ *   - Sorting happens after normalization so downstream consumers can assume
+ *     increasing timestamps when iterating the array.
+ *
+ * @param {Array} events - Raw cast events from FFLogs
+ * @param {Object} fight - Fight metadata (must include startTime, id)
+ * @param {Map<number, Object>} actorById - Map of actorID → actor metadata
+ * @param {Map<number, Object>} abilityById - Map of abilityGameID → ability metadata
+ * @returns {Array<Object>} casts - Flattened list of casts sorted by timestamp
+ */
+export function parseFightCasts(events, fight, actorById, abilityById) {
+  if (!events || events.length === 0) {
+    log.warn(`Fight ${fight.id}: no cast events returned`);
+    return [];
+  }
+
+  const casts = events.map((ev) => {
+    const source = actorById.get(ev.sourceID);
+    const target = actorById.get(ev.targetID);
+    const ability = abilityById.get(ev.abilityGameID);
+
+    return {
+      rawTimestamp: ev.timestamp,
+      relative: ev.timestamp - fight.startTime,
+      source: source ? source.name : `Unknown(${ev.sourceID})`,
+      target: target ? target.name : `Unknown(${ev.targetID})`,
+      ability: ability ? ability.name : "Unknown Ability",
+      abilityGameID: ev.abilityGameID,
+      type: ev.type,
+    };
+  });
+
+  casts.sort((a, b) => a.rawTimestamp - b.rawTimestamp);
+
+  log.debug(
+    `Fight ${fight.id}: parsed ${casts.length} cast events into a flattened timeline`
+  );
+
+  return casts;
 }

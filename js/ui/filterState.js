@@ -35,6 +35,9 @@ export class FilterState {
 
     /** @type {boolean} Whether to show botched mitigation comparisons */
     this.showBotchedMitigations = true;
+
+    /** @type {boolean} Whether mitigation availability indicators are rendered */
+    this.showAvailableMitigations = true;
   }
 
   /**

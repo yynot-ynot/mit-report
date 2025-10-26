@@ -24,6 +24,8 @@ import {
   applyAdaptiveScrollPadding,
   getDamageTypeIconHTML,
   logCrossJobBuffAnomalies,
+  buildMitigationIconRow,
+  renderAvailableMitigationIcons,
 } from "./reportRendererUtils.js";
 
 setModuleLogLevel("ReportRendererCondensed", envLogLevel("debug", "warn"));
@@ -96,6 +98,7 @@ export function renderCondensedTable(fightState, report, section) {
         a.name !== "Limit Break"
     );
   const sortedActors = sortActorsByJob(allActors);
+  const showAvailableMit = filterState.showAvailableMitigations;
 
   log.info(
     `[CondensedTable] Rendering ${condensedPull.condensedSets.length} grouped sets for ${sortedActors.length} players`
@@ -109,7 +112,7 @@ export function renderCondensedTable(fightState, report, section) {
   table.classList.add("time-table", "condensed-table");
   fightState.tableEl = table;
 
-  // --- (3) Build Header ---
+  // --- (3) Build Header + Mitigation Row ---
   const thead = document.createElement("thead");
   const headerRow = document.createElement("tr");
   headerRow.innerHTML = `
@@ -134,8 +137,17 @@ export function renderCondensedTable(fightState, report, section) {
   thead.appendChild(headerRow);
   table.appendChild(thead);
 
+  // Insert mitigation icon row directly below header (if enabled)
+  if (showAvailableMit) {
+    buildMitigationIconRow(sortedActors, report, 2).then((mitigationRow) => {
+      thead.appendChild(mitigationRow);
+    });
+  }
+
   // --- (4) Build Table Body ---
   const tbody = document.createElement("tbody");
+
+  const mitigationRenderPromises = [];
 
   for (const set of condensedPull.condensedSets) {
     // --- Parent Row ---
@@ -161,13 +173,21 @@ export function renderCondensedTable(fightState, report, section) {
       const td = document.createElement("td");
       td.classList.add(getRoleClass(actor.subType));
 
-      const pData = set.players[actor.name];
+      const pData = set.players?.[actor.name];
+      const setAvailableMitMap = set.availableMitigationsByPlayer || {};
+      const availableMitNames =
+        (Array.isArray(setAvailableMitMap[actor.name])
+          ? setAvailableMitMap[actor.name]
+          : null) ??
+        (Array.isArray(pData?.availableMitigations)
+          ? pData.availableMitigations
+          : []);
       if (pData) {
         const buffs = pData.buffs || [];
         td.dataset.rawBuffs = JSON.stringify(buffs);
 
         // Pass the actual caster’s job subtype when available, instead of target’s
-        const firstApplier = (set.players?.[actor.name]?.buffSources || [])[0];
+        const firstApplier = (pData?.buffSources || [])[0];
         let casterJob = actor.subType;
         if (firstApplier) {
           const caster = report.actorByName.get(firstApplier);
@@ -196,6 +216,21 @@ export function renderCondensedTable(fightState, report, section) {
           td.style.backgroundColor = "#f3f4f6";
         }
       }
+
+      if (showAvailableMit) {
+        mitigationRenderPromises.push(
+          renderAvailableMitigationIcons(
+            td,
+            actor.subType,
+            availableMitNames
+          ).catch((err) =>
+            log.warn(
+              `[CondensedTable] Failed to render mitigation availability for ${actor.name}`,
+              err
+            )
+          )
+        );
+      }
       parentRow.appendChild(td);
     });
 
@@ -213,31 +248,35 @@ export function renderCondensedTable(fightState, report, section) {
 
     parentRow.addEventListener("click", () => {
       const expanded = parentRow.classList.toggle("expanded");
+      const parentKey = `${set.timestamp}_${set.ability}`;
 
-      // Collapse: hide existing inline child rows
       if (!expanded) {
-        const parentKey = `${set.timestamp}_${set.ability}`;
         const existingChildren = tbody.querySelectorAll(
           `tr.child-event-row[data-parent-id="${parentKey}"]`
         );
         existingChildren.forEach((r) => r.remove());
         log.debug(`[CondensedTable] Collapsed "${set.ability}"`);
-        return;
+      } else {
+        log.debug(
+          `[CondensedTable] Expanded "${set.ability}" → inserting inline child event rows`
+        );
+        insertChildEventRows(set, parentRow, fightState, report);
       }
 
-      // Expand: inject new inline child rows
-      log.debug(
-        `[CondensedTable] Expanded "${set.ability}" → inserting inline child event rows`
-      );
-      const newRows = insertChildEventRows(set, parentRow, fightState, report);
-
-      // Apply filters + styling immediately
-      updateMiniChildTable(set, fightState, report, { inlineRows: newRows });
       filterAndStyleCondensedTable(fightState, report);
     });
   }
 
   table.appendChild(tbody);
+
+  Promise.allSettled(mitigationRenderPromises).then((results) => {
+    const rejected = results.filter((res) => res.status === "rejected");
+    if (rejected.length > 0) {
+      log.warn(
+        `[CondensedTable] ${rejected.length} mitigation availability render(s) failed.`
+      );
+    }
+  });
 
   // --- (5) Assemble DOM Structure ---
   const wrapper = document.createElement("div");
@@ -313,6 +352,7 @@ export function filterAndStyleCondensedTable(fightState, report) {
   if (parentRows.length === 0) return;
 
   const AUTO_ATTACK_NAMES = new Set(["attack", "攻撃"]);
+  const showAvailableMit = filterState.showAvailableMitigations;
 
   // --- Resolve players for consistent buff repaint + header updates ---
   const allActors = fightState.fightTable.friendlyPlayerIds
@@ -354,7 +394,9 @@ export function filterAndStyleCondensedTable(fightState, report) {
       const inlineChildren = tbody.querySelectorAll(
         `tr.child-event-row[data-parent-id="${set.timestamp}_${set.ability}"]`
       );
-      inlineChildren.forEach((r) => (r.style.display = "none"));
+      inlineChildren.forEach((r) => {
+        r.style.display = "none";
+      });
 
       hiddenCount++;
       return;
@@ -366,9 +408,12 @@ export function filterAndStyleCondensedTable(fightState, report) {
 
     // --- Buff repaint (Abilities toggle) ---
     const playerCells = Array.from(row.querySelectorAll("td")).slice(2);
+    const setAvailableMitMap = set.availableMitigationsByPlayer || {};
     playerCells.forEach((td, colIdx) => {
       const actor = sortedActors[colIdx];
       if (!actor) return;
+
+      const playerEntry = set.players?.[actor.name];
 
       let rawBuffs = [];
       try {
@@ -378,7 +423,7 @@ export function filterAndStyleCondensedTable(fightState, report) {
       }
 
       // Repaint using the actual caster’s job subtype when available
-      const firstApplier = (set.players?.[actor.name]?.buffSources || [])[0];
+      const firstApplier = (playerEntry?.buffSources || [])[0];
       let casterJob = actor.subType;
       if (firstApplier) {
         const caster = report.actorByName.get(firstApplier);
@@ -401,6 +446,29 @@ export function filterAndStyleCondensedTable(fightState, report) {
         buffAnalysis: fightState.buffAnalysis,
         filterState,
       });
+
+      const repaintAvailableMit =
+        (Array.isArray(setAvailableMitMap[actor.name])
+          ? setAvailableMitMap[actor.name]
+          : null) ??
+        (Array.isArray(playerEntry?.availableMitigations)
+          ? playerEntry.availableMitigations
+          : []);
+
+      if (showAvailableMit) {
+        renderAvailableMitigationIcons(
+          td,
+          actor.subType,
+          repaintAvailableMit
+        ).catch((err) =>
+          log.warn(
+            `[CondensedTable] Failed to repaint mitigation availability for ${actor.name}`,
+            err
+          )
+        );
+      } else {
+        renderAvailableMitigationIcons(td, actor.subType, []).catch(() => {});
+      }
     });
 
     // ============================================================
@@ -428,9 +496,10 @@ export function filterAndStyleCondensedTable(fightState, report) {
     );
     if (inlineChildren.length > 0) {
       const mode = isExpanded ? "visible" : "hidden";
-      inlineChildren.forEach(
-        (r) => (r.style.display = mode === "visible" ? "" : "none")
-      );
+      inlineChildren.forEach((r) => {
+        const isVisible = mode === "visible";
+        r.style.display = isVisible ? "" : "none";
+      });
 
       if (isExpanded) {
         updateMiniChildTable(set, fightState, report, {
@@ -438,6 +507,17 @@ export function filterAndStyleCondensedTable(fightState, report) {
         });
       }
     }
+  });
+
+  // Reapply manual striping for visible condensed parent rows to avoid nth-child flicker
+  const visibleParents = parentRows.filter((row) => row.style.display !== "none");
+  parentRows.forEach((row) => {
+    row.classList.remove("stripe-odd", "stripe-even");
+  });
+  visibleParents.forEach((row, idx) => {
+    const isOddStripe = idx % 2 === 0;
+    row.classList.toggle("stripe-odd", isOddStripe);
+    row.classList.toggle("stripe-even", !isOddStripe);
   });
 
   // ============================================================

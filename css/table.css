@@ -34,6 +34,7 @@
     border: 1px solid #ccc;
     padding: 0.4rem 0.6rem;
     text-align: center;
+    vertical-align: top;
     min-width: 80px;
     box-sizing: border-box;
     white-space: nowrap;
@@ -94,11 +95,11 @@
 }
 
 /* Row striping (only live table) */
-.time-table tbody tr:nth-child(odd) {
+.time-table:not(.condensed-table) tbody tr:nth-child(odd) {
     background: #fafafa;
 }
 
-.time-table tbody tr:nth-child(even) {
+.time-table:not(.condensed-table) tbody tr:nth-child(even) {
     background: #ffffff;
 }
 
@@ -282,10 +283,19 @@
 tr.condensed-row {
     cursor: pointer;
     transition: background-color 0.2s ease;
+    background-color: #ffffff;
 }
 
 tr.condensed-row:hover {
     background-color: #f8fafc;
+}
+
+.time-table.condensed-table tbody tr.condensed-row.stripe-odd {
+    background-color: #fafafa;
+}
+
+.time-table.condensed-table tbody tr.condensed-row.stripe-even {
+    background-color: #ffffff;
 }
 
 tr.child-row .child-cell {
@@ -323,18 +333,17 @@ tr.child-event-row {
     /* soft neutral background */
     font-size: 0.82em;
     /* slightly smaller text than parent */
-    border-top: 1px dashed #e5e7eb;
-    /* separation from parent row */
+    border-top: none;
 }
 
 /* Compact vertical spacing */
 tr.child-event-row td {
+    border: 1px solid #ccc;
     padding-top: 0.15rem;
     padding-bottom: 0.15rem;
     line-height: 1.1;
     text-align: center;
     vertical-align: middle;
-    border-color: #ccc;
     /* ensure borders remain crisp */
 }
 
@@ -392,15 +401,11 @@ tr.child-event-row:hover td.target-cell {
 
 /* Spacing before/after each group */
 tr.child-event-row:first-of-type {
-    border-top: 3px solid transparent;
-    /* visual breathing room above */
-    padding-top: 0.25rem;
+    padding-top: 0.15rem;
 }
 
 tr.child-event-row:last-of-type {
-    border-bottom: 3px solid transparent;
-    /* visual breathing room below */
-    padding-bottom: 0.25rem;
+    padding-bottom: 0.15rem;
 }
 
 /* Divider between different parent groups */
@@ -414,4 +419,184 @@ tr.child-event-row+tr.condensed-row {
     color: #9ca3af;
     opacity: 0.9;
     font-weight: 500;
+}
+
+/* ==========================================================
+   MITIGATION ICON ROW (Below Header)
+   ----------------------------------------------------------
+   Displays mitigation ability icons per player job.
+   Appears directly below the player header row.
+   ========================================================== */
+
+tr.mitigation-row {
+    background-color: #f9fafb;
+    /* light neutral background to separate from header */
+    border-bottom: 1px solid #e5e7eb;
+    text-align: center;
+}
+
+tr.mitigation-row td {
+    padding: 0.25rem 0.4rem;
+    vertical-align: middle;
+    border: 1px solid #ddd;
+}
+
+/* Small icon styling */
+.mitigation-icon {
+    width: 20px;
+    height: 20px;
+    margin: 2px;
+    border-radius: 3px;
+    vertical-align: middle;
+    object-fit: contain;
+    transition: transform 0.1s ease-in-out, opacity 0.15s ease;
+}
+
+/* Hover feedback */
+.mitigation-icon:hover {
+    transform: scale(1.4);
+    opacity: 0.9;
+    cursor: pointer;
+}
+
+/* ==========================================================
+   MITIGATION AVAILABILITY LAYER (per-player cells)
+   ----------------------------------------------------------
+   Displays currently available mitigation abilities within
+   player cells in the condensed table.
+   ========================================================== */
+
+.mit-availability-wrapper {
+    display: grid;
+    /* Define a 3x3 grid */
+    grid-template-areas:
+        ". content layer"
+        ". . ."
+        ". . .";
+    grid-template-columns: 1fr auto 1fr;
+    grid-template-rows: auto auto auto;
+
+    column-gap: 0.8rem; /* adds horizontal space between content ↔ layer */
+    position: relative;
+    align-items: center;
+    justify-items: center;
+    min-height: 3rem;
+    /* expand cell slightly */
+    width: 100%;
+
+    padding-top: 0.5rem;
+    padding-bottom: 0.5rem;
+}
+
+/* Centered content block */
+.mit-availability-content {
+    grid-area: content;
+    text-align: center;
+}
+
+/* Top-right layer */
+.mit-availability-layer {
+    grid-area: layer;
+    align-self: start;
+    justify-self: end;
+}
+
+.mit-availability-dot-container {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 4px;
+    outline: none;
+}
+
+.mit-availability-dot-container:focus-visible {
+    outline: 2px solid #3b82f6;
+    border-radius: 4px;
+}
+
+.mit-availability-dot-layer {
+    display: flex;
+    flex-direction: row-reverse;
+    gap: 4px;
+}
+
+.mit-availability-column {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 3px;
+}
+
+.mitigation-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background-color: #9ca3af;
+    background-size: cover;
+    background-position: center;
+    border: 1px solid rgba(0, 0, 0, 0.15);
+}
+
+.mit-availability-tooltip {
+    position: absolute;
+    top: 100%;
+    right: 0;
+    margin-top: 6px;
+    background: #111827;
+    color: #f9fafb;
+    padding: 10px 14px;
+    border-radius: 8px;
+    box-shadow: 0 10px 25px rgba(15, 23, 42, 0.35);
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(4px);
+    transition: opacity 0.15s ease, transform 0.15s ease;
+    z-index: 20;
+    min-width: 200px;
+}
+
+.mit-availability-dot-container:hover .mit-availability-tooltip,
+.mit-availability-dot-container:focus-within .mit-availability-tooltip {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+}
+
+.mit-availability-tooltip-header {
+    font-size: 0.8rem;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    margin-bottom: 0.5rem;
+    color: #93c5fd;
+}
+
+.mit-availability-tooltip-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+}
+
+.mit-availability-tooltip-item {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    column-gap: 0.5rem;
+    align-items: center;
+}
+
+.mit-availability-tooltip-icon {
+    width: 22px;
+    height: 22px;
+    border-radius: 4px;
+    object-fit: contain;
+    background-color: #1f2937;
+}
+
+.mit-availability-tooltip-icon.placeholder {
+    background-color: #374151;
+}
+
+.mit-availability-tooltip-label {
+    font-size: 0.85rem;
+    color: #e5e7eb;
 }

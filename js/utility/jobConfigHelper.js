@@ -8,6 +8,8 @@ import {
 setModuleLogLevel("JobConfigHelper", envLogLevel("info", "warn"));
 const log = getLogger("JobConfigHelper");
 
+const mitigationParentCache = { lookup: null };
+
 /**
  * Retrieves the mitigation percentage for a given buff name across all jobs.
  *
@@ -150,4 +152,175 @@ export function getMitigationPercent(
 
   // Fix floating-point precision by rounding to 0.01
   return Math.round(mitValue * 100) / 100;
+}
+
+/**
+ * Build (and cache) a Map of normalized job name → mitigation ability map.
+ *
+ * Purpose:
+ *   Mitigation entries in the dataset often contain duplicate rows for the same ability
+ *   (e.g., separate physical/magical conditions, self vs. ally targets). Downstream code
+ *   only needs to know which *abilities* count as mitigation for a given job. This helper
+ *   compacts the dataset into a simple lookup keyed by job, with each value containing the
+ *   unique parent ability identifiers for that job.
+ *
+ * Behavior:
+ *   1. Normalizes job names by stripping punctuation and lowercasing so variants like
+ *      "DarkKnight", "Dark Knight", and "dark_knight" map to the same key.
+ *   2. Normalizes ability names by trimming and lowercasing to ensure case-insensitive matches.
+ *   3. Deduplicates parent abilities per job, even if multiple dataset rows reference them.
+ *   4. Caches the result (per-process) to avoid repeatedly traversing the large dataset.
+ *
+ * Cache:
+ *   The lookup is stored in `mitigationParentCache.lookup`; subsequent calls return the cached
+ *   value. If the mitigation dataset is ever updated at runtime, callers should clear that cache
+ *   manually (`mitigationParentCache.lookup = null`) before invoking this helper again.
+ *
+ * Example result:
+ *   Map {
+ *     "paladin" => Map {
+ *       "divineveil" -> "Divine Veil",
+ *       "passageofarms" -> "Passage of Arms",
+ *       ...
+ *     },
+ *     "sage"    => Map {
+ *       "kerachole" -> "Kerachole",
+ *       "holos"     -> "Holos",
+ *       ...
+ *     }
+ *   }
+ *
+ * @returns {Map<string, Map<string, string>>} Cached mapping of job → mitigation ability map.
+ */
+export function getMitigationParentLookup() {
+  if (mitigationParentCache.lookup) {
+    return mitigationParentCache.lookup;
+  }
+
+  const lookup = new Map();
+  const effects = mitigationData?.mitigationEffects || {};
+
+  for (const [jobKey, entries] of Object.entries(effects)) {
+    const normalizedJob = normalizeJobName(jobKey);
+    if (!normalizedJob || !Array.isArray(entries)) continue;
+
+    if (!lookup.has(normalizedJob)) {
+      lookup.set(normalizedJob, new Map());
+    }
+    const abilityMap = lookup.get(normalizedJob);
+
+    entries.forEach((entry) => {
+      const rawAbility = entry?.parent_ability || entry?.name || null;
+      if (!rawAbility) return;
+
+      const normalizedAbility = normalizeAbilityName(rawAbility);
+      if (!normalizedAbility) return;
+
+      if (!abilityMap.has(normalizedAbility)) {
+        abilityMap.set(normalizedAbility, rawAbility);
+      }
+    });
+  }
+
+  mitigationParentCache.lookup = lookup;
+  return lookup;
+}
+
+/**
+ * Retrieve the list of mitigation ability names associated with a job.
+ *
+ * This helper builds on top of `getMitigationParentLookup`, returning the
+ * normalized set of parent ability names for the requested job while keeping
+ * the original casing as stored in the mitigation dataset.
+ *
+ * Typical usage:
+ *   const abilities = getMitigationAbilityNames("Dark Knight");
+ *   → ["Shadow Wall", "Dark Mind", "Rampart", ...]
+ *
+ * Notes:
+ *   - Falls back to the job’s normalized key (whitespace, punctuation removed).
+ *   - Returns an empty array if the job is unknown or has no mitigation entries.
+ *   - The returned array preserves the insertion order from the dataset, which
+ *     groups related abilities together.
+ *
+ * @param {string} jobName - Job/subType string (e.g. "Dark Knight", "Scholar")
+ * @returns {Array<string>} Ordered list of unique mitigation ability names.
+ */
+export function getMitigationAbilityNames(jobName) {
+  if (!jobName) return [];
+
+  const normalizedJob = normalizeJobName(jobName);
+  if (!normalizedJob) return [];
+
+  const lookup = getMitigationParentLookup();
+  if (!lookup.has(normalizedJob)) return [];
+
+  const abilityMap = lookup.get(normalizedJob);
+  return Array.from(abilityMap.values());
+}
+
+/**
+ * Normalize an ability name for case-insensitive comparisons.
+ *
+ * Trims whitespace and lowercases the result so mitigation lookups
+ * can match reliably regardless of FFLogs naming quirks.
+ *
+ * @param {string} name - Ability name from FFLogs or configuration.
+ * @returns {string} Normalized ability identifier.
+ */
+export function normalizeAbilityName(name) {
+  if (!name) return "";
+  return String(name).trim().toLowerCase();
+}
+
+/**
+ * Normalize a job name for dataset lookups.
+ *
+ * Removes spaces, punctuation, and casing differences so job keys like
+ * "Dark Knight", "dark_knight", and "DarkKnight" resolve to the same
+ * canonical form used in datasets.
+ *
+ * @param {string} job - Job/subType string from FFLogs actors.
+ * @returns {string} Normalized job identifier.
+ */
+export function normalizeJobName(job) {
+  if (!job) return "";
+  return String(job)
+    .replace(/[\s'_-]/g, "")
+    .toLowerCase();
+}
+
+/**
+ * Build a lookup map keyed by actor name for quick job/subType resolution.
+ *
+ * Supports any data shape emitted by `parseReport` and related helpers:
+ *   - Map<int, Actor>
+ *   - Array<Actor>
+ *   - Plain object keyed by actor IDs
+ *
+ * Each actor entry is expected to include at least `{ name, subType }`.
+ * Actors missing a name are skipped to avoid ambiguous lookups.
+ *
+ * @param {Map|Array|Object|null} actorById - Actor collection from FFLogs parsing.
+ * @returns {Map<string, Object>} Map keyed by the actor’s display name.
+ */
+export function buildActorNameMap(actorById) {
+  const map = new Map();
+  if (!actorById) return map;
+
+  const addActor = (actor) => {
+    if (actor && actor.name) {
+      map.set(actor.name, actor);
+    }
+  };
+
+  if (actorById instanceof Map) {
+    actorById.forEach(addActor);
+  } else if (Array.isArray(actorById)) {
+    actorById.forEach(addActor);
+  } else if (typeof actorById === "object") {
+    Object.values(actorById).forEach(addActor);
+  }
+
+  return map;
 }

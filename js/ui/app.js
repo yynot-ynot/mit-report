@@ -17,6 +17,7 @@ import {
   parseFightDamageTaken,
   parseFightDeaths,
   parseBuffEvents,
+  parseFightCasts,
   buildFightTable,
 } from "../data/reportParser.js";
 import { generateCondensedPullTable } from "../analysis/pullAnalysis.js";
@@ -209,6 +210,19 @@ document.addEventListener("DOMContentLoaded", async () => {
           return result;
         });
 
+        profiler.start("Parse Player Casts");
+        const parsedCastsPromise = Promise.resolve().then(() => {
+          const result = parseFightCasts(
+            casts,
+            pull,
+            report.actorById,
+            report.abilityById
+          );
+          profiler.stop("Parse Player Casts", "Parse", `Pull ${pull.id}`);
+          log.info(`Pull ${pull.id}: parsed Casts`, result);
+          return result;
+        });
+
         profiler.start("Parse Player Debuffs");
         const parsedVulnerabilitiesPromise = Promise.resolve().then(() => {
           const result = parseBuffEvents(
@@ -257,11 +271,13 @@ document.addEventListener("DOMContentLoaded", async () => {
           parsedVulnerabilities,
           parsedDamageTaken,
           parsedDeaths,
+          parsedCast,
         ] = await Promise.all([
           parsedBuffsPromise,
           parsedVulnerabilitiesPromise,
           parsedDamageTakenPromise,
           parsedDeathsPromise,
+          parsedCastsPromise,
         ]);
 
         // === TABLE BUILD PHASE ===
@@ -273,6 +289,7 @@ document.addEventListener("DOMContentLoaded", async () => {
           parsedBuffs,
           parsedVulnerabilities,
           parsedDeaths,
+          parsedCast,
           pull,
           report.actorById,
           fightState.buffAnalysis
@@ -284,6 +301,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         const condensedPull = generateCondensedPullTable(fightTable);
         fightState.fightTable = fightTable;
         fightState.condensedPull = condensedPull;
+        fightState.parsedCasts = parsedCast;
 
         fightTableCache.set(pull.id, fightState);
         log.info(`Pull ${pull.id}: built condensed PullTable`, condensedPull);

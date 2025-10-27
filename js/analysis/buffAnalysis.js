@@ -18,7 +18,7 @@ import {
   envLogLevel,
 } from "../utility/logger.js";
 
-setModuleLogLevel("BuffAnalysis", envLogLevel("info", "warn"));
+setModuleLogLevel("BuffAnalysis", envLogLevel("warn", "warn"));
 const log = getLogger("BuffAnalysis");
 
 // 🔒 Hardcoded Buff → Ability overrides

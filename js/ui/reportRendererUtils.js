@@ -17,6 +17,7 @@ import {
   envLogLevel,
 } from "../utility/logger.js";
 import { getKnownBuffJob } from "../config/knownBuffJobs.js";
+import { AUTO_ATTACK_NAMES } from "../config/AppConfig.js";
 
 setModuleLogLevel("ReportRendererUtils", envLogLevel("info", "warn"));
 const log = getLogger("ReportRendererUtils");
@@ -231,7 +232,6 @@ export function shouldHideEvent(abilityName, filterState) {
   if (!abilityName || !filterState) return false;
 
   const name = abilityName.toLowerCase().trim();
-  const AUTO_ATTACK_NAMES = new Set(["attack", "攻撃"]);
   const isAutoAttack = AUTO_ATTACK_NAMES.has(name);
   const isBleed =
     name.includes("dot") ||

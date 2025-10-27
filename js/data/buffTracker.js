@@ -5,7 +5,7 @@ import {
 } from "../utility/logger.js";
 import { formatRelativeTime } from "../utility/dataUtils.js";
 
-setModuleLogLevel("BuffTracker", envLogLevel("info", "warn"));
+setModuleLogLevel("BuffTracker", envLogLevel("warn", "warn"));
 const log = getLogger("BuffTracker");
 
 /**

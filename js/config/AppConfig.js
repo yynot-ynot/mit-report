@@ -24,6 +24,9 @@ import { ViperConfig } from "./jobs/ViperConfig.js";
 import { WarriorConfig } from "./jobs/WarriorConfig.js";
 import { WhitemageConfig } from "./jobs/WhitemageConfig.js";
 
+// Shared list of localized auto-attack ability names.
+export const AUTO_ATTACK_NAMES = new Set(["attack", "攻撃"]);
+
 // 🔗 Map job names to config objects
 const JOB_CONFIGS = {
   sage: SageConfig,

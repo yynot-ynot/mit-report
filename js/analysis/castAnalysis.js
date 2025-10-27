@@ -11,6 +11,8 @@ import {
   setModuleLogLevel,
   envLogLevel,
 } from "../utility/logger.js";
+import { COOLDOWN_DEPENDENCY_MAP } from "../config/cooldownDependencyMap.js";
+import * as CooldownHandlers from "../analysis/customCooldownHandlers.js";
 
 setModuleLogLevel("CastAnalysis", envLogLevel("info", "warn"));
 const log = getLogger("CastAnalysis");
@@ -227,7 +229,7 @@ function resolveAbilityCooldown(jobName, abilityName) {
  * @param {Array<Object>} [friendlyActors=[]] - Optional list of friendly actors to prioritize when resolving jobs.
  * @returns {Array<CastCooldownTracker>} trackers
  */
-export function buildMitigationCooldownTrackers(
+export function buildCooldownTrackers(
   parsedCasts = [],
   damageEvents = [],
   fight = null,
@@ -250,29 +252,34 @@ export function buildMitigationCooldownTrackers(
       }
     });
   }
-  const mitigationParents = getMitigationParentLookup();
   const trackerMap = new Map();
 
   parsedCasts.forEach((cast) => {
     if (!cast || !cast.ability || !cast.source) return;
 
-    // Resolve actor/job context for this cast
+    // --------------------------------------------------------------
+    // 🔍 Resolve actor/job context for this cast
+    // --------------------------------------------------------------
+    // Instead of restricting to mitigation abilities, we now build a
+    // cooldown tracker for *every* casted ability. The cooldown length
+    // is resolved directly from the job’s configuration file.
     const actor =
       friendlyActorMap.get(cast.source) || actorByName.get(cast.source);
     const jobName = actor?.subType;
     if (!jobName) return;
 
+    // Normalize names for consistency with job configs
     const normalizedJob = normalizeJobName(jobName);
-    const jobParents = mitigationParents.get(normalizedJob);
-    if (!jobParents) return;
-
     const normalizedAbility = normalizeAbilityName(cast.ability);
-    if (!jobParents.has(normalizedAbility)) return;
 
-    // Pull recast from job config; skip abilities without known cooldowns
+    // --------------------------------------------------------------
+    // ⏱️ Lookup cooldown duration from job config
+    // --------------------------------------------------------------
+    // Consult the job’s configuration (via resolveAbilityCooldown)
+    // to obtain the base cooldown in milliseconds. If no entry is found
+    // or the ability has no valid recast time, skip it.
     const cooldownInfo = resolveAbilityCooldown(jobName, cast.ability);
     if (!cooldownInfo || !Number.isFinite(cooldownInfo.cooldownMs)) return;
-
     // Prefer relative timestamp; fall back to raw timestamp minus fight start
     let start = Number.isFinite(cast.relative) ? cast.relative : null;
     if (!Number.isFinite(start) && Number.isFinite(cast.rawTimestamp)) {
@@ -283,7 +290,7 @@ export function buildMitigationCooldownTrackers(
     }
     if (!Number.isFinite(start)) return;
 
-    const key = `${cast.source}::${cast.ability}`;
+    const key = `${cast.source}::${normalizedAbility}`;
     let tracker = trackerMap.get(key);
     if (!tracker) {
       // First time seeing this ability/player pair — seed tracker metadata
@@ -300,8 +307,61 @@ export function buildMitigationCooldownTrackers(
       tracker.setBaseCooldownMs(cooldownInfo.cooldownMs);
     }
 
-    // Record the cooldown window for this cast
-    tracker.addCooldown(start, start + cooldownInfo.cooldownMs);
+    // Helper that records the default cooldown window once.
+    let defaultCooldownConsumed = false;
+    const defaultAddCooldown = () => {
+      if (defaultCooldownConsumed) return false;
+      tracker.addCooldown(start, start + cooldownInfo.cooldownMs);
+      defaultCooldownConsumed = true;
+      return true;
+    };
+
+    // --------------------------------------------------------------
+    // Dependency Dispatch
+    // --------------------------------------------------------------
+    // Custom handlers can opt-in to the default cooldown by invoking
+    // `defaultAddCooldown()`. When no custom handlers exist we fall
+    // back to the default behavior automatically.
+    const dependencies = COOLDOWN_DEPENDENCY_MAP.filter(
+      (dep) =>
+        (dep.job === normalizedJob || dep.job === "any") &&
+        normalizeAbilityName(dep.trigger) === normalizedAbility
+    );
+
+    if (dependencies.length > 0) {
+      log.info(`[CastAnalysis] Dispatching cooldown dependency handlers`, {
+        player: cast.source,
+        trigger: cast.ability,
+        handlers: dependencies.map((dep) => dep.handler),
+      });
+    }
+
+    if (dependencies.length === 0) {
+      defaultAddCooldown();
+    } else {
+      dependencies.forEach((dep) => {
+        const handlerFn = CooldownHandlers[dep.handler];
+        if (typeof handlerFn === "function") {
+          handlerFn({
+            depConfig: dep,
+            cast,
+            trackerMap,
+            actorById,
+            fight,
+            start,
+            triggerTracker: tracker,
+            cooldownInfo,
+            defaultAddCooldown,
+            normalizedAbility,
+            normalizedJob,
+          });
+        } else {
+          log.warn(
+            `[CastAnalysis] Missing handler "${dep.handler}" for ${dep.trigger}`
+          );
+        }
+      });
+    }
   });
 
   const trackers = Array.from(trackerMap.values());
@@ -404,7 +464,7 @@ export function populateMitigationAvailability(
   const allPlayerNames = Array.from(baselineAbilitiesByPlayer.keys());
 
   // Step 2: Build cooldown trackers for mitigation abilities
-  const trackers = buildMitigationCooldownTrackers(
+  const trackers = buildCooldownTrackers(
     parsedCasts,
     [],
     fight,

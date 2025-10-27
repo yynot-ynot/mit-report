@@ -351,7 +351,6 @@ export function filterAndStyleCondensedTable(fightState, report) {
   const parentRows = Array.from(tbody.querySelectorAll("tr.condensed-row"));
   if (parentRows.length === 0) return;
 
-  const AUTO_ATTACK_NAMES = new Set(["attack", "攻撃"]);
   const showAvailableMit = filterState.showAvailableMitigations;
 
   // --- Resolve players for consistent buff repaint + header updates ---
@@ -641,7 +640,6 @@ export function updateMiniChildTable(condensedSet, fightState, report, target) {
         a.name !== "Limit Break"
     );
   const sortedActors = sortActorsByJob(allActors);
-  const AUTO_ATTACK_NAMES = new Set(["attack", "攻撃"]);
 
   log.debug(
     `[updateMiniChildTable] Mode=${

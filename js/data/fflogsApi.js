@@ -369,3 +369,62 @@ export async function fetchFightDeaths(accessToken, reportCode, fight) {
     EventDataType.DEATHS
   );
 }
+
+/**
+ * Fetch damage done events for a specific player in a fight.
+ *
+ * Queries the FFLogs API for all `DamageDone` events within the fight duration,
+ * filtered to only include events from a specified player's actor ID.
+ *
+ * 💡 Usage Notes:
+ * - The `sourceID` argument must correspond to the player's unique actor ID
+ *   as provided in the `masterData.actors` section of the report metadata.
+ * - `hostilityType` must use the ENUM values from `HostilityType` (e.g. Friendlies or Enemies),
+ *   and is unquoted in GraphQL queries (see `formatOption()` for ENUM handling).
+ *
+ * @param {string} accessToken - OAuth2 access token for the FFLogs API.
+ * @param {string} reportCode - Unique FFLogs report code.
+ * @param {Object} fight - Fight metadata (requires `id`, `startTime`, and `endTime`).
+ * @param {number} playerSourceId - The actor ID for the player whose damage data should be fetched.
+ * @param {string} [hostilityType=HostilityType.FRIENDLIES] - The hostility filter ENUM (default: Friendlies).
+ * @returns {Promise<Array>} Resolves to an array of damage event objects for the specified player.
+ *
+ * @example
+ * const playerDamage = await fetchPlayerDamage(
+ *   token,
+ *   "abc123XYZ",
+ *   fight,
+ *   42, // Player's actor ID
+ *   HostilityType.FRIENDLIES
+ * );
+ */
+export async function fetchPlayerDamage(
+  accessToken,
+  reportCode,
+  fight,
+  playerSourceId,
+  hostilityType = HostilityType.FRIENDLIES
+) {
+  if (!playerSourceId || typeof playerSourceId !== "number") {
+    throw new Error(
+      "fetchPlayerDamage requires a valid numeric playerSourceId."
+    );
+  }
+
+  const extraOptions = {
+    hostilityType, // ENUM value: Friendlies or Enemies
+    sourceID: playerSourceId, // Filter to this specific actor
+    includeResources: true, // Include MP/TP/HP changes for context
+  };
+
+  // Delegate pagination and retrieval to the shared helper
+  const events = await fetchEventsPaginated(
+    accessToken,
+    reportCode,
+    fight,
+    EventDataType.DAMAGE_DONE,
+    extraOptions
+  );
+
+  return events;
+}

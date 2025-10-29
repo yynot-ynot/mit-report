@@ -9,7 +9,7 @@ import {
   buildDeathStatusList,
 } from "./buffTracker.js";
 import { formatRelativeTime } from "../utility/dataUtils.js";
-import { IGNORED_BUFFS } from "../config/ignoredBuffs.js";
+import { IGNORED_BUFFS } from "../config/ignoredEntities.js";
 import {
   assignLastKnownBuffSource,
   calculateTotalMitigation,
@@ -248,6 +248,79 @@ export function parseFightDamageTaken(events, fight, actorById, abilityById) {
     log.info(`- Type ${type}: ${abilities.join(", ")}`);
   });
   log.debug(`Fight ${fight.id}: parsed ${parsed.length} damage taken events`);
+  return parsed;
+}
+
+/**
+ * parseFightDamageDone()
+ * --------------------------------------------------------------
+ * Generic parser for player damage-done events (outgoing damage).
+ *
+ * Purpose:
+ *   Converts raw FFLogs damage-done events into normalized objects
+ *   containing essential metadata for analysis and rendering.
+ *
+ * Structure of raw event (example):
+ *   {
+ *     timestamp: 2116437,
+ *     type: "calculateddamage",
+ *     sourceID: 3,
+ *     targetID: 61,
+ *     abilityGameID: 7384,
+ *     amount: 26571,
+ *     unmitigatedAmount: 26571,
+ *     hitType: 2,
+ *     ...
+ *   }
+ *
+ * Returned object fields:
+ *   - rawTimestamp: original event timestamp
+ *   - relative: timestamp offset from fight start
+ *   - source: player name dealing the damage
+ *   - target: target name receiving the damage
+ *   - ability: name of the damaging ability
+ *   - amount: actual damage dealt
+ *   - unmitigatedAmount: raw pre-mitigation damage (if available)
+ *   - hitType: numeric FFLogs hit type (1=Normal, 2=Crit, 3=Direct, etc.)
+ *
+ * This parser is lightweight — it intentionally omits mitigation math
+ * and buff attribution, as those belong to the damage-taken pipeline.
+ *
+ * @param {Array} events - Raw damage-done events from FFLogs.
+ * @param {Object} fight - Fight metadata (requires startTime/id).
+ * @param {Map<number, Object>} actorById - Map of actorID → actor metadata.
+ * @param {Map<number, Object>} abilityById - Map of abilityGameID → ability metadata.
+ * @returns {Array<Object>} Parsed damage-done events.
+ */
+export function parseFightDamageDone(events, fight, actorById, abilityById) {
+  if (!events || events.length === 0) {
+    log.warn(`Fight ${fight.id}: no damage done events returned`);
+    return [];
+  }
+
+  const parsed = events
+    .map((ev) => {
+      const source = actorById.get(ev.sourceID);
+      const target = actorById.get(ev.targetID);
+      const ability = abilityById.get(ev.abilityGameID);
+
+      return {
+        rawTimestamp: ev.timestamp,
+        relative: ev.timestamp - fight.startTime,
+        source: source ? source.name : `Unknown(${ev.sourceID})`,
+        target: target ? target.name : `Unknown(${ev.targetID})`,
+        ability: ability ? ability.name : "Unknown Ability",
+        amount: ev.amount ?? 0,
+        unmitigatedAmount: ev.unmitigatedAmount ?? ev.amount ?? 0,
+        hitType: ev.hitType ?? null,
+        type: ev.type ?? null, // retain event type (e.g., "damage", "calculateddamage")
+      };
+    })
+    .filter(Boolean);
+
+  log.debug(
+    `Fight ${fight.id}: parsed ${parsed.length} damage done events (outgoing)`
+  );
   return parsed;
 }
 

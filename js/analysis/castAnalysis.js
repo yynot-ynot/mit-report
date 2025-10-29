@@ -11,11 +11,104 @@ import {
   setModuleLogLevel,
   envLogLevel,
 } from "../utility/logger.js";
+import { formatRelativeTime } from "../utility/dataUtils.js";
+import { AUTO_ATTACK_NAMES } from "../config/AppConfig.js";
 import { COOLDOWN_DEPENDENCY_MAP } from "../config/cooldownDependencyMap.js";
 import * as CooldownHandlers from "../analysis/customCooldownHandlers.js";
 
 setModuleLogLevel("CastAnalysis", envLogLevel("info", "warn"));
 const log = getLogger("CastAnalysis");
+
+/**
+ * insertAutoAttacksIntoCasts()
+ * --------------------------------------------------------------
+ * Merges all detected *calculated damage* auto-attack events from parsed
+ * damage data into the parsed cast timeline, ensuring they appear in
+ * chronological order alongside standard ability casts.
+ *
+ * 💡 Behavior:
+ *   - Filters to only include entries with `type === "calculateddamage"`.
+ *   - Identifies auto-attacks using `AUTO_ATTACK_NAMES` from AppConfig.
+ *   - Converts each matching event into a cast-like object with fields:
+ *       {
+ *         rawTimestamp: <timestamp>,
+ *         relative: <relative time>,
+ *         source: <attacker name>,
+ *         target: <target name>,
+ *         ability: <auto-attack name>,
+ *         abilityGameID: <original ability ID>,
+ *         type: "autoattack"
+ *       }
+ *   - Merges and sorts the final timeline by `relative` time, ensuring
+ *     temporal accuracy with the rest of the cast events.
+ *
+ * 🧠 Purpose:
+ *   Ensures auto-attacks that appear as *calculated damage* entries in FFLogs
+ *   are fully represented in the cast timeline. This synchronization is
+ *   essential for downstream analyses, such as Paladin Oath gauge generation,
+ *   rotation validation, and GCD clipping analysis.
+ *
+ * @param {Array<Object>} parsedDamageDone - Parsed outgoing damage events (includes type).
+ * @param {Array<Object>} parsedCasts - Parsed cast timeline (mutated in-place).
+ * @returns {Array<Object>} The combined and sorted cast timeline.
+ */
+export function insertAutoAttacksIntoCasts(parsedDamageDone, parsedCasts) {
+  if (!Array.isArray(parsedDamageDone) || parsedDamageDone.length === 0) {
+    log.debug(
+      "[CastAnalysis] No damage-done events available for auto-attack merge."
+    );
+    return parsedCasts;
+  }
+
+  if (!Array.isArray(parsedCasts)) {
+    log.warn(
+      "[CastAnalysis] parsedCasts is not an array; initializing new one."
+    );
+    parsedCasts = [];
+  }
+
+  // Normalize all auto attack names for case-insensitive comparison
+  const normalizedAutoNames = new Set(
+    Array.from(AUTO_ATTACK_NAMES || []).map((n) => n.toLowerCase())
+  );
+
+  // Extract auto-attacks that are calculated damage only
+  const autoAttackEntries = parsedDamageDone
+    .filter(
+      (ev) =>
+        ev.type === "calculateddamage" && // restrict to calculateddamage events only
+        ev.ability &&
+        normalizedAutoNames.has(ev.ability.toLowerCase()) &&
+        ev.source &&
+        Number.isFinite(ev.relative)
+    )
+    .map((ev) => ({
+      rawTimestamp: ev.rawTimestamp,
+      relative: ev.relative,
+      source: ev.source,
+      target: ev.target,
+      ability: ev.ability,
+      abilityGameID: ev.abilityGameID ?? null,
+      type: "autoattack",
+    }));
+
+  if (autoAttackEntries.length === 0) {
+    log.debug(
+      "[CastAnalysis] No calculated-damage auto-attack entries found in parsed damage data."
+    );
+    return parsedCasts;
+  }
+
+  // Merge and re-sort the combined timeline
+  const mergedTimeline = [...parsedCasts, ...autoAttackEntries].sort(
+    (a, b) => a.relative - b.relative || a.source.localeCompare(b.source)
+  );
+
+  log.info(
+    `[CastAnalysis] Inserted ${autoAttackEntries.length} calculated-damage auto-attack events into cast timeline.`
+  );
+  return mergedTimeline;
+}
 
 /**
  * CastCooldownTracker manages cooldown periods for a single ability belonging to a player.
@@ -241,6 +334,11 @@ export function buildCooldownTrackers(
     return [];
   }
 
+  const oathContext =
+    typeof CooldownHandlers.PaladinOathGaugeContext === "function"
+      ? new CooldownHandlers.PaladinOathGaugeContext()
+      : null;
+
   // Build lookup maps used to resolve actor/job data
   // Step 1: Build friendly roster + baseline mitigation ability lists
   const actorByName = buildActorNameMap(actorById);
@@ -272,15 +370,15 @@ export function buildCooldownTrackers(
     const normalizedJob = normalizeJobName(jobName);
     const normalizedAbility = normalizeAbilityName(cast.ability);
 
-    // --------------------------------------------------------------
-    // ⏱️ Lookup cooldown duration from job config
-    // --------------------------------------------------------------
-    // Consult the job’s configuration (via resolveAbilityCooldown)
-    // to obtain the base cooldown in milliseconds. If no entry is found
-    // or the ability has no valid recast time, skip it.
-    const cooldownInfo = resolveAbilityCooldown(jobName, cast.ability);
-    if (!cooldownInfo || !Number.isFinite(cooldownInfo.cooldownMs)) return;
-    // Prefer relative timestamp; fall back to raw timestamp minus fight start
+    const dependencies = COOLDOWN_DEPENDENCY_MAP.filter(
+      (dep) =>
+        (dep.job === normalizedJob || dep.job === "any") &&
+        normalizeAbilityName(dep.trigger) === normalizedAbility
+    );
+
+    // Compute relative start timestamp before dependency handling so that
+    // resource-driven handlers (e.g., Paladin Oath gauge) can react to casts
+    // without requiring a valid cooldown entry.
     let start = Number.isFinite(cast.relative) ? cast.relative : null;
     if (!Number.isFinite(start) && Number.isFinite(cast.rawTimestamp)) {
       const fightStart = fight?.startTime ?? null;
@@ -288,28 +386,42 @@ export function buildCooldownTrackers(
         start = cast.rawTimestamp - fightStart;
       }
     }
+
     if (!Number.isFinite(start)) return;
 
+    // --------------------------------------------------------------
+    // ⏱️ Lookup cooldown duration from job config
+    // --------------------------------------------------------------
+    // Consult the job’s configuration (via resolveAbilityCooldown)
+    // to obtain the base cooldown in milliseconds. If no entry is found
+    // or the ability has no valid recast time, we still allow custom
+    // handlers to process the event (e.g., Paladin auto attacks).
+    const cooldownInfo = resolveAbilityCooldown(jobName, cast.ability);
+    const hasCooldownInfo =
+      cooldownInfo && Number.isFinite(cooldownInfo.cooldownMs);
+
     const key = `${cast.source}::${normalizedAbility}`;
-    let tracker = trackerMap.get(key);
-    if (!tracker) {
-      // First time seeing this ability/player pair — seed tracker metadata
-      tracker = new CastCooldownTracker(
-        cast.ability,
-        cast.source,
-        jobName,
-        cooldownInfo.cooldownMs
-      );
-      trackerMap.set(key, tracker);
-    } else {
-      // Ensure tracker metadata stays current if job/cooldown changes
-      tracker.setJobName(jobName);
-      tracker.setBaseCooldownMs(cooldownInfo.cooldownMs);
+    let tracker = null;
+    if (hasCooldownInfo) {
+      tracker = trackerMap.get(key);
+      if (!tracker) {
+        tracker = new CastCooldownTracker(
+          cast.ability,
+          cast.source,
+          jobName,
+          cooldownInfo.cooldownMs
+        );
+        trackerMap.set(key, tracker);
+      } else {
+        tracker.setJobName(jobName);
+        tracker.setBaseCooldownMs(cooldownInfo.cooldownMs);
+      }
     }
 
     // Helper that records the default cooldown window once.
     let defaultCooldownConsumed = false;
     const defaultAddCooldown = () => {
+      if (!hasCooldownInfo || !tracker) return false;
       if (defaultCooldownConsumed) return false;
       tracker.addCooldown(start, start + cooldownInfo.cooldownMs);
       defaultCooldownConsumed = true;
@@ -322,16 +434,18 @@ export function buildCooldownTrackers(
     // Custom handlers can opt-in to the default cooldown by invoking
     // `defaultAddCooldown()`. When no custom handlers exist we fall
     // back to the default behavior automatically.
-    const dependencies = COOLDOWN_DEPENDENCY_MAP.filter(
-      (dep) =>
-        (dep.job === normalizedJob || dep.job === "any") &&
-        normalizeAbilityName(dep.trigger) === normalizedAbility
-    );
-
     if (dependencies.length > 0) {
+      const fightStartTime = fight?.startTime ?? 0;
+      const eventTimestamp =
+        (Number.isFinite(cast?.timestamp) && cast.timestamp) ||
+        (Number.isFinite(cast?.rawTimestamp) && cast.rawTimestamp) ||
+        0;
+      const relTime = formatRelativeTime(eventTimestamp, fightStartTime);
+
       log.info(`[CastAnalysis] Dispatching cooldown dependency handlers`, {
         player: cast.source,
         trigger: cast.ability,
+        time: relTime, // Human-readable fight-relative timestamp
         handlers: dependencies.map((dep) => dep.handler),
       });
     }
@@ -354,6 +468,7 @@ export function buildCooldownTrackers(
             defaultAddCooldown,
             normalizedAbility,
             normalizedJob,
+            oathContext,
           });
         } else {
           log.warn(
@@ -365,10 +480,32 @@ export function buildCooldownTrackers(
   });
 
   const trackers = Array.from(trackerMap.values());
+
+  // --- LOGGING: Print readable cooldown windows using mm:ss.mmm ---
+  const fightStartTime = fight?.startTime ?? 0;
+  const formattedTrackers = trackers.map((t) => {
+    const cooldowns = t.getCooldownWindows().map((w) => ({
+      start: formatRelativeTime(w.start + fightStartTime, fightStartTime),
+      end: formatRelativeTime(w.end + fightStartTime, fightStartTime),
+    }));
+    return {
+      ability: t.getAbilityName(),
+      player: t.getSourcePlayer(),
+      job: t.getJobName(),
+      baseCD: t.getBaseCooldownMs(),
+      cooldownWindows: cooldowns,
+    };
+  });
+
   log.info(
     `[CastAnalysis] Built ${trackers.length} mitigation cooldown tracker(s)`,
-    trackers
+    formattedTrackers
   );
+
+  // log.info(
+  //   `[CastAnalysis] Built ${trackers.length} mitigation cooldown tracker(s)`,
+  //   trackers
+  // );
 
   return trackers;
 }
@@ -415,6 +552,7 @@ export function populateMitigationAvailability(
 
   const actorByName = buildActorNameMap(actorById);
   const baselineAbilitiesByPlayer = new Map();
+  const baselineNormalizedByPlayer = new Map();
 
   const resolveActorById = (id) => {
     if (!actorById) return null;
@@ -458,7 +596,11 @@ export function populateMitigationAvailability(
 
   friendlyActors.forEach((actor) => {
     const abilities = getMitigationAbilityNames(actor.subType);
+    const normalizedAbilities = abilities.map((name) =>
+      normalizeAbilityName(name)
+    );
     baselineAbilitiesByPlayer.set(actor.name, abilities);
+    baselineNormalizedByPlayer.set(actor.name, normalizedAbilities);
   });
 
   const allPlayerNames = Array.from(baselineAbilitiesByPlayer.keys());
@@ -485,13 +627,18 @@ export function populateMitigationAvailability(
     .map((tracker) => {
       const source = tracker.getSourcePlayer();
       const ability = tracker.getAbilityName();
-      const baseline = baselineAbilitiesByPlayer.get(source) || [];
-      if (baseline.length === 0 || !baseline.includes(ability)) {
+      const normalizedAbility = normalizeAbilityName(ability);
+      const baselineNormalized = baselineNormalizedByPlayer.get(source) || [];
+      if (
+        baselineNormalized.length === 0 ||
+        !baselineNormalized.includes(normalizedAbility)
+      ) {
         trackerAnomalies.push({ source, ability });
       }
       return {
         source,
         ability,
+        normalizedAbility,
         periods: tracker.getCooldownWindows(),
       };
     })
@@ -508,6 +655,8 @@ export function populateMitigationAvailability(
 
     allPlayerNames.forEach((playerName) => {
       const baseline = baselineAbilitiesByPlayer.get(playerName) || [];
+      const baselineNormalized =
+        baselineNormalizedByPlayer.get(playerName) || [];
       if (baseline.length === 0) {
         row.availableMitigationsByPlayer[playerName] = [];
         return;
@@ -519,9 +668,17 @@ export function populateMitigationAvailability(
         return;
       }
 
-      row.availableMitigationsByPlayer[playerName] = baseline.filter(
-        (abilityName) => !onCooldown.has(abilityName)
-      );
+      const available = [];
+      for (let i = 0; i < baseline.length; i++) {
+        const abilityName = baseline[i];
+        const normalized =
+          baselineNormalized[i] || normalizeAbilityName(abilityName);
+        if (!onCooldown.has(normalized)) {
+          available.push(abilityName);
+        }
+      }
+
+      row.availableMitigationsByPlayer[playerName] = available;
     });
   });
 
@@ -589,11 +746,13 @@ function buildCooldownIndex(timestamps, cooldownData) {
 
       const window = periods[p];
       if (window.start <= t && t < window.end) {
-        const { source, ability } = cooldownData[i];
+        const { source, ability, normalizedAbility } = cooldownData[i];
+        const abilityKey = normalizedAbility || normalizeAbilityName(ability);
+        if (!abilityKey) continue;
         if (!playerMap.has(source)) {
           playerMap.set(source, new Set());
         }
-        playerMap.get(source).add(ability);
+        playerMap.get(source).add(abilityKey);
       }
     }
 

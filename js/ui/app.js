@@ -11,6 +11,7 @@ import {
   fetchFightDebuffs,
   fetchFightCasts,
   HostilityType,
+  fetchPlayerDamage,
 } from "../data/fflogsApi.js";
 import {
   parseReport,
@@ -18,9 +19,11 @@ import {
   parseFightDeaths,
   parseBuffEvents,
   parseFightCasts,
+  parseFightDamageDone,
   buildFightTable,
 } from "../data/reportParser.js";
 import { generateCondensedPullTable } from "../analysis/pullAnalysis.js";
+import { insertAutoAttacksIntoCasts } from "../analysis/castAnalysis.js";
 import { renderReport } from "./reportRenderer.js";
 import { initializeAuth, ensureLogin } from "./authManager.js";
 import { FightState } from "./fightState.js";
@@ -159,6 +162,36 @@ document.addEventListener("DOMContentLoaded", async () => {
           profiler.stop("Fetch Player Deaths", "Fetch", `Pull ${pull.id}`)
         );
 
+        // === PALADIN DAMAGE FETCH PHASE ===
+        // Detect if the current pull includes any Paladin players.
+        const paladins = Array.from(report.actorById.values()).filter(
+          (actor) =>
+            actor.type === "Player" &&
+            actor.subType &&
+            actor.subType.toLowerCase() === "paladin"
+        );
+
+        let paladinDamagePromise = Promise.resolve([]);
+        if (paladins.length > 0) {
+          profiler.start("Fetch Paladin Damage");
+          paladinDamagePromise = Promise.all(
+            paladins.map((p) =>
+              fetchPlayerDamage(
+                accessToken,
+                reportCode,
+                pull,
+                p.id,
+                HostilityType.FRIENDLIES
+              )
+            )
+          )
+            // Flatten the results in case there are multiple paladins
+            .then((results) => results.flat())
+            .finally(() =>
+              profiler.stop("Fetch Paladin Damage", "Fetch", `Pull ${pull.id}`)
+            );
+        }
+
         // Await all fetches concurrently
         const [
           buffs,
@@ -167,6 +200,7 @@ document.addEventListener("DOMContentLoaded", async () => {
           damageTaken,
           deaths,
           casts,
+          paladinDamage,
         ] = await Promise.all([
           buffsPromise,
           debuffsEnemiesPromise,
@@ -174,6 +208,7 @@ document.addEventListener("DOMContentLoaded", async () => {
           damageTakenPromise,
           deathsPromise,
           castsPromise,
+          paladinDamagePromise,
         ]);
 
         log.debug(`Pull ${pull.id}: raw Casts fetched`, casts);
@@ -188,6 +223,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         );
         log.debug(`Pull ${pull.id}: raw DamageTaken fetched`, damageTaken);
         log.debug(`Pull ${pull.id}: raw Deaths fetched`, deaths);
+        log.debug(`Pull ${pull.id}: raw PaladinDamage fetched`, paladinDamage);
 
         // === PARSING PHASE ===
         // Each parser runs after its own data is available.
@@ -252,6 +288,19 @@ document.addEventListener("DOMContentLoaded", async () => {
           return result;
         });
 
+        profiler.start("Parse Damage Done");
+        const parsedDamageDonePromise = Promise.resolve().then(() => {
+          const result = parseFightDamageDone(
+            paladinDamage,
+            pull,
+            report.actorById,
+            report.abilityById
+          );
+          profiler.stop("Parse Damage Done", "Parse", `Pull ${pull.id}`);
+          log.info(`Pull ${pull.id}: parsed DamageDone`, result);
+          return result;
+        });
+
         profiler.start("Parse Player Deaths");
         const parsedDeathsPromise = Promise.resolve().then(() => {
           const result = parseFightDeaths(
@@ -272,13 +321,26 @@ document.addEventListener("DOMContentLoaded", async () => {
           parsedDamageTaken,
           parsedDeaths,
           parsedCast,
+          parsedDamageDone,
         ] = await Promise.all([
           parsedBuffsPromise,
           parsedVulnerabilitiesPromise,
           parsedDamageTakenPromise,
           parsedDeathsPromise,
           parsedCastsPromise,
+          parsedDamageDonePromise,
         ]);
+
+        // === AUTO ATTACK MERGE PHASE ===
+        // Merge all auto-attacks from parsed damage into the cast timeline.
+        const mergedCasts = insertAutoAttacksIntoCasts(
+          parsedDamageDone,
+          parsedCast
+        );
+        log.info(
+          `Pull ${pull.id}: merged auto-attacks into cast timeline`,
+          mergedCasts
+        );
 
         // === TABLE BUILD PHASE ===
         const fightState = new FightState(null);
@@ -289,7 +351,7 @@ document.addEventListener("DOMContentLoaded", async () => {
           parsedBuffs,
           parsedVulnerabilities,
           parsedDeaths,
-          parsedCast,
+          mergedCasts,
           pull,
           report.actorById,
           fightState.buffAnalysis
@@ -301,7 +363,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         const condensedPull = generateCondensedPullTable(fightTable);
         fightState.fightTable = fightTable;
         fightState.condensedPull = condensedPull;
-        fightState.parsedCasts = parsedCast;
+        fightState.parsedCasts = mergedCasts;
 
         fightTableCache.set(pull.id, fightState);
         log.info(`Pull ${pull.id}: built condensed PullTable`, condensedPull);

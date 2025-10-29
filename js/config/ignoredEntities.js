@@ -12,3 +12,8 @@ export const IGNORED_BUFFS = new Set([
   "Vulnerability Up",
   // add more here as needed
 ]);
+
+export const IGNORED_MITIGATIONS = new Set([
+  "Sheltron",
+  // add more if certain mit abilities should be excluded from analysis
+]);

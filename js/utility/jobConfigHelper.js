@@ -1,9 +1,10 @@
-import mitigationData from "../config/mitigationDataset.js";
 import {
   getLogger,
   setModuleLogLevel,
   envLogLevel,
 } from "../utility/logger.js";
+import mitigationData from "../config/mitigationDataset.js";
+import { IGNORED_MITIGATIONS } from "../config/ignoredEntities.js";
 
 setModuleLogLevel("JobConfigHelper", envLogLevel("info", "warn"));
 const log = getLogger("JobConfigHelper");
@@ -116,7 +117,7 @@ export function getMitigationPercent(
   //️ Log remaining conflicts only if unique mitigation percentages differ
   const uniqueAmounts = new Set(filteredEntries.map((m) => m.buff.amount));
   if (uniqueAmounts.size > 1) {
-    log.warn(
+    log.info(
       `=== Mitigation conflicts for "${buffName}" (damageType: ${
         damageType || "none"
       }, targetJob: ${targetJob || "unknown"}) ===`
@@ -131,7 +132,7 @@ export function getMitigationPercent(
         ? ` (condition: ${buff.condition})`
         : "";
       const targetStr = buff.target ? ` to ${buff.target}` : "";
-      log.warn(
+      log.info(
         `- ${job.toUpperCase()}${aliasStr}: ${buff.name} → ${
           buff.amount
         }%${targetStr}${conditionStr} [${relation}]`
@@ -139,7 +140,7 @@ export function getMitigationPercent(
     }
 
     if (damageType && chosen) {
-      log.warn(
+      log.info(
         `→ Selected variant for "${damageType}" damage: ${chosen.job}/${chosen.buff.name}`
       );
     }
@@ -256,7 +257,13 @@ export function getMitigationAbilityNames(jobName) {
   if (!lookup.has(normalizedJob)) return [];
 
   const abilityMap = lookup.get(normalizedJob);
-  return Array.from(abilityMap.values());
+
+  // Filter out ignored mitigation abilities (e.g., "Sheltron")
+  const abilities = Array.from(abilityMap.values()).filter(
+    (ability) => !IGNORED_MITIGATIONS.has(ability)
+  );
+
+  return abilities;
 }
 
 /**

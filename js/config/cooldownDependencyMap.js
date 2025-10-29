@@ -1,3 +1,4 @@
+import { AUTO_ATTACK_NAMES } from "./AppConfig.js";
 import {
   normalizeAbilityName,
   normalizeJobName,
@@ -8,6 +9,16 @@ import {
  * --------------------------------------------------------------
  * Each entry describes *which abilities trigger additional cooldown logic*.
  */
+// Paladin auto attacks grant Oath gauge and are handled via a custom handler.
+const PALADIN_AUTO_ATTACK_ENTRIES = Array.from(AUTO_ATTACK_NAMES).map(
+  (autoAttackName) => ({
+    job: "Paladin",
+    trigger: autoAttackName,
+    affects: [],
+    handler: "handlePaladinAutoAttack",
+  })
+);
+
 const RAW_COOLDOWN_DEPENDENCY_MAP = [
   {
     job: "Astrologian",
@@ -33,6 +44,25 @@ const RAW_COOLDOWN_DEPENDENCY_MAP = [
     affects: ["Umbral Draw"],
     handler: "handleMutualCardCooldown",
   },
+  {
+    job: "Paladin",
+    trigger: "Intervention",
+    affects: ["Intervention"],
+    handler: "handlePaladinOathAbility",
+  },
+  {
+    job: "Paladin",
+    trigger: "Sheltron",
+    affects: ["Sheltron"],
+    handler: "handlePaladinOathAbility",
+  },
+  {
+    job: "Paladin",
+    trigger: "Holy Sheltron",
+    affects: ["Holy Sheltron"],
+    handler: "handlePaladinOathAbility",
+  },
+  ...PALADIN_AUTO_ATTACK_ENTRIES,
 ];
 
 // Normalize trigger/affect names immediately upon load

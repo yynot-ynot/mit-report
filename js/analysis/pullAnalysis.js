@@ -251,17 +251,7 @@ function buildCondensedGroup(group) {
   for (const row of rows) {
     const playerName = row.actor || "Unknown";
     if (!players[playerName]) {
-      players[playerName] = {
-        buffs: new Set(),
-        unmitigatedAmount: 0,
-        amount: 0,
-        absorbed: 0,
-        mitigationPctValues: [],
-        intendedMitPctValues: [],
-        availableMitigations: new Set(), // Track off-cooldown mitigations seen in the group
-        dead: false,
-        wasTargeted: false,
-      };
+      players[playerName] = createEmptyPlayerAggregate();
     }
 
     const player = players[playerName];
@@ -307,17 +297,7 @@ function buildCondensedGroup(group) {
       for (const [buffName, appliers] of Object.entries(row.buffs)) {
         for (const applier of appliers) {
           if (!players[applier]) {
-            players[applier] = {
-              buffs: new Set(),
-              unmitigatedAmount: 0,
-              amount: 0,
-              absorbed: 0,
-              mitigationPctValues: [],
-              intendedMitPctValues: [],
-              availableMitigations: new Set(), // Track off-cooldown mitigations seen in the group
-              dead: false,
-              wasTargeted: false, // ✅ buff applier only, not target
-            };
+            players[applier] = createEmptyPlayerAggregate();
           }
           players[applier].buffs.add(buffName);
         }
@@ -328,19 +308,9 @@ function buildCondensedGroup(group) {
     if (Array.isArray(row.deaths)) {
       for (const deadName of row.deaths) {
         if (!players[deadName]) {
-          players[deadName] = {
-            buffs: new Set(),
-            unmitigatedAmount: 0,
-            amount: 0,
-            absorbed: 0,
-            mitigationPctValues: [],
-            intendedMitPctValues: [],
-            dead: true,
-            wasTargeted: false, // ✅ maintain consistent schema
-          };
-        } else {
-          players[deadName].dead = true;
+          players[deadName] = createEmptyPlayerAggregate();
         }
+        players[deadName].dead = true;
       }
     }
   }
@@ -392,5 +362,34 @@ function buildCondensedGroup(group) {
     children: rows,
     damageType: rows[0]?.damageType ?? null,
     availableMitigationsByPlayer,
+  };
+}
+
+/**
+ * Initialize the aggregate data structure for a player entry within a condensed group.
+ *
+ * @returns {{
+ *   buffs: Set<string>,
+ *   unmitigatedAmount: number,
+ *   amount: number,
+ *   absorbed: number,
+ *   mitigationPctValues: number[],
+ *   intendedMitPctValues: number[],
+ *   availableMitigations: Set<string>,
+ *   dead: boolean,
+ *   wasTargeted: boolean
+ * }} Fresh aggregate container used by `buildCondensedGroup`.
+ */
+function createEmptyPlayerAggregate() {
+  return {
+    buffs: new Set(),
+    unmitigatedAmount: 0,
+    amount: 0,
+    absorbed: 0,
+    mitigationPctValues: [],
+    intendedMitPctValues: [],
+    availableMitigations: new Set(),
+    dead: false,
+    wasTargeted: false,
   };
 }

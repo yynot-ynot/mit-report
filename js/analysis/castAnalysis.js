@@ -202,6 +202,18 @@ export class CastCooldownTracker {
     return this._cooldownWindows.map((window) => ({ ...window }));
   }
 
+  get player() {
+    return this._sourcePlayer;
+  }
+
+  get ability() {
+    return this._abilityName;
+  }
+
+  get cooldownWindows() {
+    return this.getCooldownWindows();
+  }
+
   setCooldownWindows(windows) {
     // Replace the current window list while reusing validation logic
     if (!Array.isArray(windows)) {
@@ -309,50 +321,163 @@ function resolveAbilityCooldown(jobName, abilityName) {
 /**
  * Build CastCooldownTracker instances keyed by ability/player pairs.
  *
- * This helper scans the flattened cast timeline, filters to mitigation abilities
- * defined in mitigationDataset, and constructs trackers enriched with the caster’s
- * job and base cooldown. Each time an ability is cast we append a cooldown window
- * derived from that base recast.
+ * The routine now supports two complementary workflows:
+ *   1. Standard cast-driven cooldown tracking for every ability in the log.
+ *   2. Death-driven Paladin Oath enforcement where resource locks can exist even
+ *      when no mitigation cast has occurred yet (useful for pure-death timelines).
  *
- * @param {Array<Object>} parsedCasts - Flattened cast timeline for a fight.
+ * Each pass through the timeline resolves the actor’s job, looks up the base
+ * cooldown, dispatches any custom handlers (e.g., Paladin Oath, AST cards),
+ * and finally lets the custom handler module decide whether additional
+ * resource locks should be recorded.
+ *
+ * @param {Array<Object>} parsedCasts - Flattened cast timeline for a fight. Accepts any array-like input; non-arrays are coerced to `[]`.
  * @param {Array<Object>} damageEvents - Parsed damage events (reserved for future use).
+ * @param {Array<Object>} parsedDeaths - Sorted list of death events (by `relative`). Paladin-specific logic is delegated to `customCooldownHandlers`.
  * @param {Object|null} fight - Fight metadata for context (used for fallback timestamps).
  * @param {Map<number, Object>|null} actorById - Actor lookup map (used to resolve jobs).
  * @param {Map<string, Object>|null} rowMap - Timestamp/actor row lookup (reserved for future use).
- * @param {Array<Object>} [friendlyActors=[]] - Optional list of friendly actors to prioritize when resolving jobs.
+ * @param {Array<Object>|Map<string,Object>} [friendlyActors=[]] - Optional roster data used to prioritize actor/job resolution.
  * @returns {Array<CastCooldownTracker>} trackers
  */
 export function buildCooldownTrackers(
   parsedCasts = [],
   damageEvents = [],
+  parsedDeaths = [],
   fight = null,
   actorById = null,
   rowMap = null,
   friendlyActors = []
 ) {
-  if (!Array.isArray(parsedCasts) || parsedCasts.length === 0) {
+  // Step 0: Normalize inputs so that “death-only” scenarios still run through
+  // the Paladin death sweep logic.
+  const casts = Array.isArray(parsedCasts) ? parsedCasts : [];
+  const deaths = Array.isArray(parsedDeaths) ? parsedDeaths : [];
+
+  if (casts.length === 0 && deaths.length === 0) {
     return [];
   }
 
-  const oathContext =
-    typeof CooldownHandlers.PaladinOathGaugeContext === "function"
-      ? new CooldownHandlers.PaladinOathGaugeContext()
-      : null;
-
-  // Build lookup maps used to resolve actor/job data
-  // Step 1: Build friendly roster + baseline mitigation ability lists
   const actorByName = buildActorNameMap(actorById);
   const friendlyActorMap = new Map();
+  let hasPaladin = false;
   if (Array.isArray(friendlyActors)) {
     friendlyActors.forEach((actor) => {
       if (actor && actor.name) {
         friendlyActorMap.set(actor.name, actor);
+        if (!hasPaladin) {
+          const normalizedJob = actor?.subType
+            ? normalizeJobName(actor.subType)
+            : "";
+          if (normalizedJob === "paladin") {
+            hasPaladin = true;
+          }
+        }
+      }
+    });
+  } else if (friendlyActors instanceof Map) {
+    friendlyActors.forEach((actor, name) => {
+      if (!actor && !name) return;
+      const resolvedActor = actor ?? {};
+      const actorName = resolvedActor.name || name;
+      if (!actorName) return;
+      const record = { ...resolvedActor, name: actorName };
+      friendlyActorMap.set(actorName, record);
+      if (!hasPaladin) {
+        const normalizedJob = record?.subType
+          ? normalizeJobName(record.subType)
+          : "";
+        if (normalizedJob === "paladin") {
+          hasPaladin = true;
+        }
       }
     });
   }
+
+  if (!hasPaladin && actorByName instanceof Map) {
+    actorByName.forEach((actor) => {
+      if (hasPaladin) return;
+      const normalizedJob = actor?.subType
+        ? normalizeJobName(actor.subType)
+        : "";
+      if (normalizedJob === "paladin") {
+        hasPaladin = true;
+      }
+    });
+  }
+
+  const oathContext =
+    hasPaladin &&
+    typeof CooldownHandlers.PaladinOathGaugeContext === "function"
+      ? new CooldownHandlers.PaladinOathGaugeContext()
+      : null;
+
+  // Step 1: Build friendly roster + baseline mitigation ability lists.
   const trackerMap = new Map();
 
-  parsedCasts.forEach((cast) => {
+  // 🧭 Pointer into the sorted deaths array so we process each death once, in order
+  let deathPtr = 0;
+
+  /**
+   * handlePaladinDeathsUpTo()
+   * --------------------------------------------------------------
+   * Advance through all parsed death events whose `relative` time is strictly
+   * less than `uptoRelTs` and, for each death, if the *dead player* is a Paladin,
+   * reset that player's Oath Gauge (OG) to 0 immediately.
+   *
+   * Why this shape?
+   *   - `parsedDeaths` is already sorted by `relative`.
+   *   - We should not scan the entire array for every cast (O(n²)).
+   *   - Using a moving pointer ensures each death is handled exactly once (O(n)).
+   *
+   * Important:
+   *   - The decision of *who* is Paladin is based on the **death actor** (the one who died),
+   *     NOT the player who is casting right now.
+   *   - The current cast is used only as a time barrier (i.e., process all deaths that
+   *     happened before this cast's timestamp).
+   *
+   * @param {number} uptoRelTs - Process all deaths with relative < uptoRelTs.
+   */
+  function handlePaladinDeathsUpTo(uptoRelTs) {
+    if (deaths.length === 0) return;
+    if (!oathContext || typeof oathContext._ensurePlayer !== "function") return;
+    if (!Number.isFinite(uptoRelTs)) return;
+
+    // Walk forward through deaths that happened before this cast
+    while (
+      deathPtr < deaths.length &&
+      deaths[deathPtr].relative < uptoRelTs
+    ) {
+      const death = deaths[deathPtr++];
+      const deadName = death?.actor;
+      if (!deadName) continue;
+
+      // 🔍 Resolve job using the same method used elsewhere in this file
+      const actor = friendlyActorMap.get(deadName) || actorByName.get(deadName);
+      const jobName = actor?.subType;
+      const normalizedJob = jobName ? normalizeJobName(jobName) : "";
+
+      if (
+        normalizedJob === "paladin" &&
+        typeof CooldownHandlers.handlePaladinDeathLock === "function"
+      ) {
+        CooldownHandlers.handlePaladinDeathLock({
+          playerName: deadName,
+          normalizedJob,
+          deathRelativeTime: death?.relative ?? null,
+          deathRawTimestamp: death?.rawTimestamp ?? null,
+          fightStartTime: fight?.startTime ?? 0,
+          oathContext,
+          trackerMap,
+        });
+      }
+    }
+  }
+
+  // Step 2: Sweep the combined timeline and dispatch per-cast handlers.
+  casts.forEach((cast) => {
+    // Process any deaths that occurred before this cast; if the death actor is a Paladin, reset OG.
+    handlePaladinDeathsUpTo(cast?.relative);
     if (!cast || !cast.ability || !cast.source) return;
 
     // --------------------------------------------------------------
@@ -369,6 +494,7 @@ export function buildCooldownTrackers(
     // Normalize names for consistency with job configs
     const normalizedJob = normalizeJobName(jobName);
     const normalizedAbility = normalizeAbilityName(cast.ability);
+    const isPaladinCaster = normalizedJob === "paladin";
 
     const dependencies = COOLDOWN_DEPENDENCY_MAP.filter(
       (dep) =>
@@ -411,10 +537,16 @@ export function buildCooldownTrackers(
           jobName,
           cooldownInfo.cooldownMs
         );
+        if (oathContext) {
+          tracker.__oathContext = oathContext;
+        }
         trackerMap.set(key, tracker);
       } else {
         tracker.setJobName(jobName);
         tracker.setBaseCooldownMs(cooldownInfo.cooldownMs);
+        if (oathContext) {
+          tracker.__oathContext = oathContext;
+        }
       }
     }
 
@@ -477,7 +609,40 @@ export function buildCooldownTrackers(
         }
       });
     }
+
+    if (
+      isPaladinCaster &&
+      typeof CooldownHandlers.ensurePaladinOathLock === "function"
+    ) {
+      const trackerBaseCooldown =
+        tracker && typeof tracker.getBaseCooldownMs === "function"
+          ? tracker.getBaseCooldownMs()
+          : null;
+      let baseCooldown = null;
+      if (cooldownInfo && Number.isFinite(cooldownInfo.cooldownMs)) {
+        baseCooldown = cooldownInfo.cooldownMs;
+      } else if (Number.isFinite(trackerBaseCooldown)) {
+        baseCooldown = trackerBaseCooldown;
+      }
+
+      const currentGauge =
+        oathContext && typeof oathContext.getGauge === "function"
+          ? oathContext.getGauge(cast.source)
+          : null;
+      CooldownHandlers.ensurePaladinOathLock({
+        playerName: cast.source,
+        trackerMap,
+        startTime: start,
+        baseCooldown,
+        extraAbilities: [normalizedAbility],
+        oathContext,
+        gaugeOverride: currentGauge,
+      });
+    }
   });
+
+  // Step 3: Flush any remaining deaths that occurred after the final cast.
+  handlePaladinDeathsUpTo(Number.MAX_SAFE_INTEGER);
 
   const trackers = Array.from(trackerMap.values());
 
@@ -533,12 +698,14 @@ export function buildCooldownTrackers(
  *
  * @param {Object} fightTable - FightTable returned from buildFightTable (mutated in-place).
  * @param {Array<Object>} parsedCasts - Flattened cast timeline for this fight.
+ * @param {Array<Object>} parsedDeaths - Parsed death events sorted by relative time (used to reset Paladin OG).
  * @param {Map|Array|Object|null} actorById - Actor lookup to resolve jobs per player.
  * @param {Object|null} fight - Fight metadata (used for relative timestamp fallback).
  */
 export function populateMitigationAvailability(
   fightTable,
   parsedCasts = [],
+  parsedDeaths = [],
   actorById = null,
   fight = null
 ) {
@@ -609,6 +776,7 @@ export function populateMitigationAvailability(
   const trackers = buildCooldownTrackers(
     parsedCasts,
     [],
+    parsedDeaths,
     fight,
     actorById,
     null,

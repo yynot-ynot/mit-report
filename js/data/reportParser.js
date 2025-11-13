@@ -697,7 +697,13 @@ export function buildFightTable(
   }
 
   // Populate mitigation availability using cast-derived cooldown data
-  populateMitigationAvailability(table, parsedCasts, actorById, fight);
+  populateMitigationAvailability(
+    table,
+    parsedCasts,
+    parsedDeaths,
+    actorById,
+    fight
+  );
 
   // Fill in applier names based on buff timelines
   applyBuffsToAttacks(

@@ -6,9 +6,14 @@ import {
   handleMutualCardCooldown,
   handlePaladinOathAbility,
   handlePaladinAutoAttack,
+  lockPaladinOathAbilities,
+  ensurePaladinOathLock,
   PaladinOathGaugeContext,
 } from "../../../js/analysis/customCooldownHandlers.js";
-import { CastCooldownTracker } from "../../../js/analysis/castAnalysis.js";
+import {
+  CastCooldownTracker,
+  buildCooldownTrackers,
+} from "../../../js/analysis/castAnalysis.js";
 import { normalizeAbilityName } from "../../../js/utility/jobConfigHelper.js";
 
 const DRAW_COOLDOWN_MS = 55 * 1000;
@@ -38,6 +43,24 @@ function buildTrackerMap(player, trackerDefs) {
     }
   );
   return map;
+}
+
+function applyLockWhenGaugeLow(
+  oathContext,
+  player,
+  trackerMap,
+  start,
+  baseCooldown,
+  abilityName = "Holy Sheltron"
+) {
+  ensurePaladinOathLock({
+    playerName: player,
+    trackerMap,
+    startTime: start,
+    baseCooldown,
+    extraAbilities: [normalizeAbilityName(abilityName)],
+    oathContext,
+  });
 }
 
 /**
@@ -455,6 +478,13 @@ test("Paladin Oath gauge locks abilities until gauge replenishes", () => {
     normalizedJob,
     oathContext,
   });
+  applyLockWhenGaugeLow(
+    oathContext,
+    player,
+    trackerMap,
+    firstCastStart,
+    baseCooldownMs
+  );
   assert.equal(oathContext.getGauge(player), 50);
 
   assert.deepEqual(holyTracker.getCooldownWindows(), [
@@ -475,6 +505,13 @@ test("Paladin Oath gauge locks abilities until gauge replenishes", () => {
     normalizedJob,
     oathContext,
   });
+  applyLockWhenGaugeLow(
+    oathContext,
+    player,
+    trackerMap,
+    secondCastStart,
+    baseCooldownMs
+  );
   assert.equal(oathContext.getGauge(player), 0);
 
   const holySecondStartWindows =
@@ -589,6 +626,13 @@ test("Paladin Oath locks resolve when auto attacks share the lock timestamp", ()
     normalizedJob,
     oathContext,
   });
+  applyLockWhenGaugeLow(
+    oathContext,
+    player,
+    trackerMap,
+    firstStart,
+    baseCooldownMs
+  );
 
   const secondStart = firstEnd + 2000;
   const secondEnd = secondStart + baseCooldownMs;
@@ -604,6 +648,13 @@ test("Paladin Oath locks resolve when auto attacks share the lock timestamp", ()
     normalizedJob,
     oathContext,
   });
+  applyLockWhenGaugeLow(
+    oathContext,
+    player,
+    trackerMap,
+    secondStart,
+    baseCooldownMs
+  );
 
   // All auto attacks register at the exact same timestamp as the lock.
   for (let i = 0; i < 10; i += 1) {
@@ -674,7 +725,7 @@ test("Paladin auto attacks resolve stacked resource locks", () => {
     trackerKey(player, "Intervention")
   );
 
-  const castWith = (abilityName, tracker, start) =>
+  const castWith = (abilityName, tracker, start) => {
     handlePaladinOathAbility({
       cast: { source: player, ability: abilityName },
       trackerMap,
@@ -687,6 +738,14 @@ test("Paladin auto attacks resolve stacked resource locks", () => {
       normalizedJob,
       oathContext,
     });
+    applyLockWhenGaugeLow(
+      oathContext,
+      player,
+      trackerMap,
+      start,
+      baseCooldownMs
+    );
+  };
 
   castWith("Holy Sheltron", holyTracker, 5000); // gauge → 50, no lock
   castWith("Holy Sheltron", holyTracker, 30000); // gauge → 0, first lock
@@ -787,6 +846,13 @@ test("Paladin Oath gauge keeps abilities locked without sufficient auto attacks"
     normalizedJob,
     oathContext,
   });
+  applyLockWhenGaugeLow(
+    oathContext,
+    player,
+    trackerMap,
+    secondStart,
+    baseCooldownMs
+  );
   assert.equal(oathContext.getGauge(player), 0);
 
   for (let i = 1; i <= 5; i += 1) {
@@ -802,6 +868,116 @@ test("Paladin Oath gauge keeps abilities locked without sufficient auto attacks"
           window.start === secondStart && window.end === SAFE_MAX_END
       ),
     "Holy Sheltron lock should persist when the gauge remains below 50"
+  );
+});
+
+/**
+ * Integration-style verification that buildCooldownTrackers applies the Paladin
+ * lock helper when the caster's gauge falls below the spend threshold.
+ */
+test("buildCooldownTrackers locks Paladin cooldowns when gauge < 50", () => {
+  const paladin = {
+    id: 101,
+    name: "Integration Paladin",
+    subType: "Paladin",
+    type: "Player",
+  };
+  const actorById = new Map([[paladin.id, paladin]]);
+  const friendlyActors = [paladin];
+  const firstCast = { source: paladin.name, ability: "Holy Sheltron", relative: 5000 };
+  const secondCast = { source: paladin.name, ability: "Intervention", relative: 40000 };
+
+  const trackers = buildCooldownTrackers(
+    [firstCast, secondCast],
+    [],
+    [],
+    { startTime: 0 },
+    actorById,
+    null,
+    friendlyActors
+  );
+
+  const trackerByAbility = new Map(
+    trackers.map((tracker) => [
+      normalizeAbilityName(tracker.getAbilityName()),
+      tracker,
+    ])
+  );
+
+  const holyTracker =
+    trackerByAbility.get(normalizeAbilityName("Holy Sheltron"));
+  assert(holyTracker, "Holy Sheltron tracker should be present");
+  const holySecondStartWindows = holyTracker
+    .getCooldownWindows()
+    .filter((window) => window.start === secondCast.relative);
+  assert(
+    holySecondStartWindows.some((window) => window.end === SAFE_MAX_END),
+    "Holy Sheltron should inherit the lock created after Intervention"
+  );
+
+  const interventionTracker = trackerByAbility.get(
+    normalizeAbilityName("Intervention")
+  );
+  assert(interventionTracker, "Intervention tracker should be present");
+  assert(
+    interventionTracker
+      .getCooldownWindows()
+      .some((window) => window.end === SAFE_MAX_END),
+    "Intervention cast should record its own resource lock"
+  );
+});
+
+/**
+ * Integration-style verification that the Paladin auto-attack handler invoked
+ * through buildCooldownTrackers resolves resource locks once enough attacks
+ * occur after a lock timestamp.
+ */
+test("buildCooldownTrackers resolves Paladin locks after auto attacks", () => {
+  const paladin = {
+    id: 202,
+    name: "Paladin Auto",
+    subType: "Paladin",
+    type: "Player",
+  };
+  const actorById = new Map([[paladin.id, paladin]]);
+  const friendlyActors = [paladin];
+
+  const firstCast = { source: paladin.name, ability: "Holy Sheltron", relative: 7000 };
+  const secondCast = { source: paladin.name, ability: "Holy Sheltron", relative: 37000 };
+  const autoAttacks = Array.from({ length: 10 }, (_, idx) => ({
+    source: paladin.name,
+    ability: "Attack",
+    relative: secondCast.relative + 1000 * (idx + 1),
+  }));
+
+  const trackers = buildCooldownTrackers(
+    [firstCast, secondCast, ...autoAttacks],
+    [],
+    [],
+    { startTime: 0 },
+    actorById,
+    null,
+    friendlyActors
+  );
+
+  const trackerByAbility = new Map(
+    trackers.map((tracker) => [
+      normalizeAbilityName(tracker.getAbilityName()),
+      tracker,
+    ])
+  );
+
+  const holyTracker =
+    trackerByAbility.get(normalizeAbilityName("Holy Sheltron"));
+  assert(holyTracker, "Holy Sheltron tracker should be present");
+
+  const secondStartWindows = holyTracker
+    .getCooldownWindows()
+    .filter((window) => window.start === secondCast.relative);
+  assert(secondStartWindows.length >= 1);
+  assert(
+    secondStartWindows.every((window) => window.end !== SAFE_MAX_END),
+    "Auto attacks should resolve any resource locks for the second cast"
   );
 });
 

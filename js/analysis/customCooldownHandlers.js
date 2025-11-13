@@ -10,7 +10,7 @@ import {
 import { AUTO_ATTACK_NAMES } from "../config/AppConfig.js";
 import { CastCooldownTracker } from "./castAnalysis.js";
 
-setModuleLogLevel("CustomCooldownHandlers", envLogLevel("info", "warn"));
+setModuleLogLevel("CustomCooldownHandlers", envLogLevel("debug", "warn"));
 const log = getLogger("CustomCooldownHandlers");
 const SAFE_MAX_END = Number.MAX_SAFE_INTEGER;
 
@@ -18,11 +18,12 @@ const SAFE_MAX_END = Number.MAX_SAFE_INTEGER;
  * Paladin-specific job identifier used by handler guard clauses.
  * Matches the normalized name emitted by `normalizeJobName`.
  */
-const PALADIN_JOB = "paladin";
+export const PALADIN_JOB = "paladin";
 /**
  * Oath gauge cost (in units) consumed by Intervention/Sheltron casts.
  */
 const OATH_COST = 50;
+export const PALADIN_OATH_COST = OATH_COST;
 /**
  * Oath gauge gain awarded per paladin auto attack.
  */
@@ -36,6 +37,23 @@ const MAX_OATH = 100;
  */
 const STARTING_OATH = MAX_OATH;
 
+const FALLBACK_OATH_GAUGE = new Map();
+
+function setFallbackGauge(player, value) {
+  if (!player) return;
+  if (!Number.isFinite(value)) {
+    FALLBACK_OATH_GAUGE.delete(player);
+    return;
+  }
+  FALLBACK_OATH_GAUGE.set(player, clampGauge(value));
+}
+
+function getFallbackGauge(player) {
+  if (!player) return null;
+  const value = FALLBACK_OATH_GAUGE.get(player);
+  return Number.isFinite(value) ? value : null;
+}
+
 // Fetch and validate Paladin mitigation abilities dynamically
 let PALADIN_OATH_ABILITIES = new Set();
 try {
@@ -45,14 +63,15 @@ try {
     normalizeAbilityName
   );
 
-  const validated = intendedAbilities.filter((name) =>
-    allMitNames.includes(name)
-  );
-  PALADIN_OATH_ABILITIES = new Set(validated);
+  PALADIN_OATH_ABILITIES = new Set(intendedAbilities);
 
   const missing = intendedAbilities.filter(
     (name) => !allMitNames.includes(name)
   );
+  const present = intendedAbilities.filter((name) =>
+    allMitNames.includes(name)
+  );
+
   if (missing.length > 0) {
     log.info(
       `[CustomCDHandlers] [PaladinOath] Missing expected abilities in mitigation config: ${missing.join(
@@ -61,7 +80,7 @@ try {
     );
   } else {
     log.debug(
-      `[CustomCDHandlers] [PaladinOath] All Oath-based abilities verified in config: ${validated.join(
+      `[CustomCDHandlers] [PaladinOath] All Oath-based abilities verified in config: ${present.join(
         ", "
       )}`
     );
@@ -77,6 +96,11 @@ const NORMALIZED_AUTO_ATTACK_NAMES = new Set(
   Array.from(AUTO_ATTACK_NAMES || []).map((name) => normalizeAbilityName(name))
 );
 
+const DEBUG_PAL_OATH =
+  (typeof process !== "undefined" &&
+    process?.env?.DEBUG_PAL_OATH === "true") ||
+  (typeof globalThis !== "undefined" && globalThis?.DEBUG_PAL_OATH === true);
+
 /**
  * Clamp Oath gauge values into the legal range of 0…100.
  *
@@ -90,7 +114,7 @@ function clampGauge(value) {
 
 /**
  * Lightweight container that keeps per-player Paladin Oath gauge state
- * scoped to a single fight/report.
+ * scoped to a single fight/report and mirrors updates into the fallback cache.
  */
 export class PaladinOathGaugeContext {
   /**
@@ -141,6 +165,7 @@ export class PaladinOathGaugeContext {
     if (!state) return this._startingGauge;
     const next = clampGauge(state.gauge - amount);
     state.gauge = next;
+    setFallbackGauge(player, next);
     return next;
   }
 
@@ -156,9 +181,11 @@ export class PaladinOathGaugeContext {
     if (!state) return this._startingGauge;
     const next = clampGauge(state.gauge + amount);
     state.gauge = next;
+    setFallbackGauge(player, next);
     return next;
   }
 }
+
 
 /**
  * Append a resource lock window (start → SAFE_MAX_END) to a tracker. Duplicate
@@ -240,6 +267,203 @@ function buildTrackerKey(playerName, abilityName) {
   const normalizedAbility = normalizeAbilityName(abilityName);
   if (!normalizedAbility) return null;
   return `${playerName}::${normalizedAbility}`;
+}
+
+/**
+ * lockPaladinOathAbilities()
+ * --------------------------------------------------------------
+ * Low-level helper that appends MAX_SAFE_INT cooldown windows for the
+ * core Paladin mitigation trio (Holy Sheltron, Intervention, Sheltron).
+ * Callers can optionally provide `extraAbilities` when the triggering
+ * cast is not part of the standard trio (e.g., Holy Sheltron variants in
+ * localized logs) and may forward the shared `oathContext` so downstream
+ * handlers can reconstruct gauge state when needed.
+ */
+export function lockPaladinOathAbilities({
+  playerName,
+  trackerMap,
+  start,
+  baseCooldown,
+  extraAbilities = [],
+  oathContextRef = null,
+  gaugeOverride = null,
+}) {
+  if (!playerName || !trackerMap || !Number.isFinite(start)) return;
+
+  const normalizedCooldown =
+    Number.isFinite(baseCooldown) && baseCooldown > 0 ? baseCooldown : 0;
+
+  const normalizedExtras = Array.isArray(extraAbilities)
+    ? extraAbilities
+        .map((ability) => normalizeAbilityName(ability))
+        .filter(Boolean)
+    : [];
+
+  const extraAbilitySet = new Set(normalizedExtras);
+
+  const abilitiesToLock = new Set([
+    ...PALADIN_OATH_ABILITIES,
+    ...extraAbilitySet,
+  ]);
+
+  if (abilitiesToLock.size === 0) return;
+
+  if (Number.isFinite(gaugeOverride)) {
+    setFallbackGauge(playerName, gaugeOverride);
+  } else if (!FALLBACK_OATH_GAUGE.has(playerName)) {
+    setFallbackGauge(playerName, 0);
+  }
+
+  abilitiesToLock.forEach((oathAbility) => {
+    const key = buildTrackerKey(playerName, oathAbility);
+    if (!key) return;
+
+    let targetTracker = trackerMap.get(key);
+    if (!targetTracker) {
+      targetTracker = new CastCooldownTracker(
+        oathAbility,
+        playerName,
+        PALADIN_JOB,
+        normalizedCooldown
+      );
+      trackerMap.set(key, targetTracker);
+    }
+    if (oathContextRef && typeof oathContextRef === "object") {
+      targetTracker.__oathContext = oathContextRef;
+    }
+
+    const shouldReplaceExisting = extraAbilitySet.has(oathAbility);
+    if (shouldReplaceExisting) {
+      const windows = targetTracker.getCooldownWindows();
+      const nextWindows = [
+        ...windows.filter(
+          (window) => !(window.start === start && window.end === SAFE_MAX_END)
+        ),
+        { start, end: SAFE_MAX_END },
+      ];
+      targetTracker.setCooldownWindows(nextWindows);
+      return;
+    }
+
+    addResourceLockWindow(targetTracker, start);
+  });
+}
+
+/**
+ * ensurePaladinOathLock()
+ * --------------------------------------------------------------
+ * Centralized gauge gatekeeper used by CastAnalysis and unit tests to
+ * decide when Paladin mitigation abilities should be forced into a
+ * resource-lock window (end === MAX_SAFE_INT).
+ *
+ * The helper inspects the live `oathContext` when available, falls back
+ * to locally cached gauge readings when handlers are invoked without a
+ * persistent context (e.g., isolated unit tests), and records the lock
+ * by delegating to `lockPaladinOathAbilities`.
+ */
+export function ensurePaladinOathLock({
+  playerName,
+  trackerMap,
+  startTime,
+  oathContext,
+  baseCooldown,
+  extraAbilities = [],
+  gaugeOverride = null,
+}) {
+  if (!playerName || !trackerMap || !Number.isFinite(startTime)) return;
+
+  const threshold = Number.isFinite(PALADIN_OATH_COST)
+    ? PALADIN_OATH_COST
+    : 50;
+
+  // Step 1: Resolve the best available gauge reading (live context → gaugeOverride → fallback cache).
+  const contextGauge =
+    typeof oathContext?.getGauge === "function"
+      ? oathContext.getGauge(playerName)
+      : null;
+
+  const fallbackGauge = getFallbackGauge(playerName);
+  let gauge = Number.isFinite(gaugeOverride)
+    ? gaugeOverride
+    : Number.isFinite(contextGauge)
+    ? contextGauge
+    : fallbackGauge ?? STARTING_OATH;
+
+  if (!Number.isFinite(gauge)) return;
+
+  setFallbackGauge(
+    playerName,
+    Number.isFinite(contextGauge) ? contextGauge : gauge
+  );
+
+  // Step 2: If the Paladin still has enough gauge there is nothing to do.
+  if (gauge >= threshold) {
+    return;
+  }
+
+  // Step 3: Delegate to the raw lock helper so every Oath ability records an open window.
+  lockPaladinOathAbilities({
+    playerName,
+    trackerMap,
+    start: startTime,
+    baseCooldown,
+    extraAbilities,
+    oathContextRef: oathContext,
+    gaugeOverride: gauge,
+  });
+}
+
+/**
+ * handlePaladinDeathLock()
+ * --------------------------------------------------------------
+ * Resets Oath gauge immediately after a Paladin death and records a
+ * resource lock at the death timestamp so that mitigation abilities
+ * remain unavailable until auto attacks rebuild the gauge.
+ */
+export function handlePaladinDeathLock({
+  playerName,
+  normalizedJob,
+  deathRelativeTime = null,
+  deathRawTimestamp = null,
+  fightStartTime = 0,
+  oathContext,
+  trackerMap,
+}) {
+  if (normalizedJob !== PALADIN_JOB || !playerName) return;
+  if (
+    !trackerMap ||
+    !(trackerMap instanceof Map) ||
+    !oathContext ||
+    typeof oathContext._ensurePlayer !== "function"
+  ) {
+    return;
+  }
+
+  // Step 1: Zero the live oathContext state and sync the fallback cache.
+  const state = oathContext._ensurePlayer(playerName);
+  if (state) {
+    state.gauge = 0;
+    setFallbackGauge(playerName, 0);
+  }
+
+  // Step 2: Convert the death timestamp into the same relative scale used by casts.
+  const startTime = Number.isFinite(deathRelativeTime)
+    ? deathRelativeTime
+    : Number.isFinite(deathRawTimestamp)
+    ? deathRawTimestamp - fightStartTime
+    : null;
+  if (!Number.isFinite(startTime)) return;
+
+  // Step 3: Reuse the generic lock helper so the trio stays disabled until OG recovers.
+  ensurePaladinOathLock({
+    playerName,
+    trackerMap,
+    startTime,
+    oathContext,
+    baseCooldown: null,
+    extraAbilities: [],
+    gaugeOverride: 0,
+  });
 }
 
 /**
@@ -461,6 +685,7 @@ export function handlePaladinOathAbility({
     typeof oathContext?.consumeGauge === "function"
       ? oathContext.consumeGauge(player, OATH_COST)
       : gaugeBefore - OATH_COST;
+  setFallbackGauge(player, gaugeAfter);
 
   if (gaugeBefore < OATH_COST) {
     log.warn(
@@ -469,34 +694,7 @@ export function handlePaladinOathAbility({
     );
   }
 
-  // Falling below 50 Oath locks every mitigation in the trio until gauge recovers.
-  if (gaugeAfter < OATH_COST) {
-    log.debug(
-      `[CustomCDHandlers] [PaladinOath] ${player} OG dropped below 50 (${gaugeAfter}); locking all Oath-based abilities.`
-    );
-
-    PALADIN_OATH_ABILITIES.forEach((oathAbility) => {
-      const key = buildTrackerKey(player, oathAbility);
-      if (!key) return;
-
-      let targetTracker =
-        oathAbility === abilityName ? triggerTracker : trackerMap.get(key);
-      if (!targetTracker) {
-        targetTracker = new CastCooldownTracker(
-          oathAbility,
-          player,
-          PALADIN_JOB,
-          baseCooldown
-        );
-        trackerMap.set(key, targetTracker);
-      }
-
-      addResourceLockWindow(targetTracker, start);
-    });
-    return; // stop here — do not continue to resolution path
-  }
-
-  // Otherwise OG ≥ 50 → no new locks created.
+  // Lock application moved to CastAnalysis so we only inspect gauge deltas once per cast.
 }
 
 /**
@@ -524,6 +722,9 @@ export function handlePaladinOathAbility({
  *     invariants are preserved.
  *   - The function does not mutate `_cooldownWindows` directly, but uses
  *     the setter whenever available.
+ *   - When invoked without a persistent `oathContext` (common in tests),
+ *     a fallback gauge cache is consulted so auto-attack sequences still
+ *     resolve locks deterministically.
  *
  * ⚙️ Example Log Output:
  *   [CustomCDHandlers] [PaladinOath] Holy Sheltron lock closed for F'meow Littlefoot:
@@ -555,19 +756,48 @@ export function handlePaladinAutoAttack({
     normalizedAbility || normalizeAbilityName(cast?.ability || "");
   if (!NORMALIZED_AUTO_ATTACK_NAMES.has(abilityName)) return;
 
-  const gaugeBefore = oathContext?.getGauge(player) ?? STARTING_OATH;
+  let context = oathContext;
+  if (
+    (!context || typeof context.getGauge !== "function") &&
+    trackerMap instanceof Map
+  ) {
+    context = resolveOathContextFromTrackers(trackerMap, player);
+  }
+
+  const contextGauge =
+    typeof context?.getGauge === "function"
+      ? context.getGauge(player)
+      : null;
+  const fallbackGauge = getFallbackGauge(player);
+  let gaugeBefore = Number.isFinite(contextGauge)
+    ? contextGauge
+    : fallbackGauge ?? STARTING_OATH;
+  let usedFallback = false;
+  if (
+    Number.isFinite(fallbackGauge) &&
+    (!Number.isFinite(gaugeBefore) || fallbackGauge > gaugeBefore)
+  ) {
+    gaugeBefore = fallbackGauge;
+    usedFallback = true;
+  }
   log.debug(
     `[CustomCDHandlers] [PaladinOath] Current OG for ${player} before auto attack: ${gaugeBefore}`
   );
 
   const gaugeAfter =
-    typeof oathContext?.gainGauge === "function"
-      ? oathContext.gainGauge(player, OATH_GAIN)
+    !usedFallback && typeof context?.gainGauge === "function"
+      ? context.gainGauge(player, OATH_GAIN)
       : gaugeBefore + OATH_GAIN;
+  setFallbackGauge(player, gaugeAfter);
 
   log.debug(
     `[CustomCDHandlers] [PaladinOath] Auto attack for ${player}; gauge ${gaugeBefore} -> ${gaugeAfter}`
   );
+  if (DEBUG_PAL_OATH) {
+    console.log(
+      `[DEBUG_PAL_OATH] auto ${player} gauge ${gaugeBefore} -> ${gaugeAfter}`
+    );
+  }
 
   // Only proceed if Oath gauge threshold is met
   if (gaugeAfter < OATH_COST) return;
@@ -608,6 +838,11 @@ export function handlePaladinAutoAttack({
           `[CustomCDHandlers] [PaladinOath] ${abilityName} lock closed for ${player}: ` +
             `start=${lock.start}, oldEnd=${oldEnd}, newEnd=${newEnd}, duration=${duration}`
         );
+        if (DEBUG_PAL_OATH) {
+          console.log(
+            `[DEBUG_PAL_OATH] closed ${abilityName} for ${player}: start=${lock.start}, newEnd=${newEnd}`
+          );
+        }
 
         updated.push({ ...lock, end: newEnd });
         anyClosed = true;

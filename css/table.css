@@ -13,6 +13,9 @@
     /* optional; keep vertical flow */
     /* no scroll here */
     box-sizing: border-box;
+    padding-right: 0.75rem;
+    /* reserve space so OS scrollbars don't cover the last column */
+    scrollbar-gutter: stable;
 }
 
 /* Base table styling */

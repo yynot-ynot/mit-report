@@ -4,12 +4,14 @@ import {
   envLogLevel,
 } from "../utility/logger.js";
 import mitigationData from "../config/mitigationDataset.js";
-import { IGNORED_MITIGATIONS } from "../config/ignoredEntities.js";
+import { MUTUALLY_EXCLUSIVE_MITIGATIONS } from "../config/ignoredEntities.js";
 
 setModuleLogLevel("JobConfigHelper", envLogLevel("info", "warn"));
 const log = getLogger("JobConfigHelper");
 
 const mitigationParentCache = { lookup: null };
+const exclusiveMitigationCache = { abilityMap: null, jobMap: null };
+const fightExclusiveSelectionCache = new Map();
 
 /**
  * Retrieves the mitigation percentage for a given buff name across all jobs.
@@ -228,6 +230,122 @@ export function getMitigationParentLookup() {
 }
 
 /**
+ * Build (and cache) lookup tables describing mutually exclusive mitigation groups.
+ *
+ * @returns {{abilityMap: Map<string, Object>, jobMap: Map<string, Map<string, Object>>}}
+ *   abilityMap: normalized ability name → group descriptor
+ *   jobMap: normalized job name → Map<groupId, descriptor>
+ */
+function buildExclusiveMitigationLookups() {
+  if (exclusiveMitigationCache.abilityMap && exclusiveMitigationCache.jobMap) {
+    return exclusiveMitigationCache;
+  }
+
+  const abilityMap = new Map();
+  const jobMap = new Map();
+
+  MUTUALLY_EXCLUSIVE_MITIGATIONS.forEach((group, index) => {
+    if (!group || !Array.isArray(group.abilities) || group.abilities.length < 2) {
+      return;
+    }
+
+    const normalizedJob = normalizeJobName(group.job);
+    if (!normalizedJob) return;
+
+    const normalizedAbilities = group.abilities
+      .map((ability) => ({
+        original: ability,
+        normalized: normalizeAbilityName(ability),
+      }))
+      .filter((entry) => entry.original && entry.normalized);
+
+    if (normalizedAbilities.length < 2) return;
+
+    const groupId =
+      group.groupId ||
+      `${normalizedJob}::${normalizedAbilities
+        .map((entry) => entry.normalized)
+        .join("|") ||
+        index}`;
+
+    const descriptor = {
+      groupId,
+      job: group.job,
+      normalizedJob,
+      abilityNames: normalizedAbilities.map((entry) => entry.original),
+      normalizedAbilities: normalizedAbilities.map((entry) => entry.normalized),
+    };
+
+    if (!jobMap.has(normalizedJob)) {
+      jobMap.set(normalizedJob, new Map());
+    }
+    jobMap.get(normalizedJob).set(groupId, descriptor);
+
+    descriptor.normalizedAbilities.forEach((normalizedAbility) => {
+      abilityMap.set(normalizedAbility, descriptor);
+    });
+  });
+
+  exclusiveMitigationCache.abilityMap = abilityMap;
+  exclusiveMitigationCache.jobMap = jobMap;
+  return exclusiveMitigationCache;
+}
+
+/**
+ * Register fight-scoped mutually exclusive mitigation selections so repeated
+ * calls to `getMitigationAbilityNames` can reuse the cached choices.
+ *
+ * @param {number|string|null} fightId - Fight identifier used for the cache key.
+ * @param {Map<string, {abilityName: string, normalizedAbility: string}>} selections
+ */
+export function registerExclusiveMitigationSelections(fightId, selections) {
+  if (fightId == null || !(selections instanceof Map)) return;
+  const cacheKey = String(fightId);
+  fightExclusiveSelectionCache.set(cacheKey, new Map(selections));
+}
+
+/**
+ * Retrieve the cached mutually exclusive mitigation selections for a fight.
+ *
+ * @param {number|string|null} fightId - Fight identifier used for the cache key.
+ * @returns {Map<string, {abilityName: string, normalizedAbility: string}>|null}
+ */
+export function getExclusiveMitigationSelections(fightId) {
+  if (fightId == null) return null;
+  const cacheKey = String(fightId);
+  return fightExclusiveSelectionCache.get(cacheKey) || null;
+}
+
+/**
+ * Remove cached mutually exclusive mitigation selections.
+ *
+ * @param {number|string|null} [fightId=null] - When omitted, clears the entire cache.
+ */
+export function clearExclusiveMitigationSelections(fightId = null) {
+  if (fightId == null) {
+    fightExclusiveSelectionCache.clear();
+    return;
+  }
+
+  const cacheKey = String(fightId);
+  fightExclusiveSelectionCache.delete(cacheKey);
+}
+
+/**
+ * Resolve mutually exclusive mitigation metadata for a specific ability name.
+ *
+ * @param {string} abilityName - Ability to inspect.
+ * @returns {{groupId: string, job: string, normalizedJob: string, abilityNames: string[], normalizedAbilities: string[]}|null}
+ */
+export function getExclusiveMitigationGroupByAbility(abilityName) {
+  if (!abilityName) return null;
+  const normalizedAbility = normalizeAbilityName(abilityName);
+  if (!normalizedAbility) return null;
+  const { abilityMap } = buildExclusiveMitigationLookups();
+  return abilityMap.get(normalizedAbility) || null;
+}
+
+/**
  * Retrieve the list of mitigation ability names associated with a job.
  *
  * This helper builds on top of `getMitigationParentLookup`, returning the
@@ -243,11 +361,16 @@ export function getMitigationParentLookup() {
  *   - Returns an empty array if the job is unknown or has no mitigation entries.
  *   - The returned array preserves the insertion order from the dataset, which
  *     groups related abilities together.
+ *   - When `options.exclusiveAbilityMap` or `options.fightId` is provided, only
+ *     the selected mutually exclusive abilities for that fight are returned.
  *
  * @param {string} jobName - Job/subType string (e.g. "Dark Knight", "Scholar")
+ * @param {Object} [options]
+ * @param {Map<string, {abilityName: string}>} [options.exclusiveAbilityMap] - Fight-scoped overrides keyed by groupId.
+ * @param {number|string|null} [options.fightId=null] - Fight identifier used to read the shared selection cache.
  * @returns {Array<string>} Ordered list of unique mitigation ability names.
  */
-export function getMitigationAbilityNames(jobName) {
+export function getMitigationAbilityNames(jobName, options = {}) {
   if (!jobName) return [];
 
   const normalizedJob = normalizeJobName(jobName);
@@ -257,11 +380,45 @@ export function getMitigationAbilityNames(jobName) {
   if (!lookup.has(normalizedJob)) return [];
 
   const abilityMap = lookup.get(normalizedJob);
+  const { abilityMap: exclusiveAbilityLookup } = buildExclusiveMitigationLookups();
 
-  // Filter out ignored mitigation abilities (e.g., "Sheltron")
-  const abilities = Array.from(abilityMap.values()).filter(
-    (ability) => !IGNORED_MITIGATIONS.has(ability)
-  );
+  const selectionFromCache =
+    options?.fightId != null
+      ? getExclusiveMitigationSelections(options.fightId)
+      : null;
+  const selectionMap =
+    options?.exclusiveAbilityMap instanceof Map
+      ? options.exclusiveAbilityMap
+      : selectionFromCache instanceof Map
+      ? selectionFromCache
+      : null;
+
+  const seenExclusiveGroups = new Set();
+  const abilities = [];
+
+  for (const ability of abilityMap.values()) {
+    const normalizedAbility = normalizeAbilityName(ability);
+    const exclusiveDescriptor =
+      exclusiveAbilityLookup?.get(normalizedAbility) || null;
+
+    if (
+      exclusiveDescriptor &&
+      exclusiveDescriptor.normalizedJob === normalizedJob
+    ) {
+      const { groupId } = exclusiveDescriptor;
+      if (seenExclusiveGroups.has(groupId)) {
+        continue;
+      }
+      seenExclusiveGroups.add(groupId);
+
+      const selection =
+        selectionMap?.get(groupId)?.abilityName || ability;
+      abilities.push(selection);
+      continue;
+    }
+
+    abilities.push(ability);
+  }
 
   return abilities;
 }

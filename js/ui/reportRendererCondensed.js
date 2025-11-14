@@ -99,6 +99,11 @@ export function renderCondensedTable(fightState, report, section) {
     );
   const sortedActors = sortActorsByJob(allActors);
   const showAvailableMit = filterState.showAvailableMitigations;
+  const exclusiveMitOptions = {
+    fightId: fightState.fightTable?.fightId ?? null,
+    exclusiveAbilityMap:
+      fightState.fightTable?.mutuallyExclusiveMitigationMap ?? null,
+  };
 
   log.info(
     `[CondensedTable] Rendering ${condensedPull.condensedSets.length} grouped sets for ${sortedActors.length} players`
@@ -139,7 +144,7 @@ export function renderCondensedTable(fightState, report, section) {
 
   // Insert mitigation icon row directly below header (if enabled)
   if (showAvailableMit) {
-    buildMitigationIconRow(sortedActors, report, 2).then((mitigationRow) => {
+    buildMitigationIconRow(sortedActors, report, 2, fightState.fightTable).then((mitigationRow) => {
       thead.appendChild(mitigationRow);
     });
   }
@@ -222,7 +227,8 @@ export function renderCondensedTable(fightState, report, section) {
           renderAvailableMitigationIcons(
             td,
             actor.subType,
-            availableMitNames
+            availableMitNames,
+            exclusiveMitOptions
           ).catch((err) =>
             log.warn(
               `[CondensedTable] Failed to render mitigation availability for ${actor.name}`,
@@ -352,6 +358,11 @@ export function filterAndStyleCondensedTable(fightState, report) {
   if (parentRows.length === 0) return;
 
   const showAvailableMit = filterState.showAvailableMitigations;
+  const exclusiveMitOptions = {
+    fightId: fightState.fightTable?.fightId ?? null,
+    exclusiveAbilityMap:
+      fightState.fightTable?.mutuallyExclusiveMitigationMap ?? null,
+  };
 
   // --- Resolve players for consistent buff repaint + header updates ---
   const allActors = fightState.fightTable.friendlyPlayerIds
@@ -458,7 +469,8 @@ export function filterAndStyleCondensedTable(fightState, report) {
         renderAvailableMitigationIcons(
           td,
           actor.subType,
-          repaintAvailableMit
+          repaintAvailableMit,
+          exclusiveMitOptions
         ).catch((err) =>
           log.warn(
             `[CondensedTable] Failed to repaint mitigation availability for ${actor.name}`,
@@ -466,7 +478,12 @@ export function filterAndStyleCondensedTable(fightState, report) {
           )
         );
       } else {
-        renderAvailableMitigationIcons(td, actor.subType, []).catch(() => {});
+        renderAvailableMitigationIcons(
+          td,
+          actor.subType,
+          [],
+          exclusiveMitOptions
+        ).catch(() => {});
       }
     });
 

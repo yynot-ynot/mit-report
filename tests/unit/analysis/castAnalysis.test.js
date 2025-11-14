@@ -6,6 +6,10 @@ import {
   populateMitigationAvailability,
   buildCooldownTrackers,
 } from "../../../js/analysis/castAnalysis.js";
+import {
+  getMitigationAbilityNames,
+  clearExclusiveMitigationSelections,
+} from "../../../js/utility/jobConfigHelper.js";
 
 /**
  * Scenario:
@@ -141,7 +145,7 @@ test("handlePaladinDeathsUpTo resets OG to 0 for Paladin deaths before first cas
     [1, { name: player, subType: "Paladin", type: "Player" }],
   ]);
 
-  const trackers = buildCooldownTrackers(
+  const { trackers } = buildCooldownTrackers(
     parsedCasts,
     [],
     parsedDeaths,
@@ -189,7 +193,7 @@ test("handlePaladinDeathsUpTo resets OG only for Paladin deaths", () => {
 
   const actorById = new Map(friendlyActors.map((a, i) => [i + 1, a]));
 
-  const trackers = buildCooldownTrackers(
+  const { trackers } = buildCooldownTrackers(
     casts,
     [],
     deaths,
@@ -229,7 +233,7 @@ test("handlePaladinDeathsUpTo skips Paladin deaths after the current cast", () =
     [1, { name: player, subType: "Paladin", type: "Player" }],
   ]);
 
-  const trackers = buildCooldownTrackers(
+  const { trackers } = buildCooldownTrackers(
     parsedCasts,
     [],
     parsedDeaths,
@@ -270,7 +274,7 @@ test("handlePaladinDeathsUpTo processes sequential Paladin deaths once", () => {
   ]);
   const friendlyActors = [{ name: player, subType: "Paladin", type: "Player" }];
 
-  const trackers = buildCooldownTrackers(
+  const { trackers } = buildCooldownTrackers(
     casts,
     [],
     deaths,
@@ -307,7 +311,7 @@ test("handlePaladinDeathsUpTo does nothing for non-Paladin deaths", () => {
   ];
   const actorById = new Map([[1, friendlyActors[0]]]);
 
-  const trackers = buildCooldownTrackers(
+  const { trackers } = buildCooldownTrackers(
     casts,
     [],
     deaths,
@@ -356,7 +360,7 @@ test("paladin death → next oath ability generates a lock window", () => {
     [1, { name: player, subType: "Paladin", type: "Player" }],
   ]);
 
-  const trackers = buildCooldownTrackers(
+  const { trackers } = buildCooldownTrackers(
     parsedCasts,
     [],
     parsedDeaths,
@@ -425,7 +429,7 @@ test("paladin lock removed after gaining 50 gauge from auto-attacks", () => {
   ]);
 
   // Create cooldown tracker and lock
-  const trackers = buildCooldownTrackers(
+  const { trackers } = buildCooldownTrackers(
     parsedCasts,
     [],
     parsedDeaths,
@@ -513,7 +517,7 @@ test("paladin death — lock generated even without any cast", () => {
     ["F'meow Littlefoot", { name: "F'meow Littlefoot", subType: "Paladin" }],
   ]);
 
-  const trackers = buildCooldownTrackers(
+  const { trackers } = buildCooldownTrackers(
     parsedCasts,
     [], // ignored mitigations
     parsedDeaths,
@@ -547,4 +551,111 @@ test("paladin death — lock generated even without any cast", () => {
     MAX,
     "Cooldown lock should end at MAX_SAFE_INTEGER"
   );
+});
+
+/**
+ * 🧪 Test: Mutually exclusive mitigation selections mirror observed casts per fight.
+ *
+ * Holy Sheltron replaces Sheltron at higher levels, so the per-fight source of truth
+ * should only list the variant actually observed in the cast log.
+ */
+test("buildCooldownTrackers records mutually exclusive mitigation selections", () => {
+  const paladinId = 101;
+  const paladin = {
+    id: paladinId,
+    name: "Aegis Knight",
+    subType: "Paladin",
+    type: "Player",
+  };
+  const actorById = new Map([[paladinId, paladin]]);
+  const fight = { id: 9001, startTime: 0 };
+
+  const parsedCasts = [
+    { source: paladin.name, ability: "Holy Sheltron", relative: 1000 },
+  ];
+
+  const { exclusiveAbilityMap } = buildCooldownTrackers(
+    parsedCasts,
+    [],
+    [],
+    fight,
+    actorById,
+    null,
+    [paladin]
+  );
+
+  assert.equal(
+    exclusiveAbilityMap.size,
+    1,
+    "Expected a single mutually exclusive selection when one cast is observed"
+  );
+
+  const selection = Array.from(exclusiveAbilityMap.values())[0];
+  assert.equal(
+    selection.abilityName,
+    "Holy Sheltron",
+    "Holy Sheltron should be recorded as the active variant"
+  );
+
+  const abilityList = getMitigationAbilityNames(paladin.subType, {
+    exclusiveAbilityMap,
+  });
+  assert(
+    abilityList.includes("Holy Sheltron"),
+    "Holy Sheltron should appear in the mitigation list for this fight"
+  );
+  assert(
+    !abilityList.includes("Sheltron"),
+    "Sheltron should be omitted when Holy Sheltron is the only observed variant"
+  );
+
+  clearExclusiveMitigationSelections(fight.id);
+});
+
+/**
+ * 🧪 Test: Cached mutually exclusive selections persist per fight and survive conflicts.
+ *
+ * When both Sheltron and Holy Sheltron are encountered, the first variant should win
+ * and subsequent callers can resolve the correct icon list by providing the fight ID.
+ */
+test("getMitigationAbilityNames reuses cached mutually exclusive selections by fight", () => {
+  const paladinId = 202;
+  const paladin = {
+    id: paladinId,
+    name: "Shield Wall",
+    subType: "Paladin",
+    type: "Player",
+  };
+  const actorById = new Map([[paladinId, paladin]]);
+  const fight = { id: 1337, startTime: 0 };
+
+  const parsedCasts = [
+    { source: paladin.name, ability: "Sheltron", relative: 500 },
+    { source: paladin.name, ability: "Holy Sheltron", relative: 1500 },
+  ];
+
+  buildCooldownTrackers(
+    parsedCasts,
+    [],
+    [],
+    fight,
+    actorById,
+    null,
+    [paladin]
+  );
+
+  const abilityList = getMitigationAbilityNames(paladin.subType, {
+    fightId: fight.id,
+  });
+
+  assert(
+    abilityList.includes("Sheltron"),
+    "Sheltron should remain the selected variant when it is observed first"
+  );
+  assert(
+    !abilityList.includes("Holy Sheltron"),
+    "Conflicting variants should not appear once a selection has been cached"
+  );
+
+  clearExclusiveMitigationSelections(fight.id);
 });

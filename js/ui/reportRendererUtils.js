@@ -47,6 +47,38 @@ function loadMitigationHelperModules() {
 }
 
 /**
+ * Normalize a fight-scoped mutually exclusive mitigation map into a Map instance.
+ *
+ * @param {Map|string[][]|Object|null} mapLike - Map or plain object keyed by groupId.
+ * @returns {Map<string, {abilityName: string, normalizedAbility?: string}>|null}
+ */
+function normalizeExclusiveAbilityMap(mapLike) {
+  if (!mapLike) return null;
+  if (mapLike instanceof Map) return mapLike;
+  if (typeof mapLike !== "object") return null;
+  return new Map(Object.entries(mapLike));
+}
+
+/**
+ * Build a deterministic cache key fragment for a mutually exclusive mitigation map.
+ *
+ * @param {Map<string, {abilityName: string}>} exclusiveMap - Normalized selection map.
+ * @returns {string|null} Stable string representing the selected abilities, or null if empty.
+ */
+function buildExclusiveMapCacheKey(exclusiveMap) {
+  if (!(exclusiveMap instanceof Map) || exclusiveMap.size === 0) {
+    return null;
+  }
+
+  return Array.from(exclusiveMap.entries())
+    .map(
+      ([groupId, selection]) => `${groupId}:${selection?.abilityName || ""}`
+    )
+    .sort()
+    .join(",");
+}
+
+/**
  * Generate HTML for the damage cell in any table view (Detailed or Condensed).
  *
  * 🧩 Purpose:
@@ -659,25 +691,45 @@ export function logCrossJobBuffAnomalies({
  *   ]
  *
  * @param {string} jobName - Full display name, e.g. "Dark Knight"
+ * @param {Object} [options]
+ * @param {number|string|null} [options.fightId=null] - Fight identifier used for caching and selection.
+ * @param {Map|Object|null} [options.exclusiveAbilityMap=null] - Fight-specific mutually exclusive selection map.
  * @returns {Array<{name: string, icon_url: string}>} - Array of mitigation icons
  */
-export async function getMitigationAbilityIcons(jobName) {
+export async function getMitigationAbilityIcons(jobName, options = {}) {
   if (!jobName) return [];
 
-  if (mitigationIconCache.has(jobName)) {
-    return mitigationIconCache.get(jobName);
+  const fightId =
+    options?.fightId == null ? null : String(options.fightId ?? "");
+  const exclusiveMap = normalizeExclusiveAbilityMap(
+    options?.exclusiveAbilityMap || null
+  );
+  const exclusiveKeyFragment = buildExclusiveMapCacheKey(exclusiveMap);
+
+  let cacheKey = jobName;
+  if (fightId) {
+    cacheKey = `${jobName}::fight::${fightId}`;
+  } else if (exclusiveKeyFragment) {
+    cacheKey = `${jobName}::exclusive::${exclusiveKeyFragment}`;
+  }
+
+  if (mitigationIconCache.has(cacheKey)) {
+    return mitigationIconCache.get(cacheKey);
   }
 
   const helpers = await loadMitigationHelperModules();
-  const abilityNames = helpers.getMitigationAbilityNames(jobName);
+  const abilityNames = helpers.getMitigationAbilityNames(jobName, {
+    fightId,
+    exclusiveAbilityMap: exclusiveMap,
+  });
   if (!abilityNames || abilityNames.length === 0) {
-    mitigationIconCache.set(jobName, []);
+    mitigationIconCache.set(cacheKey, []);
     return [];
   }
 
   const jobConfig = helpers.loadJobConfig(jobName);
   if (!jobConfig || !jobConfig.actions) {
-    mitigationIconCache.set(jobName, []);
+    mitigationIconCache.set(cacheKey, []);
     return [];
   }
 
@@ -692,7 +744,7 @@ export async function getMitigationAbilityIcons(jobName) {
     }
   }
 
-  mitigationIconCache.set(jobName, icons);
+  mitigationIconCache.set(cacheKey, icons);
   return icons;
 }
 
@@ -743,9 +795,15 @@ export async function getMitigationAbilityIcons(jobName) {
  * @param {Array<Object>} sortedActors - Players sorted by job order
  * @param {Object} report - Report object (used for job lookup)
  * @param {number} offset - Number of non-player columns preceding player headers (e.g., 2 for condensed, 3 for detailed)
+ * @param {Object|null} fightTable - Fight table supplying fightId + mutually exclusive selections.
  * @returns {HTMLTableRowElement} - Fully constructed mitigation icon row
  */
-export async function buildMitigationIconRow(sortedActors, report, offset = 2) {
+export async function buildMitigationIconRow(
+  sortedActors,
+  report,
+  offset = 2,
+  fightTable = null
+) {
   const { getRoleClass } = await import("../config/AppConfig.js");
 
   const row = document.createElement("tr");
@@ -766,13 +824,24 @@ export async function buildMitigationIconRow(sortedActors, report, offset = 2) {
     row.appendChild(td);
   }
 
+  const iconOptions = {
+    fightId:
+      fightTable?.fightId ??
+      report?.fightTable?.fightId ??
+      null,
+    exclusiveAbilityMap:
+      fightTable?.mutuallyExclusiveMitigationMap ??
+      report?.fightTable?.mutuallyExclusiveMitigationMap ??
+      null,
+  };
+
   // Build player icon cells
   for (const actor of sortedActors) {
     const td = document.createElement("td");
     const roleClass = getRoleClass(actor.subType);
     td.classList.add(roleClass);
 
-    const icons = await getMitigationAbilityIcons(actor.subType);
+    const icons = await getMitigationAbilityIcons(actor.subType, iconOptions);
 
     if (icons.length > 0) {
       // 🧹 Deduplicate icons by ability name
@@ -836,12 +905,16 @@ export async function buildMitigationIconRow(sortedActors, report, offset = 2) {
  * @param {HTMLTableCellElement} cell - Target table cell for the player column.
  * @param {string} jobName - Player job (subType) used to resolve mitigation icons.
  * @param {string[]} availableMitigations - Ordered list of mitigation ability names.
+ * @param {Object} [options]
+ * @param {number|string|null} [options.fightId=null] - Fight identifier for caching selection data.
+ * @param {Map|Object|null} [options.exclusiveAbilityMap=null] - Fight-scoped mutually exclusive selections.
  * @returns {Promise<void>} Resolves once the icon layer has been updated.
  */
 export async function renderAvailableMitigationIcons(
   cell,
   jobName,
-  availableMitigations = []
+  availableMitigations = [],
+  options = {}
 ) {
   if (!cell) return;
 
@@ -892,7 +965,7 @@ export async function renderAvailableMitigationIcons(
 
   try {
     // Cached resolver fetches the icon set for the job only once.
-    const icons = await getMitigationAbilityIcons(jobName);
+    const icons = await getMitigationAbilityIcons(jobName, options);
     if (cell.dataset.mitLayerToken !== renderToken) {
       return;
     }

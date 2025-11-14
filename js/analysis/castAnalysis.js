@@ -2,6 +2,8 @@ import { loadJobConfig } from "../config/AppConfig.js";
 import {
   buildActorNameMap,
   getMitigationAbilityNames,
+  getExclusiveMitigationGroupByAbility,
+  registerExclusiveMitigationSelections,
   getMitigationParentLookup,
   normalizeAbilityName,
   normalizeJobName,
@@ -328,8 +330,8 @@ function resolveAbilityCooldown(jobName, abilityName) {
  *
  * Each pass through the timeline resolves the actor’s job, looks up the base
  * cooldown, dispatches any custom handlers (e.g., Paladin Oath, AST cards),
- * and finally lets the custom handler module decide whether additional
- * resource locks should be recorded.
+ * captures mutually exclusive mitigation usage, and finally lets the custom
+ * handler module decide whether additional resource locks should be recorded.
  *
  * @param {Array<Object>} parsedCasts - Flattened cast timeline for a fight. Accepts any array-like input; non-arrays are coerced to `[]`.
  * @param {Array<Object>} damageEvents - Parsed damage events (reserved for future use).
@@ -338,7 +340,10 @@ function resolveAbilityCooldown(jobName, abilityName) {
  * @param {Map<number, Object>|null} actorById - Actor lookup map (used to resolve jobs).
  * @param {Map<string, Object>|null} rowMap - Timestamp/actor row lookup (reserved for future use).
  * @param {Array<Object>|Map<string,Object>} [friendlyActors=[]] - Optional roster data used to prioritize actor/job resolution.
- * @returns {Array<CastCooldownTracker>} trackers
+ * @returns {{
+ *   trackers: Array<CastCooldownTracker>,
+ *   exclusiveAbilityMap: Map<string, {abilityName: string, normalizedAbility: string}>
+ * }} trackers + mutually exclusive ability selections for the fight.
  */
 export function buildCooldownTrackers(
   parsedCasts = [],
@@ -355,7 +360,11 @@ export function buildCooldownTrackers(
   const deaths = Array.isArray(parsedDeaths) ? parsedDeaths : [];
 
   if (casts.length === 0 && deaths.length === 0) {
-    return [];
+    const emptyMap = new Map();
+    if (fight?.id != null) {
+      registerExclusiveMitigationSelections(fight.id, emptyMap);
+    }
+    return { trackers: [], exclusiveAbilityMap: emptyMap };
   }
 
   const actorByName = buildActorNameMap(actorById);
@@ -411,6 +420,9 @@ export function buildCooldownTrackers(
     typeof CooldownHandlers.PaladinOathGaugeContext === "function"
       ? new CooldownHandlers.PaladinOathGaugeContext()
       : null;
+  const fightStartTimeMs = fight?.startTime ?? 0;
+  const exclusiveSelections = new Map();
+  const exclusiveConflictGroups = new Set();
 
   // Step 1: Build friendly roster + baseline mitigation ability lists.
   const trackerMap = new Map();
@@ -474,6 +486,55 @@ export function buildCooldownTrackers(
     }
   }
 
+  /**
+   * Record which mutually exclusive mitigation ability appears in this fight.
+   *
+   * @param {Object} cast - Current cast entry being processed.
+   * @param {string} normalizedJob - Normalized job identifier for the caster.
+   * @param {number} start - Fight-relative timestamp for the cast.
+   */
+  function recordExclusiveAbilityUsage(cast, normalizedJob, start) {
+    if (!cast || !cast.ability) return;
+
+    const descriptor = getExclusiveMitigationGroupByAbility(cast.ability);
+    if (!descriptor || descriptor.normalizedJob !== normalizedJob) {
+      return;
+    }
+
+    const groupId = descriptor.groupId;
+    const normalizedAbility = normalizeAbilityName(cast.ability);
+    const existing = exclusiveSelections.get(groupId);
+    if (!existing) {
+      exclusiveSelections.set(groupId, {
+        abilityName: cast.ability,
+        normalizedAbility,
+      });
+      return;
+    }
+
+    if (existing.normalizedAbility === normalizedAbility) {
+      return;
+    }
+
+    if (exclusiveConflictGroups.has(groupId)) {
+      return;
+    }
+    exclusiveConflictGroups.add(groupId);
+
+    const relativeTime = Number.isFinite(start)
+      ? formatRelativeTime(start + fightStartTimeMs, fightStartTimeMs)
+      : "unknown";
+
+    log.error(`[CastAnalysis] Mutually exclusive mitigations detected`, {
+      fightId: fight?.id ?? null,
+      groupId,
+      firstAbility: existing.abilityName,
+      conflictingAbility: cast.ability,
+      player: cast.source || "Unknown",
+      time: relativeTime,
+    });
+  }
+
   // Step 2: Sweep the combined timeline and dispatch per-cast handlers.
   casts.forEach((cast) => {
     // Process any deaths that occurred before this cast; if the death actor is a Paladin, reset OG.
@@ -514,6 +575,8 @@ export function buildCooldownTrackers(
     }
 
     if (!Number.isFinite(start)) return;
+
+    recordExclusiveAbilityUsage(cast, normalizedJob, start);
 
     // --------------------------------------------------------------
     // ⏱️ Lookup cooldown duration from job config
@@ -567,12 +630,11 @@ export function buildCooldownTrackers(
     // `defaultAddCooldown()`. When no custom handlers exist we fall
     // back to the default behavior automatically.
     if (dependencies.length > 0) {
-      const fightStartTime = fight?.startTime ?? 0;
       const eventTimestamp =
         (Number.isFinite(cast?.timestamp) && cast.timestamp) ||
         (Number.isFinite(cast?.rawTimestamp) && cast.rawTimestamp) ||
         0;
-      const relTime = formatRelativeTime(eventTimestamp, fightStartTime);
+      const relTime = formatRelativeTime(eventTimestamp, fightStartTimeMs);
 
       log.info(`[CastAnalysis] Dispatching cooldown dependency handlers`, {
         player: cast.source,
@@ -647,11 +709,10 @@ export function buildCooldownTrackers(
   const trackers = Array.from(trackerMap.values());
 
   // --- LOGGING: Print readable cooldown windows using mm:ss.mmm ---
-  const fightStartTime = fight?.startTime ?? 0;
   const formattedTrackers = trackers.map((t) => {
     const cooldowns = t.getCooldownWindows().map((w) => ({
-      start: formatRelativeTime(w.start + fightStartTime, fightStartTime),
-      end: formatRelativeTime(w.end + fightStartTime, fightStartTime),
+      start: formatRelativeTime(w.start + fightStartTimeMs, fightStartTimeMs),
+      end: formatRelativeTime(w.end + fightStartTimeMs, fightStartTimeMs),
     }));
     return {
       ability: t.getAbilityName(),
@@ -672,7 +733,14 @@ export function buildCooldownTrackers(
   //   trackers
   // );
 
-  return trackers;
+  if (fight?.id != null) {
+    registerExclusiveMitigationSelections(fight.id, exclusiveSelections);
+  }
+
+  return {
+    trackers,
+    exclusiveAbilityMap: exclusiveSelections,
+  };
 }
 
 /**
@@ -695,6 +763,8 @@ export function buildCooldownTrackers(
  *   - “Anomalies” represent cooldown trackers whose ability was not present in the baseline
  *     mitigation list for that player’s job, indicating a potential dataset mismatch or
  *     unidentified mitigation ability.
+ *   - Persists mutually exclusive mitigation selections under
+ *     `fightTable.mutuallyExclusiveMitigationMap` for UI/icon rendering.
  *
  * @param {Object} fightTable - FightTable returned from buildFightTable (mutated in-place).
  * @param {Array<Object>} parsedCasts - Flattened cast timeline for this fight.
@@ -761,19 +831,11 @@ export function populateMitigationAvailability(
     });
   }
 
-  friendlyActors.forEach((actor) => {
-    const abilities = getMitigationAbilityNames(actor.subType);
-    const normalizedAbilities = abilities.map((name) =>
-      normalizeAbilityName(name)
-    );
-    baselineAbilitiesByPlayer.set(actor.name, abilities);
-    baselineNormalizedByPlayer.set(actor.name, normalizedAbilities);
-  });
-
-  const allPlayerNames = Array.from(baselineAbilitiesByPlayer.keys());
-
   // Step 2: Build cooldown trackers for mitigation abilities
-  const trackers = buildCooldownTrackers(
+  const {
+    trackers = [],
+    exclusiveAbilityMap = new Map(),
+  } = buildCooldownTrackers(
     parsedCasts,
     [],
     parsedDeaths,
@@ -783,6 +845,22 @@ export function populateMitigationAvailability(
     friendlyActors
   );
   fightTable.availableMitigationTrackers = trackers;
+  fightTable.mutuallyExclusiveMitigationMap = Object.fromEntries(
+    exclusiveAbilityMap
+  );
+
+  friendlyActors.forEach((actor) => {
+    const abilities = getMitigationAbilityNames(actor.subType, {
+      exclusiveAbilityMap,
+    });
+    const normalizedAbilities = abilities.map((name) =>
+      normalizeAbilityName(name)
+    );
+    baselineAbilitiesByPlayer.set(actor.name, abilities);
+    baselineNormalizedByPlayer.set(actor.name, normalizedAbilities);
+  });
+
+  const allPlayerNames = Array.from(baselineAbilitiesByPlayer.keys());
 
   // Step 3: Build cooldown index keyed by timestamp → player → Set(abilities)
   const uniqueTimestamps = Array.from(

@@ -74,6 +74,10 @@ const log = getLogger("ReportRendererDetailed");
 export function renderDetailedTable(fightState, report, section) {
   const { fightTable, filters: filterState, buffAnalysis } = fightState;
   const showAvailableMit = filterState.showAvailableMitigations;
+  const exclusiveMitOptions = {
+    fightId: fightTable?.fightId ?? null,
+    exclusiveAbilityMap: fightTable?.mutuallyExclusiveMitigationMap ?? null,
+  };
 
   log.debug(
     `[RenderDetailedTable] Rendering detailed table for Pull ${fightTable.fightId}`
@@ -161,7 +165,7 @@ export function renderDetailedTable(fightState, report, section) {
   table.appendChild(thead);
 
   if (showAvailableMit) {
-    buildMitigationIconRow(sortedActors, report, 3).then((mitRow) => {
+    buildMitigationIconRow(sortedActors, report, 3, fightTable).then((mitRow) => {
       thead.appendChild(mitRow);
     });
   }
@@ -454,7 +458,8 @@ export function filterAndStyleDetailedTable(fightState, report) {
         renderAvailableMitigationIcons(
           td,
           actor.subType,
-          availableMitNames
+          availableMitNames,
+          exclusiveMitOptions
         ).catch((err) =>
           log.warn(
             `[DetailedTable] Failed to repaint mitigation availability for ${actor.name}`,
@@ -463,7 +468,12 @@ export function filterAndStyleDetailedTable(fightState, report) {
         );
       } else {
         // Clear previous mitigation layer when toggle is off
-        renderAvailableMitigationIcons(td, actor.subType, []).catch(() => {});
+        renderAvailableMitigationIcons(
+          td,
+          actor.subType,
+          [],
+          exclusiveMitOptions
+        ).catch(() => {});
       }
     });
   });

@@ -637,6 +637,7 @@ function applyDeathsToAttacks(
  *     name: string,
  *     castsTimeline: Array<Object>,             // flattened cast events for the fight
  *     availableMitigationTrackers: Array<Object>, // CastCooldownTracker metadata per ability/player
+ *     mutuallyExclusiveMitigationMap: Record<string, { abilityName: string, normalizedAbility: string }>,
  *     friendlyPlayerIds: [id1, id2, ...],  // only player IDs (no NPCs/pets)
  *     rows: {
  *       [relativeTimestamp: number]: {
@@ -735,6 +736,7 @@ export function buildFightTable(
     rows: [],
     castsTimeline: parsedCasts ?? [], // Flattened cast events aligned with this fight
     availableMitigationTrackers: [], // mitigation cooldown metadata per ability/player
+    mutuallyExclusiveMitigationMap: {}, // fight-scoped mutually exclusive mitigation selections
     // Instead of duplicating actor metadata, only keep friendly player IDs
     friendlyPlayerIds: fight.friendlyPlayers || [],
   };

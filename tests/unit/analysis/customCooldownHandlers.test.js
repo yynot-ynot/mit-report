@@ -887,7 +887,7 @@ test("buildCooldownTrackers locks Paladin cooldowns when gauge < 50", () => {
   const firstCast = { source: paladin.name, ability: "Holy Sheltron", relative: 5000 };
   const secondCast = { source: paladin.name, ability: "Intervention", relative: 40000 };
 
-  const trackers = buildCooldownTrackers(
+  const { trackers } = buildCooldownTrackers(
     [firstCast, secondCast],
     [],
     [],
@@ -950,7 +950,7 @@ test("buildCooldownTrackers resolves Paladin locks after auto attacks", () => {
     relative: secondCast.relative + 1000 * (idx + 1),
   }));
 
-  const trackers = buildCooldownTrackers(
+  const { trackers } = buildCooldownTrackers(
     [firstCast, secondCast, ...autoAttacks],
     [],
     [],

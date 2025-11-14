@@ -25,7 +25,7 @@ const log = getLogger("ReportParser");
  * Responsibilities:
  *   - Build actor/ability lookup tables for downstream enrichment.
  *   - Preserve the raw fights array while annotating each fight with a
- *     resolved `lastPhaseName`.
+ *     resolved `lastPhaseName` (via lastPhaseAsAbsoluteIndex).
  *   - Collect a `phaseNamesByEncounter` map so the UI can read friendly
  *     phase labels without duplicating work.
  *
@@ -93,7 +93,7 @@ export function parseReport(gqlData) {
 }
 
 /**
- * Resolve the friendly phase name for a fight using any available indices.
+ * Resolve the friendly phase name for a fight using the absolute phase index.
  *
  * @param {Object} fight - Raw fight metadata (includes lastPhase fields).
  * @param {string[]} phaseNames - Ordered list of names for the encounter.
@@ -109,21 +109,16 @@ function resolvePhaseNameForFight(fight, phaseNames) {
 
   let phaseIdx = null;
 
-  // Prefer the per-encounter lastPhase field when it resolves cleanly.
-  if (Number.isFinite(fight.lastPhase) && fight.lastPhase > 0) {
-    const candidate = fight.lastPhase - 1;
-    if (hasValidIndex(candidate)) {
-      phaseIdx = candidate;
-    }
-  }
-
+  // Prefer the encounter-agnostic absolute index; this is what FFLogs recommends for phase lookups.
   if (
-    phaseIdx === null &&
     Number.isFinite(fight.lastPhaseAsAbsoluteIndex) &&
-    fight.lastPhaseAsAbsoluteIndex >= 0
+    fight.lastPhaseAsAbsoluteIndex >= 0 &&
+    hasValidIndex(fight.lastPhaseAsAbsoluteIndex)
   ) {
-    // Fall back to the absolute index if the encounter-relative index was unusable.
-    const candidate = fight.lastPhaseAsAbsoluteIndex;
+    phaseIdx = fight.lastPhaseAsAbsoluteIndex;
+  } else if (Number.isFinite(fight.lastPhase) && fight.lastPhase > 0) {
+    // Fallback: some legacy fights may only populate lastPhase (1-based).
+    const candidate = fight.lastPhase - 1;
     if (hasValidIndex(candidate)) {
       phaseIdx = candidate;
     }

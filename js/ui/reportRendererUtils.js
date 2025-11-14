@@ -47,6 +47,78 @@ function loadMitigationHelperModules() {
 }
 
 /**
+ * Resolve the friendly phase name for a fight using stored metadata.
+ *
+ * @param {Object} fight - Fight metadata record containing lastPhase fields.
+ * @param {Map} phaseNamesByEncounter - Encounter → ordered phase name list.
+ * @returns {string|null} Best-effort phase name.
+ */
+export function resolvePhaseName(fight, phaseNamesByEncounter) {
+  if (!fight) {
+    return null;
+  }
+
+  if (typeof fight.lastPhaseName === "string" && fight.lastPhaseName.length) {
+    return fight.lastPhaseName;
+  }
+
+  const phaseNames =
+    phaseNamesByEncounter instanceof Map
+      ? phaseNamesByEncounter.get(fight.encounterID)
+      : null;
+
+  if (Array.isArray(phaseNames) && phaseNames.length > 0) {
+    const absoluteIdx =
+      Number.isFinite(fight.lastPhaseAsAbsoluteIndex) &&
+      fight.lastPhaseAsAbsoluteIndex >= 0
+        ? fight.lastPhaseAsAbsoluteIndex
+        : null;
+    const relativeIdx =
+      Number.isFinite(fight.lastPhase) && fight.lastPhase > 0
+        ? fight.lastPhase - 1
+        : null;
+
+    const resolvedIdx =
+      absoluteIdx != null && phaseNames[absoluteIdx]
+        ? absoluteIdx
+        : relativeIdx;
+
+    if (resolvedIdx != null && phaseNames[resolvedIdx]) {
+      return phaseNames[resolvedIdx];
+    }
+  }
+
+  return null;
+}
+
+/**
+ * Produce a compact phase label (e.g., "P3" or "I") for pull summaries.
+ *
+ * @param {Object} fight - Fight metadata record.
+ * @param {Map} phaseNamesByEncounter - Encounter → ordered phase name list.
+ * @returns {string|null} Phase tag suitable for inline UI. Intentionally returns
+ *   null when no phase metadata exists so the caller omits the tag entirely.
+ */
+export function formatPhaseTag(fight, phaseNamesByEncounter) {
+  const phaseName = resolvePhaseName(fight, phaseNamesByEncounter);
+  if (!phaseName) {
+    return null;
+  }
+
+  const match = phaseName.match(/(P\d+)/i);
+  if (match) {
+    return match[1].toUpperCase();
+  }
+
+  const trimmed = phaseName.trim();
+  if (trimmed.length > 0) {
+    return trimmed.charAt(0).toUpperCase();
+  }
+
+  return null;
+}
+
+/**
  * Normalize a fight-scoped mutually exclusive mitigation map into a Map instance.
  *
  * @param {Map|string[][]|Object|null} mapLike - Map or plain object keyed by groupId.

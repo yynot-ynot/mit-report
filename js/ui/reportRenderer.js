@@ -12,6 +12,10 @@ import {
   renderCondensedTable,
   filterAndStyleCondensedTable,
 } from "./reportRendererCondensed.js";
+import {
+  resolvePhaseName,
+  formatPhaseTag,
+} from "./reportRendererUtils.js";
 
 setModuleLogLevel("ReportRenderer", envLogLevel("info", "warn"));
 const log = getLogger("ReportRenderer");
@@ -42,34 +46,9 @@ function getLastPhaseTooltip(fight, phaseNamesByEncounter) {
     return "Last phase unavailable";
   }
 
-  if (fight.lastPhaseName) {
-    return `Last phase: ${fight.lastPhaseName}`;
-  }
-
-  const phaseNames =
-    phaseNamesByEncounter instanceof Map
-      ? phaseNamesByEncounter.get(fight.encounterID)
-      : null;
-
-  if (Array.isArray(phaseNames) && phaseNames.length > 0) {
-    const idxFromLastPhase =
-      Number.isFinite(fight.lastPhase) && fight.lastPhase > 0
-        ? fight.lastPhase - 1
-        : null;
-    const idxFromAbsolute =
-      Number.isFinite(fight.lastPhaseAsAbsoluteIndex) &&
-      fight.lastPhaseAsAbsoluteIndex >= 0
-        ? fight.lastPhaseAsAbsoluteIndex
-        : null;
-
-    const resolvedIdx =
-      idxFromLastPhase != null && phaseNames[idxFromLastPhase]
-        ? idxFromLastPhase
-        : idxFromAbsolute;
-
-    if (resolvedIdx != null && phaseNames[resolvedIdx]) {
-      return `Last phase: ${phaseNames[resolvedIdx]}`;
-    }
+  const phaseName = resolvePhaseName(fight, phaseNamesByEncounter);
+  if (phaseName) {
+    return `Last phase: ${phaseName}`;
   }
 
   if (Number.isFinite(fight.lastPhase)) {
@@ -220,9 +199,12 @@ export function renderReport(outputEl, report, loadFightTable) {
 
       const bossPct = formatBossPercentage(f.bossPercentage);
       if (bossPct) {
+        // Append boss HP with the shorthand phase tag so users can correlate wipes quickly.
+        // formatPhaseTag returns null intentionally when no metadata exists; we leave the tag blank.
+        const phaseTag = formatPhaseTag(f, report.phaseNamesByEncounter);
         const percent = document.createElement("span");
         percent.className = "pull-percent";
-        percent.textContent = bossPct;
+        percent.textContent = phaseTag ? `${bossPct} ${phaseTag}` : bossPct;
         box.appendChild(percent);
       }
 

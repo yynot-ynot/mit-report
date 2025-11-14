@@ -17,6 +17,69 @@ setModuleLogLevel("ReportRenderer", envLogLevel("info", "warn"));
 const log = getLogger("ReportRenderer");
 
 /**
+ * Format a raw boss percentage value with a single decimal place.
+ *
+ * @param {number} value - Raw boss HP percentage from FFLogs.
+ * @returns {string|null} Formatted percentage or null when invalid.
+ */
+function formatBossPercentage(value) {
+  if (typeof value !== "number" || Number.isNaN(value)) {
+    return null;
+  }
+  const rounded = Math.round(value * 10) / 10;
+  return `${rounded.toFixed(1)}%`;
+}
+
+/**
+ * Produce the tooltip text describing the last phase reached for a fight.
+ *
+ * @param {Object} fight - Fight metadata record.
+ * @param {Map} phaseNamesByEncounter - Encounter → phase names lookup map.
+ * @returns {string} Tooltip-friendly phase description.
+ */
+function getLastPhaseTooltip(fight, phaseNamesByEncounter) {
+  if (!fight) {
+    return "Last phase unavailable";
+  }
+
+  if (fight.lastPhaseName) {
+    return `Last phase: ${fight.lastPhaseName}`;
+  }
+
+  const phaseNames =
+    phaseNamesByEncounter instanceof Map
+      ? phaseNamesByEncounter.get(fight.encounterID)
+      : null;
+
+  if (Array.isArray(phaseNames) && phaseNames.length > 0) {
+    const idxFromLastPhase =
+      Number.isFinite(fight.lastPhase) && fight.lastPhase > 0
+        ? fight.lastPhase - 1
+        : null;
+    const idxFromAbsolute =
+      Number.isFinite(fight.lastPhaseAsAbsoluteIndex) &&
+      fight.lastPhaseAsAbsoluteIndex >= 0
+        ? fight.lastPhaseAsAbsoluteIndex
+        : null;
+
+    const resolvedIdx =
+      idxFromLastPhase != null && phaseNames[idxFromLastPhase]
+        ? idxFromLastPhase
+        : idxFromAbsolute;
+
+    if (resolvedIdx != null && phaseNames[resolvedIdx]) {
+      return `Last phase: ${phaseNames[resolvedIdx]}`;
+    }
+  }
+
+  if (Number.isFinite(fight.lastPhase)) {
+    return `Last phase: Phase ${fight.lastPhase}`;
+  }
+
+  return "Last phase unavailable";
+}
+
+/**
  * Render the full report into the given container.
  *
  * Responsibilities:
@@ -145,9 +208,23 @@ export function renderReport(outputEl, report, loadFightTable) {
 
     pulls.forEach((f, idx) => {
       const box = document.createElement("div");
-      box.textContent = idx + 1;
       box.classList.add("pull-box");
       box.dataset.fightId = f.id;
+      box.title = getLastPhaseTooltip(f, report.phaseNamesByEncounter);
+
+      // Render the pull number and optional boss percentage on separate rows for clarity.
+      const pullLabel = document.createElement("span");
+      pullLabel.className = "pull-label";
+      pullLabel.textContent = idx + 1;
+      box.appendChild(pullLabel);
+
+      const bossPct = formatBossPercentage(f.bossPercentage);
+      if (bossPct) {
+        const percent = document.createElement("span");
+        percent.className = "pull-percent";
+        percent.textContent = bossPct;
+        box.appendChild(percent);
+      }
 
       box.addEventListener("click", async () => {
         document

@@ -19,6 +19,19 @@ import { populateMitigationAvailability } from "../analysis/castAnalysis.js";
 setModuleLogLevel("ReportParser", envLogLevel("info", "warn"));
 const log = getLogger("ReportParser");
 
+/**
+ * Normalize the raw report payload into lookup maps plus phase metadata.
+ *
+ * Responsibilities:
+ *   - Build actor/ability lookup tables for downstream enrichment.
+ *   - Preserve the raw fights array while annotating each fight with a
+ *     resolved `lastPhaseName`.
+ *   - Collect a `phaseNamesByEncounter` map so the UI can read friendly
+ *     phase labels without duplicating work.
+ *
+ * @param {Object} gqlData - GraphQL response from FFLogs.
+ * @returns {Object|null} Structured report context or null when missing.
+ */
 export function parseReport(gqlData) {
   const report = gqlData?.data?.reportData?.report;
   if (!report) {
@@ -26,7 +39,12 @@ export function parseReport(gqlData) {
     return null;
   }
 
-  const { fights, masterData, title } = report;
+  const {
+    fights = [],
+    masterData,
+    title,
+    phases: phaseGroups = [],
+  } = report;
   const actors = masterData?.actors || [];
   const abilities = masterData?.abilities || [];
 
@@ -39,11 +57,79 @@ export function parseReport(gqlData) {
     if (a?.name) actorByName.set(a.name, a);
   });
 
+  // Cache phase display names per-encounter so lookups are O(1) during rendering.
+  const phaseNamesByEncounter = new Map();
+  phaseGroups.forEach((group) => {
+    const encounterId = Number(group?.encounterID);
+    const phaseList = Array.isArray(group?.phases) ? group.phases : [];
+    if (!Number.isFinite(encounterId) || phaseList.length === 0) return;
+
+    const names = phaseList
+      .map((phase) => (typeof phase?.name === "string" ? phase.name : null))
+      .filter((name) => name);
+
+    if (names.length > 0) {
+      phaseNamesByEncounter.set(encounterId, names);
+    }
+  });
+
+  fights.forEach((fight) => {
+    const phaseNames = phaseNamesByEncounter.get(fight.encounterID);
+    fight.lastPhaseName = resolvePhaseNameForFight(fight, phaseNames);
+  });
+
   log.debug(
     `Parsed report "${title}" with ${fights.length} fights, ${actors.length} actors, ${abilities.length} abilities`
   );
 
-  return { title, fights, actorById, abilityById, actorByName };
+  return {
+    title,
+    fights,
+    actorById,
+    abilityById,
+    actorByName,
+    phaseNamesByEncounter,
+  };
+}
+
+/**
+ * Resolve the friendly phase name for a fight using any available indices.
+ *
+ * @param {Object} fight - Raw fight metadata (includes lastPhase fields).
+ * @param {string[]} phaseNames - Ordered list of names for the encounter.
+ * @returns {string|null} Friendly phase label or null when unknown.
+ */
+function resolvePhaseNameForFight(fight, phaseNames) {
+  if (!Array.isArray(phaseNames) || phaseNames.length === 0 || !fight) {
+    return null;
+  }
+
+  const hasValidIndex = (idx) =>
+    Number.isInteger(idx) && idx >= 0 && idx < phaseNames.length;
+
+  let phaseIdx = null;
+
+  // Prefer the per-encounter lastPhase field when it resolves cleanly.
+  if (Number.isFinite(fight.lastPhase) && fight.lastPhase > 0) {
+    const candidate = fight.lastPhase - 1;
+    if (hasValidIndex(candidate)) {
+      phaseIdx = candidate;
+    }
+  }
+
+  if (
+    phaseIdx === null &&
+    Number.isFinite(fight.lastPhaseAsAbsoluteIndex) &&
+    fight.lastPhaseAsAbsoluteIndex >= 0
+  ) {
+    // Fall back to the absolute index if the encounter-relative index was unusable.
+    const candidate = fight.lastPhaseAsAbsoluteIndex;
+    if (hasValidIndex(candidate)) {
+      phaseIdx = candidate;
+    }
+  }
+
+  return phaseIdx !== null ? phaseNames[phaseIdx] : null;
 }
 
 /**

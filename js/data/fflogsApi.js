@@ -41,13 +41,45 @@ export const EventDataType = Object.freeze({
   THREAT: "Threat",
 });
 
+/**
+ * Fetch high-level metadata for an FFLogs report.
+ *
+ * This function retrieves:
+ *  - Report title.
+ *  - Complete fight list with timing, core identifiers, and phase-related fields.
+ *  - Phase metadata (EncounterPhases → PhaseMetadata), which provides human-readable
+ *    phase names and phase types for each boss encounter contained in the report.
+ *  - Master data including actors and abilities used in the report.
+ *
+ * The returned structure supplies all non-event information needed for
+ * timeline analysis, wipe detection, phase labeling, actor lookup, and
+ * ability categorization.
+ *
+ * ⚠️ Notes:
+ * - This function intentionally gathers *all* fight-level metadata needed
+ *   for phase-aware analysis (e.g., lastPhase, bossPercentage, fightPercentage).
+ * - It does NOT return event data. For casts, buffs, deaths, etc., use
+ *   fetchFightCasts(), fetchFightBuffs(), fetchFightDamageTaken(), etc.
+ *
+ * @param {string} accessToken - OAuth2 bearer token for FFLogs GraphQL API.
+ * @param {string} reportCode - Unique report code to fetch metadata for.
+ * @returns {Promise<Object>} The structured GraphQL response.
+ */
 export async function fetchReport(accessToken, reportCode) {
   log.info("Fetching report metadata", reportCode);
 
+  // ---------------------------------------------------------------------------
+  // GraphQL query:
+  // - Fetches the list of fights with phase/wipe fields.
+  // - Fetches phase metadata (human-readable names, types).
+  // - Fetches master actor + ability tables.
+  // ---------------------------------------------------------------------------
   const query = `{
     reportData {
       report(code: "${reportCode}") {
+
         title
+
         fights {
           id
           encounterID
@@ -55,6 +87,16 @@ export async function fetchReport(accessToken, reportCode) {
           startTime
           endTime
           friendlyPlayers
+
+          # Phase-aware fields
+          lastPhase
+          lastPhaseAsAbsoluteIndex
+          lastPhaseIsIntermission
+
+          # Wipe/killing percentage information
+          bossPercentage
+          fightPercentage
+
           enemyNPCs {
             id
             gameID
@@ -63,6 +105,15 @@ export async function fetchReport(accessToken, reportCode) {
             petOwner
           }
         }
+
+        # Phase metadata for all observed encounters in this report
+        phases {
+          encounterID
+          phases {
+            name         # Human-readable name, e.g. "Umbra", "P2 Transition"
+          }
+        }
+
         masterData {
           actors {
             id
@@ -82,6 +133,9 @@ export async function fetchReport(accessToken, reportCode) {
     }
   }`;
 
+  // ---------------------------------------------------------------------------
+  // Execute GraphQL request with Bearer token.
+  // ---------------------------------------------------------------------------
   const gqlRes = await fetch("https://www.fflogs.com/api/v2/user", {
     method: "POST",
     headers: {
@@ -91,12 +145,15 @@ export async function fetchReport(accessToken, reportCode) {
     body: JSON.stringify({ query }),
   });
 
+  // Log errors from network failures or non-200 responses.
   if (!gqlRes.ok) {
     log.error("GraphQL fetch failed", gqlRes.status, gqlRes.statusText);
   }
 
+  // Parse and return the result.
   const data = await gqlRes.json();
   log.debug("GraphQL report response", data);
+
   return data;
 }
 

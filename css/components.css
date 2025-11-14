@@ -51,8 +51,13 @@
 }
 
 .pull-box {
-    height: 40px;
-    line-height: 40px;
+    min-height: 40px;
+    padding: 6px 8px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 2px;
     text-align: center;
     background: #f9f9f9;
     border: 1px solid #ccc;
@@ -62,8 +67,23 @@
     font-weight: 500;
 }
 
+.pull-label {
+    font-size: 0.95rem;
+    line-height: 1.1;
+}
+
+.pull-percent {
+    font-size: 0.8rem;
+    line-height: 1.1;
+    color: #6b7280;
+}
+
 .pull-box.active {
     background: #3b82f6;
     color: white;
     border-color: #2563eb;
+}
+
+.pull-box.active .pull-percent {
+    color: #e0f2ff;
 }

@@ -217,8 +217,8 @@ export function renderCondensedTable(fightState, report, section) {
         });
 
         if (pData.dead) {
-          td.style.color = "#6b7280";
-          td.style.backgroundColor = "#f3f4f6";
+          td.style.color = "#4b5563";
+          td.style.backgroundColor = "#e5e7eb";
         }
       }
 
@@ -876,8 +876,8 @@ export function insertChildEventRows(set, parentRow, fightState, report) {
 
       // Death coloring
       if (child.deaths && child.deaths.includes(actor.name)) {
-        td.style.color = "#6b7280";
-        td.style.backgroundColor = "#f3f4f6";
+        td.style.color = "#4b5563";
+        td.style.backgroundColor = "#e5e7eb";
         row.appendChild(td);
         return;
       }

@@ -282,6 +282,13 @@ export function parseFightDamageTaken(events, fight, actorById, abilityById) {
         typeToNames.get(ability.type).add(ability.name);
       }
 
+      const actualDamageTaken = ev.amount ?? 0;
+      const absorbed = ev.absorbed ?? 0;
+      const unmitigated = ev.unmitigatedAmount ?? actualDamageTaken;
+      const mitigated = unmitigated - actualDamageTaken - absorbed;
+      const mitigationUnknown =
+        !Number.isFinite(unmitigated) || unmitigated <= 0;
+
       const buffNames = translateBuffIdsToNames(ev.buffs, abilityById);
 
       const pairKey = buildDamagePairKey(ev);
@@ -293,13 +300,9 @@ export function parseFightDamageTaken(events, fight, actorById, abilityById) {
 
       const potentiallyBotchedBuffs = getPotentiallyBotchedBuffs(
         buffNames,
-        calculatedBuffNames
+        calculatedBuffNames,
+        { mitigationUnknown }
       );
-
-      const actualDamageTaken = ev.amount ?? 0;
-      const absorbed = ev.absorbed ?? 0;
-      const unmitigated = ev.unmitigatedAmount ?? actualDamageTaken;
-      const mitigated = unmitigated - actualDamageTaken - absorbed;
 
       // Determine the translated damage type label (physical | magical | unique | null)
       let damageType = null;

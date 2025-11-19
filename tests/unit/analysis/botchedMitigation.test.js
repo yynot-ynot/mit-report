@@ -64,6 +64,26 @@ test("deduplicates botched buff output", () => {
 
 /**
  * Objective:
+ *   When mitigation context is unknown (e.g., unmitigatedAmount === 0),
+ *   we cannot determine botched buffs and should return an empty list.
+ *
+ * Approach:
+ *   Pass the mitigationUnknown option flag and assert detection is skipped.
+ */
+test("skips botched detection when mitigation is unknown", () => {
+  const damageBuffs = ["Kerachole", "Addle"];
+  const calculatedBuffs = [];
+
+  assert.deepEqual(
+    getPotentiallyBotchedBuffs(damageBuffs, calculatedBuffs, {
+      mitigationUnknown: true,
+    }),
+    []
+  );
+});
+
+/**
+ * Objective:
  *   Gracefully handle empty or falsy inputs by returning an empty list.
  *
  * Approach:

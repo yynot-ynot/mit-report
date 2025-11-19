@@ -494,12 +494,17 @@ export class BuffAnalysis {
  *
  * @param {string[]} damageBuffs - Buff names parsed from the `damage` packet.
  * @param {string[]} calculatedBuffs - Buff names parsed from the paired `calculateddamage` packet.
+ * @param {Object} [options] - Optional flags.
+ * @param {boolean} [options.mitigationUnknown=false] - If true, skip botched detection entirely
+ *   because we cannot tell whether mitigation succeeded (e.g., unmitigatedAmount === 0).
  * @returns {string[]} Buff names that should be considered potentially botched.
  */
 export function getPotentiallyBotchedBuffs(
   damageBuffs = [],
-  calculatedBuffs = []
+  calculatedBuffs = [],
+  options = {}
 ) {
+  if (options.mitigationUnknown) return [];
   if (!Array.isArray(damageBuffs) || damageBuffs.length === 0) return [];
 
   const calcSet = new Set(

@@ -163,9 +163,11 @@
  *       mitigationPct: number,
  *       intendedMitPct: number,
  *       dead: boolean,
- *       wasTargeted: boolean
+ *       wasTargeted: boolean,
+ *       botchedBuffs: string[]
  *     }>,
  *     availableMitigationsByPlayer: Record<string, string[]>,
+ *     botchedBuffsByPlayer: Record<string, string[]>,
  *     children: Array<Object>
  *   }>
  * }}
@@ -300,6 +302,14 @@ function buildCondensedGroup(group) {
             players[applier] = createEmptyPlayerAggregate();
           }
           players[applier].buffs.add(buffName);
+
+          // Track botched buffs for renderers (strikeout)
+          if (
+            Array.isArray(row.potentiallyBotchedBuffs) &&
+            row.potentiallyBotchedBuffs.includes(buffName)
+          ) {
+            players[applier].botchedBuffs.add(buffName);
+          }
         }
       }
     }
@@ -347,12 +357,17 @@ function buildCondensedGroup(group) {
       availableMitigations: availableMitArray,
       dead: p.dead,
       wasTargeted: p.wasTargeted, // ✅ exported for analysis/visuals
+      botchedBuffs: Array.from(p.botchedBuffs).sort(),
     };
   }
 
   const availableMitigationsByPlayer = {};
+  const botchedBuffsByPlayer = {};
   mitigationUnion.forEach((set, name) => {
     availableMitigationsByPlayer[name] = Array.from(set);
+  });
+  Object.entries(finalizedPlayers).forEach(([name, player]) => {
+    botchedBuffsByPlayer[name] = player.botchedBuffs;
   });
 
   return {
@@ -362,6 +377,7 @@ function buildCondensedGroup(group) {
     children: rows,
     damageType: rows[0]?.damageType ?? null,
     availableMitigationsByPlayer,
+    botchedBuffsByPlayer,
   };
 }
 
@@ -377,7 +393,8 @@ function buildCondensedGroup(group) {
  *   intendedMitPctValues: number[],
  *   availableMitigations: Set<string>,
  *   dead: boolean,
- *   wasTargeted: boolean
+ *   wasTargeted: boolean,
+ *   botchedBuffs: Set<string>
  * }} Fresh aggregate container used by `buildCondensedGroup`.
  */
 function createEmptyPlayerAggregate() {
@@ -391,5 +408,6 @@ function createEmptyPlayerAggregate() {
     availableMitigations: new Set(),
     dead: false,
     wasTargeted: false,
+    botchedBuffs: new Set(),
   };
 }

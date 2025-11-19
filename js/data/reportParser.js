@@ -13,6 +13,7 @@ import { IGNORED_BUFFS } from "../config/ignoredEntities.js";
 import {
   assignLastKnownBuffSource,
   calculateTotalMitigation,
+  getPotentiallyBotchedBuffs,
 } from "../analysis/buffAnalysis.js";
 import { populateMitigationAvailability } from "../analysis/castAnalysis.js";
 
@@ -39,12 +40,7 @@ export function parseReport(gqlData) {
     return null;
   }
 
-  const {
-    fights = [],
-    masterData,
-    title,
-    phases: phaseGroups = [],
-  } = report;
+  const { fights = [], masterData, title, phases: phaseGroups = [] } = report;
   const actors = masterData?.actors || [];
   const abilities = masterData?.abilities || [];
 
@@ -202,6 +198,13 @@ export function parseBuffEvents(events, fight, actorById, abilityById) {
  *   - `mitigationPct`: percentage of damage prevented,
  *       calculated as `(1 - amount / unmitigatedAmount) * 100`, rounded.
  *
+ * Damage vs calculated damage pairing:
+ *   - Each `damage` packet from FFLogs has a corresponding `calculateddamage`
+ *     packet (sharing the same packet ID).
+ *   - We continue to emit one normalized row per `damage` packet to avoid
+ *     breaking downstream consumers, but we now compare it with the paired
+ *     `calculateddamage` entry to surface potentially botched buffs.
+ *
  * Returned objects include:
  *   - rawTimestamp: original event timestamp
  *   - relative: timestamp offset from fight start
@@ -213,6 +216,8 @@ export function parseBuffEvents(events, fight, actorById, abilityById) {
  *   - mitigated: raw absorbed/mitigated value
  *   - mitigationPct: percentage mitigated (0–100)
  *   - buffs: array of buff names active on the target during this event
+ *   - potentiallyBotchedBuffs: buffs missing from the paired
+ *       `calculateddamage` packet (possible botched mitigations)
  *
  * @param {Array} events - Raw damage events from FFLogs
  * @param {Object} fight - Fight object containing startTime/id
@@ -237,7 +242,31 @@ export function parseFightDamageTaken(events, fight, actorById, abilityById) {
     1024: "magical", // Regular magical
   };
 
-  const parsed = events
+  const calculatedByKey = new Map();
+  const damageEvents = [];
+
+  events.forEach((ev) => {
+    if (!ev || typeof ev.type !== "string") return;
+    if (ev.type === "calculateddamage") {
+      const key = buildDamagePairKey(ev);
+      if (!key) return;
+      if (!calculatedByKey.has(key)) {
+        calculatedByKey.set(key, []);
+      }
+      calculatedByKey.get(key).push(ev);
+    } else if (ev.type === "damage") {
+      damageEvents.push(ev);
+    }
+  });
+
+  if (damageEvents.length === 0) {
+    log.warn(
+      `Fight ${fight.id}: no \`damage\` packets found (received ${events.length} total events)`
+    );
+    return [];
+  }
+
+  const parsed = damageEvents
     .map((ev) => {
       const actor = actorById.get(ev.targetID); // target hit
       const source = actorById.get(ev.sourceID); // attacker
@@ -253,24 +282,24 @@ export function parseFightDamageTaken(events, fight, actorById, abilityById) {
         typeToNames.get(ability.type).add(ability.name);
       }
 
-      // Parse buffs if present (string of ability IDs separated by ".")
-      let buffNames = [];
-      if (ev.buffs) {
-        buffNames = ev.buffs
-          .split(".")
-          .filter((id) => id.length > 0)
-          .map((id) => {
-            const buffAbility = abilityById.get(Number(id));
-            return buffAbility ? buffAbility.name : `Unknown(${id})`;
-          })
-          // 🚫 Drop globally ignored buffs
-          .filter((name) => !IGNORED_BUFFS.has(name));
-      }
+      const buffNames = translateBuffIdsToNames(ev.buffs, abilityById);
 
-      const amount = ev.amount ?? 0;
+      const pairKey = buildDamagePairKey(ev);
+      const calculatedEvent = consumeCalculatedEvent(calculatedByKey, pairKey);
+      const calculatedBuffNames = translateBuffIdsToNames(
+        calculatedEvent?.buffs ?? null,
+        abilityById
+      );
+
+      const potentiallyBotchedBuffs = getPotentiallyBotchedBuffs(
+        buffNames,
+        calculatedBuffNames
+      );
+
+      const actualDamageTaken = ev.amount ?? 0;
       const absorbed = ev.absorbed ?? 0;
-      const unmitigated = ev.unmitigatedAmount ?? amount;
-      const mitigated = unmitigated - amount - absorbed;
+      const unmitigated = ev.unmitigatedAmount ?? actualDamageTaken;
+      const mitigated = unmitigated - actualDamageTaken - absorbed;
 
       // Determine the translated damage type label (physical | magical | unique | null)
       let damageType = null;
@@ -303,8 +332,9 @@ export function parseFightDamageTaken(events, fight, actorById, abilityById) {
         relative: ev.timestamp - fight.startTime,
         actor: actor ? actor.name : `Unknown(${ev.targetID})`,
         source: source ? source.name : `Unknown(${ev.sourceID})`,
+        targetID: ev.targetID ?? null,
         ability: ability ? ability.name : "Unknown Damage",
-        amount,
+        amount: actualDamageTaken,
         absorbed,
         unmitigatedAmount: unmitigated,
         mitigated,
@@ -312,6 +342,7 @@ export function parseFightDamageTaken(events, fight, actorById, abilityById) {
         intendedMitPct, // theoretical % from buffs
         damageType,
         buffs: buffNames, // include parsed buffs
+        potentiallyBotchedBuffs,
       };
     })
     .filter(Boolean);
@@ -330,6 +361,64 @@ export function parseFightDamageTaken(events, fight, actorById, abilityById) {
   });
   log.debug(`Fight ${fight.id}: parsed ${parsed.length} damage taken events`);
   return parsed;
+}
+
+/**
+ * Convert the raw `buffs` field from FFLogs (delimited ability IDs) into
+ * translated buff names, skipping globally ignored entries.
+ *
+ * @param {string|null|undefined} buffField
+ * @param {Map<number, Object>} abilityById
+ * @returns {string[]}
+ */
+function translateBuffIdsToNames(buffField, abilityById) {
+  if (!buffField || typeof buffField !== "string") return [];
+  return buffField
+    .split(".")
+    .filter((id) => id.length > 0)
+    .map((id) => {
+      const buffAbility = abilityById.get(Number(id));
+      return buffAbility ? buffAbility.name : `Unknown(${id})`;
+    })
+    .filter((name) => !IGNORED_BUFFS.has(name));
+}
+
+/**
+ * Build a stable pairing key used to associate damage and calculateddamage packets.
+ *
+ * Prefers packetID when available, otherwise falls back to a composite key
+ * using ability/source/target IDs to maintain ordering.
+ *
+ * @param {Object} ev
+ * @returns {string|null}
+ */
+function buildDamagePairKey(ev) {
+  if (!ev) return null;
+  if (ev.packetID !== undefined && ev.packetID !== null) {
+    return `pid:${ev.packetID}`;
+  }
+  const abilityId = ev.abilityGameID ?? "ability";
+  const sourceId = ev.sourceID ?? "source";
+  const targetId = ev.targetID ?? "target";
+  return `fallback:${abilityId}|${sourceId}|${targetId}`;
+}
+
+/**
+ * Retrieve and remove the next calculateddamage event for a given key.
+ *
+ * @param {Map<string, Array>} calculatedByKey
+ * @param {string|null} key
+ * @returns {Object|null}
+ */
+function consumeCalculatedEvent(calculatedByKey, key) {
+  if (!key) return null;
+  const queue = calculatedByKey.get(key);
+  if (!queue || queue.length === 0) return null;
+  const next = queue.shift();
+  if (queue.length === 0) {
+    calculatedByKey.delete(key);
+  }
+  return next || null;
 }
 
 /**
@@ -648,6 +737,7 @@ function applyDeathsToAttacks(
  *         mitigated: number,         // total damage prevented (unmitigated - amount)
  *         mitigationPct: number,     // actual % mitigated from combat data (derived from damage)
  *         intendedMitPct: number,    // theoretical % mitigated based on buffs + context (predicted)
+ *         potentiallyBotchedBuffs: string[], // buffs present on damage packet but missing on calculateddamage
  *
  *         // --- Status effects ---
  *         buffs: {                   // buffs active on the target at this time
@@ -751,6 +841,7 @@ export function buildFightTable(
       mitigationPct: ev.mitigationPct,
       intendedMitPct: ev.intendedMitPct, // theoretical % from buffs
       damageType: ev.damageType,
+      potentiallyBotchedBuffs: ev.potentiallyBotchedBuffs || [],
       buffs: {},
       vulns: {}, // active vulnerabilities (per-target, no sources)
       deaths: [], // all players dead at this timestamp

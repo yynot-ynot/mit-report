@@ -143,9 +143,7 @@ function buildExclusiveMapCacheKey(exclusiveMap) {
   }
 
   return Array.from(exclusiveMap.entries())
-    .map(
-      ([groupId, selection]) => `${groupId}:${selection?.abilityName || ""}`
-    )
+    .map(([groupId, selection]) => `${groupId}:${selection?.abilityName || ""}`)
     .sort()
     .join(",");
 }
@@ -399,25 +397,47 @@ export function renderBuffCell({
   actorSubType,
   buffAnalysis,
   filterState,
+  botchedBuffs = [],
+  botchedActive = false,
 }) {
   if (!buffs || buffs.length === 0) return "";
+
+  const showBotched = !!botchedActive && !!filterState?.showBotchedMitigations;
 
   // Optionally resolve raw buffs → ability names
   const displayBuffs = filterState?.showAbilitiesOnly
     ? buffAnalysis.resolveBuffsToAbilities(buffs)
     : buffs;
 
+  const botchedSet = new Set(
+    (botchedBuffs || []).map((name) => name.toLowerCase())
+  );
+
   // Map buffs to styled HTML spans
   return displayBuffs
-    .map((buff) => {
+    .map((buff, idx) => {
       const isVuln = buffAnalysis.isVulnerability(buff);
       const isJobBuff = buffAnalysis.isJobAbility(buff, actorSubType);
+      const sourceBuffName = buffs[idx] ?? buff;
+      const isBotched =
+        showBotched && botchedSet.has(sourceBuffName.toLowerCase());
 
       let color = "#000";
       if (isVuln) color = "#b91c1c";
       else if (!isJobBuff) color = "#228B22";
 
-      return `<div><span style="color:${color}">${buff}</span></div>`;
+      if (isBotched) {
+        color = "#6b7280"; // subdued gray
+      }
+
+      const styles = [`color:${color}`];
+      if (isBotched) {
+        styles.push("text-decoration: line-through");
+        styles.push("text-decoration-color: #374151");
+        styles.push("text-decoration-thickness: 2px");
+      }
+
+      return `<div><span style="${styles.join(";")}">${buff}</span></div>`;
     })
     .join("");
 }
@@ -897,10 +917,7 @@ export async function buildMitigationIconRow(
   }
 
   const iconOptions = {
-    fightId:
-      fightTable?.fightId ??
-      report?.fightTable?.fightId ??
-      null,
+    fightId: fightTable?.fightId ?? report?.fightTable?.fightId ?? null,
     exclusiveAbilityMap:
       fightTable?.mutuallyExclusiveMitigationMap ??
       report?.fightTable?.mutuallyExclusiveMitigationMap ??

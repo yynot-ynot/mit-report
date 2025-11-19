@@ -158,3 +158,134 @@ test(
     );
   }
 );
+
+/**
+ * Objective:
+ *   Verify botched buffs are propagated to both per-player aggregates and the
+ *   condensed set-level map (`botchedBuffsByPlayer`).
+ *
+ * Approach:
+ *   1. Build two rows for the same ability.
+ *      - Row 1: buff applied by Healer, tagged as potentially botched.
+ *      - Row 2: different buff applied by Tank, not botched.
+ *   2. Run `generateCondensedPullTable()`.
+ *   3. Assert:
+ *      - Healer’s `botchedBuffs` contains the botched entry.
+ *      - Tank’s `botchedBuffs` is empty.
+ *      - Condensed set exposes `botchedBuffsByPlayer` with the same mapping.
+ */
+test("generateCondensedPullTable surfaces botched buff attribution", (t) => {
+  const fightTable = {
+    fightId: 3,
+    encounterId: 999,
+    name: "Botched Buff Check",
+    rows: [
+      {
+        timestamp: 1000,
+        ability: "Shadow Burst",
+        actor: "Main Tank",
+        amount: 5000,
+        unmitigatedAmount: 10000,
+        mitigationPct: 50,
+        intendedMitPct: 60,
+        buffs: {
+          "Kerachole": ["Helpful Sage"],
+        },
+        potentiallyBotchedBuffs: ["Kerachole"],
+      },
+      {
+        timestamp: 1800,
+        ability: "Shadow Burst",
+        actor: "Main Tank",
+        amount: 4800,
+        unmitigatedAmount: 9800,
+        mitigationPct: 51,
+        intendedMitPct: 61,
+        buffs: {
+          "Rampart": ["Main Tank"],
+        },
+        potentiallyBotchedBuffs: [], // not botched
+      },
+    ],
+  };
+
+  const result = generateCondensedPullTable(fightTable);
+  assert.equal(result.condensedSets.length, 1, "rows should condense into one set");
+  const set = result.condensedSets[0];
+
+  // Per-player aggregates
+  const tank = set.players["Main Tank"];
+  const healer = set.players["Helpful Sage"];
+  assert.ok(tank, "tank should be present");
+  assert.ok(healer, "healer should be present");
+  assert.deepEqual(
+    healer.botchedBuffs,
+    ["Kerachole"],
+    "healer should list botched buff they applied"
+  );
+  assert.deepEqual(
+    tank.botchedBuffs,
+    [],
+    "tank should not list botched buffs when none flagged"
+  );
+
+  // Set-level map mirrors per-player data
+  assert.deepEqual(
+    set.botchedBuffsByPlayer["Helpful Sage"],
+    ["Kerachole"],
+    "set-level botched map should carry healer’s botched buff"
+  );
+  assert.deepEqual(
+    set.botchedBuffsByPlayer["Main Tank"],
+    [],
+    "set-level botched map should give tank an empty list"
+  );
+});
+
+/**
+ * Objective:
+ *   Ensure condensed grouping initializes botched buff maps even when no
+ *   botched buffs are present.
+ *
+ * Approach:
+ *   1. Build a single row with a standard buff and no `potentiallyBotchedBuffs`.
+ *   2. Run `generateCondensedPullTable()`.
+ *   3. Assert `botchedBuffsByPlayer` exists and provides empty arrays
+ *      for all participants.
+ */
+test("generateCondensedPullTable supplies empty botched maps when none found", (t) => {
+  const fightTable = {
+    fightId: 4,
+    encounterId: 1000,
+    name: "No Botched Buffs",
+    rows: [
+      {
+        timestamp: 2000,
+        ability: "Gentle Breeze",
+        actor: "Target DPS",
+        amount: 7000,
+        unmitigatedAmount: 9000,
+        mitigationPct: 22,
+        intendedMitPct: 25,
+        buffs: {
+          "Rampart": ["Target DPS"],
+        },
+        potentiallyBotchedBuffs: [],
+      },
+    ],
+  };
+
+  const result = generateCondensedPullTable(fightTable);
+  assert.equal(result.condensedSets.length, 1, "one condensed set expected");
+  const set = result.condensedSets[0];
+
+  assert.deepEqual(
+    set.botchedBuffsByPlayer["Target DPS"],
+    [],
+    "botched map should exist with empty array for participant"
+  );
+  assert.ok(
+    Array.isArray(set.botchedBuffsByPlayer["Target DPS"]),
+    "botched map entry should be an array"
+  );
+});

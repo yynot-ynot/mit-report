@@ -27,6 +27,7 @@ import {
   buildMitigationIconRow,
   renderAvailableMitigationIcons,
 } from "./reportRendererUtils.js";
+import { shouldStrikeBotchedMitigation } from "../analysis/buffAnalysis.js";
 
 setModuleLogLevel("ReportRendererCondensed", envLogLevel("debug", "warn"));
 const log = getLogger("ReportRendererCondensed");
@@ -214,6 +215,8 @@ export function renderCondensedTable(fightState, report, section) {
           actorSubType: casterJob,
           buffAnalysis: fightState.buffAnalysis,
           filterState,
+          botchedBuffs: pData.botchedBuffs || [],
+          botchedActive: shouldStrikeBotchedMitigation(pData, filterState),
         });
 
         if (pData.dead) {
@@ -455,6 +458,8 @@ export function filterAndStyleCondensedTable(fightState, report) {
         actorSubType: casterJob, // 🆕 true caster job
         buffAnalysis: fightState.buffAnalysis,
         filterState,
+        botchedBuffs: playerEntry?.botchedBuffs || [],
+        botchedActive: shouldStrikeBotchedMitigation(playerEntry || {}, filterState),
       });
 
       const repaintAvailableMit =
@@ -735,6 +740,11 @@ export function updateMiniChildTable(condensedSet, fightState, report, target) {
         actorSubType: casterJob,
         buffAnalysis,
         filterState,
+        botchedBuffs:
+          event?.potentiallyBotchedBuffs ||
+          condensedSet.players?.[actor.name]?.botchedBuffs ||
+          [],
+        botchedActive: shouldStrikeBotchedMitigation(event || {}, filterState),
       });
     });
 
@@ -914,6 +924,8 @@ export function insertChildEventRows(set, parentRow, fightState, report) {
         actorSubType: casterJob, // true caster job
         buffAnalysis,
         filterState,
+        botchedBuffs: child.potentiallyBotchedBuffs || [],
+        botchedActive: shouldStrikeBotchedMitigation(child, filterState),
       });
 
       // Target highlight

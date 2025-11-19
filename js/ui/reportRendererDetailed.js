@@ -22,6 +22,7 @@ import {
   getDamageTypeIconHTML,
   logCrossJobBuffAnomalies,
 } from "./reportRendererUtils.js";
+import { shouldStrikeBotchedMitigation } from "../analysis/buffAnalysis.js";
 import {
   getLogger,
   setModuleLogLevel,
@@ -239,11 +240,14 @@ export function renderDetailedTable(fightState, report, section) {
         logger: log,
       });
 
+      const botchedActive = shouldStrikeBotchedMitigation(event, filterState);
       td.innerHTML = renderBuffCell({
         buffs: rawBuffs,
         actorSubType: casterJob,
         buffAnalysis,
         filterState,
+        botchedBuffs: event.potentiallyBotchedBuffs || [],
+        botchedActive,
       });
 
       if (showAvailableMit) {
@@ -349,6 +353,11 @@ export function filterAndStyleDetailedTable(fightState, report) {
   const table = tableEl;
   if (!table) return;
 
+  const exclusiveMitOptions = {
+    fightId: fightTable?.fightId ?? null,
+    exclusiveAbilityMap: fightTable?.mutuallyExclusiveMitigationMap ?? null,
+  };
+
   const tbody = table.querySelector("tbody");
   if (!tbody) return;
 
@@ -439,11 +448,14 @@ export function filterAndStyleDetailedTable(fightState, report) {
       });
 
       // --- Step 1: Repaint Buff Cell (base content) ---
+      const botchedActive = shouldStrikeBotchedMitigation(event, filterState);
       td.innerHTML = renderBuffCell({
         buffs: rawBuffs,
         actorSubType: casterJob,
         buffAnalysis,
         filterState,
+        botchedBuffs: event.potentiallyBotchedBuffs || [],
+        botchedActive,
       });
 
       // --- Step 2: Reapply Mitigation Availability Layer ---

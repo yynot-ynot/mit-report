@@ -325,9 +325,9 @@ export async function fetchFightCasts(accessToken, reportCode, fight) {
 /**
  * Fetch damage taken events for a fight.
  *
- * Queries the FFLogs API for all `DamageTaken` events and filters to
- * only include `damage`-type events (ignoring absorbed, mitigated, or
- * non-damage subtypes).
+ * Queries the FFLogs API for all `DamageTaken` events. The response now
+ * intentionally includes both `damage` and `calculateddamage` entries so
+ * downstream parsers can compare the paired packets.
  *
  * @param {string} accessToken - OAuth2 access token for the FFLogs API.
  * @param {string} reportCode - Unique FFLogs report code.
@@ -342,7 +342,7 @@ export async function fetchFightDamageTaken(accessToken, reportCode, fight) {
     EventDataType.DAMAGE_TAKEN,
     { includeResources: true }
   );
-  return events.filter((ev) => ev.type === "damage");
+  return events;
 }
 
 /**

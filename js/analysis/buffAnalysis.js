@@ -477,6 +477,81 @@ export class BuffAnalysis {
 }
 
 /**
+ * getPotentiallyBotchedBuffs()
+ * --------------------------------------------------------------
+ * Determine which buffs are “potentially botched” by comparing the
+ * buff list on a final `damage` packet to the buff list on its paired
+ * `calculateddamage` packet.
+ *
+ * A buff is flagged as potentially botched when it appears on the `damage`
+ * packet but is missing from the `calculateddamage` packet.
+ *
+ * Behavior:
+ *   - Case-insensitive comparison.
+ *   - Preserves the original casing from the damage packet in the output.
+ *   - Deduplicates results to avoid double-listing the same buff.
+ *   - Ignores non-string entries safely.
+ *
+ * @param {string[]} damageBuffs - Buff names parsed from the `damage` packet.
+ * @param {string[]} calculatedBuffs - Buff names parsed from the paired `calculateddamage` packet.
+ * @returns {string[]} Buff names that should be considered potentially botched.
+ */
+export function getPotentiallyBotchedBuffs(
+  damageBuffs = [],
+  calculatedBuffs = []
+) {
+  if (!Array.isArray(damageBuffs) || damageBuffs.length === 0) return [];
+
+  const calcSet = new Set(
+    (Array.isArray(calculatedBuffs) ? calculatedBuffs : []).map((name) =>
+      typeof name === "string" ? name.toLowerCase() : ""
+    )
+  );
+
+  const seen = new Set();
+  const result = [];
+
+  for (const buff of damageBuffs) {
+    if (typeof buff !== "string") continue;
+
+    const key = buff.toLowerCase();
+    if (seen.has(key)) continue; // prevent duplicates
+    seen.add(key);
+
+    if (!calcSet.has(key)) {
+      result.push(buff);
+    }
+  }
+
+  return result;
+}
+
+/**
+ * shouldStrikeBotchedMitigation()
+ * --------------------------------------------------------------
+ * Decide whether botched-mitigation styling should be applied based on
+ * mitigation percentages and the UI toggle.
+ *
+ * A row qualifies when:
+ *   1) The “Show Botched Mitigations” filter is enabled, and
+ *   2) intendedMitPct > mitigationPct (actual).
+ *
+ * @param {Object} data - Source of mitigation numbers.
+ * @param {number} data.mitigationPct - Actual mitigation percent.
+ * @param {number} data.intendedMitPct - Intended mitigation percent.
+ * @param {Object} filterState - Global filter state (expects showBotchedMitigations).
+ * @returns {boolean} true if botched styling should be shown.
+ */
+export function shouldStrikeBotchedMitigation(data = {}, filterState) {
+  if (!filterState?.showBotchedMitigations) return false;
+  const { mitigationPct, intendedMitPct } = data;
+  if (typeof mitigationPct !== "number" || typeof intendedMitPct !== "number") {
+    return false;
+  }
+  return intendedMitPct > mitigationPct;
+}
+
+/**
  * Purpose:
  *   When a buff is listed on a damage event but no active status
  *   window matches at that timestamp, this function looks back

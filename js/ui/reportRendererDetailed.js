@@ -166,7 +166,13 @@ export function renderDetailedTable(fightState, report, section) {
   table.appendChild(thead);
 
   if (showAvailableMit) {
-    buildMitigationIconRow(sortedActors, report, 3, fightTable).then((mitRow) => {
+    buildMitigationIconRow(
+      sortedActors,
+      report,
+      3,
+      fightTable,
+      fightState.mitigationCastLookup
+    ).then((mitRow) => {
       thead.appendChild(mitRow);
     });
   }

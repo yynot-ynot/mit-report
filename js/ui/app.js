@@ -23,7 +23,10 @@ import {
   buildFightTable,
 } from "../data/reportParser.js";
 import { generateCondensedPullTable } from "../analysis/pullAnalysis.js";
-import { insertAutoAttacksIntoCasts } from "../analysis/castAnalysis.js";
+import {
+  insertAutoAttacksIntoCasts,
+  buildMitigationCastLookup,
+} from "../analysis/castAnalysis.js";
 import { renderReport } from "./reportRenderer.js";
 import { initializeAuth, ensureLogin } from "./authManager.js";
 import { FightState } from "./fightState.js";
@@ -346,17 +349,37 @@ document.addEventListener("DOMContentLoaded", async () => {
         const fightState = new FightState(null);
 
         profiler.start("Build FightTable");
-        const fightTable = buildFightTable(
-          parsedDamageTaken,
-          parsedBuffs,
-          parsedVulnerabilities,
-          parsedDeaths,
-          mergedCasts,
-          pull,
-          report.actorById,
-          fightState.buffAnalysis
-        );
-        profiler.stop("Build FightTable", "Processing", `Pull ${pull.id}`);
+        const fightTablePromise = Promise.resolve().then(() => {
+          const table = buildFightTable(
+            parsedDamageTaken,
+            parsedBuffs,
+            parsedVulnerabilities,
+            parsedDeaths,
+            mergedCasts,
+            pull,
+            report.actorById,
+            fightState.buffAnalysis
+          );
+          profiler.stop("Build FightTable", "Processing", `Pull ${pull.id}`);
+          return table;
+        });
+
+        profiler.start("Build Mitigation Cast Lookup");
+        const mitigationCastPromise = Promise.resolve().then(() => {
+          const lookup = buildMitigationCastLookup(mergedCasts);
+          profiler.stop(
+            "Build Mitigation Cast Lookup",
+            "Processing",
+            `Pull ${pull.id}`
+          );
+          return lookup;
+        });
+
+        const [fightTable, mitigationCastLookup] = await Promise.all([
+          fightTablePromise,
+          mitigationCastPromise,
+        ]);
+
         log.info(`Pull ${pull.id}: built FightTable`, fightTable);
 
         // Build condensed pull analysis
@@ -364,6 +387,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         fightState.fightTable = fightTable;
         fightState.condensedPull = condensedPull;
         fightState.parsedCasts = mergedCasts;
+        fightState.mitigationCastLookup = mitigationCastLookup;
 
         fightTableCache.set(pull.id, fightState);
         log.info(`Pull ${pull.id}: built condensed PullTable`, condensedPull);

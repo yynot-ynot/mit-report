@@ -32,6 +32,12 @@ export class FightState {
     /** @type {FilterState} UI filter state for this fight */
     this.filters = new FilterState();
 
+    /** @type {Array<Object>} Cached parsed cast timeline */
+    this.parsedCasts = [];
+
+    /** @type {Map<string, Map<string, number[]>>} Mitigation cast lookup */
+    this.mitigationCastLookup = new Map();
+
     /** @type {HTMLTableElement|null} Reference to the fight’s rendered table */
     this.tableEl = null;
   }

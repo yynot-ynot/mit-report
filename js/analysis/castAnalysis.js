@@ -113,6 +113,72 @@ export function insertAutoAttacksIntoCasts(parsedDamageDone, parsedCasts) {
 }
 
 /**
+ * buildMitigationCastLookup()
+ * --------------------------------------------------------------
+ * Creates a nested Map describing, for each player, the timestamps of
+ * their mitigation ability casts. The lookup is keyed by the player's
+ * display name, then by the normalized mitigation ability name, and
+ * stores the relative timestamp (in ms) for each cast.
+ *
+ * This data powers UI affordances like mitigation header tooltips without
+ * forcing the rendering layer to repeatedly scan the full cast timeline.
+ *
+ * @param {Array<Object>} parsedCasts - Flattened cast timeline for the fight.
+ * @returns {Map<string, Map<string, number[]>>} Nested lookup map.
+ */
+export function buildMitigationCastLookup(parsedCasts = []) {
+  const lookup = new Map();
+  if (!Array.isArray(parsedCasts) || parsedCasts.length === 0) {
+    return lookup;
+  }
+
+  for (const cast of parsedCasts) {
+    const source = cast?.source;
+    const abilityName = cast?.ability;
+    if (!source || !abilityName) {
+      continue;
+    }
+
+    const normalizedAbility = normalizeAbilityName(abilityName);
+    if (!normalizedAbility) {
+      continue;
+    }
+
+    const relativeTime = Number.isFinite(cast?.relative)
+      ? cast.relative
+      : Number.isFinite(cast?.rawTimestamp)
+      ? cast.rawTimestamp
+      : null;
+    if (relativeTime == null) {
+      continue;
+    }
+
+    if (!lookup.has(source)) {
+      lookup.set(source, new Map());
+    }
+
+    const abilityMap = lookup.get(source);
+    if (!abilityMap.has(normalizedAbility)) {
+      abilityMap.set(normalizedAbility, []);
+    }
+
+    abilityMap.get(normalizedAbility).push(relativeTime);
+  }
+
+  lookup.forEach((abilityMap) => {
+    abilityMap.forEach((times, abilityKey) => {
+      if (Array.isArray(times)) {
+        times.sort((a, b) => a - b);
+      } else {
+        abilityMap.set(abilityKey, []);
+      }
+    });
+  });
+
+  return lookup;
+}
+
+/**
  * CastCooldownTracker manages cooldown periods for a single ability belonging to a player.
  *
  * Primary use case:

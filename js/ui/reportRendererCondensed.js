@@ -145,7 +145,13 @@ export function renderCondensedTable(fightState, report, section) {
 
   // Insert mitigation icon row directly below header (if enabled)
   if (showAvailableMit) {
-    buildMitigationIconRow(sortedActors, report, 2, fightState.fightTable).then((mitigationRow) => {
+    buildMitigationIconRow(
+      sortedActors,
+      report,
+      2,
+      fightState.fightTable,
+      fightState.mitigationCastLookup
+    ).then((mitigationRow) => {
       thead.appendChild(mitigationRow);
     });
   }

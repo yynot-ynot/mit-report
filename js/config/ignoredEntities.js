@@ -5,6 +5,7 @@
  * Add any new buffs that should not be credited (food, vulnerability markers, etc).
  */
 export const IGNORED_BUFFS = new Set([
+  "Medicated",
   "Well Fed",
   "Well-Done, Steak",
   "Physical Vulnerability Up",

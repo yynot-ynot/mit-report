@@ -5,6 +5,7 @@ import * as CooldownHandlers from "../../../js/analysis/customCooldownHandlers.j
 import {
   populateMitigationAvailability,
   buildCooldownTrackers,
+  buildMitigationCastLookup,
 } from "../../../js/analysis/castAnalysis.js";
 import {
   getMitigationAbilityNames,
@@ -88,6 +89,72 @@ test("populateMitigationAvailability subtracts cooldowns regardless of ability c
   assert(
     secondRow.includes("Intervention"),
     "Intervention should return to the available list once its cooldown ends"
+  );
+});
+
+/**
+ * ✅ Test: buildMitigationCastLookup aggregates and sanitizes mitigation casts
+ * ---------------------------------------------------------------------------
+ * What it verifies:
+ *   • Players only receive entries when both source + ability names exist.
+ *   • Ability names are normalized (case/whitespace) so duplicates collapse.
+ *   • Relative timestamps are used when present; raw timestamps act as fallback.
+ *   • Each ability’s cast list is sorted ascending before being returned.
+ *
+ * How it tests it:
+ *   1. Build a mock cast timeline with mixed casing/spacing, missing fields, and
+ *      entries supplied out of chronological order.
+ *   2. Run `buildMitigationCastLookup()` to generate the nested Map structure.
+ *   3. Assert the resulting per-player/ability arrays include only the valid casts
+ *      (invalid ones skipped) and are sorted as expected for tooltip display.
+ */
+test("buildMitigationCastLookup groups casts by player + normalized ability", () => {
+  const casts = [
+    { source: "Akrui Tesh", ability: "Dark Mind", relative: 1500 },
+    { source: "Akrui Tesh", ability: "  dark mind  ", rawTimestamp: 2100 },
+    { source: "Akrui Tesh", ability: "Shadow Wall", relative: 900 },
+    { source: "Erin Tsugumi", ability: "Temperance", relative: 500 },
+    { source: "Erin Tsugumi", ability: "TEMPERANCE", relative: 450 },
+    { source: "Erin Tsugumi", ability: "Temperance", relative: 800 },
+    { source: "", ability: "Rampart", relative: 100 }, // invalid source
+    { source: "Fumiko Sumomo", ability: "", relative: 100 }, // invalid ability
+    { source: "Ayako Shikichi" }, // missing ability + timestamp
+  ];
+
+  const lookup = buildMitigationCastLookup(casts);
+
+  assert.ok(lookup instanceof Map, "lookup should be a Map instance");
+
+  const paladinMap = lookup.get("Akrui Tesh");
+  assert.ok(paladinMap instanceof Map, "expected nested Map for paladin");
+  assert.deepEqual(
+    paladinMap.get("dark mind"),
+    [1500, 2100],
+    "dark mind casts should merge + sort relative/raw timestamps"
+  );
+  assert.deepEqual(
+    paladinMap.get("shadow wall"),
+    [900],
+    "single Shadow Wall cast should be stored as-is"
+  );
+
+  const healerMap = lookup.get("Erin Tsugumi");
+  assert.ok(healerMap instanceof Map, "expected nested Map for healer");
+  assert.deepEqual(
+    healerMap.get("temperance"),
+    [450, 500, 800],
+    "temperance casts should be sorted even if inserted out of order"
+  );
+
+  assert.strictEqual(
+    lookup.has(""),
+    false,
+    "entries missing a source should be ignored"
+  );
+  assert.strictEqual(
+    lookup.has("Fumiko Sumomo"),
+    false,
+    "entries without ability names should be ignored"
   );
 });
 

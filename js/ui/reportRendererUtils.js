@@ -18,6 +18,7 @@ import {
 } from "../utility/logger.js";
 import { getKnownBuffJob } from "../config/knownBuffJobs.js";
 import { AUTO_ATTACK_NAMES } from "../config/AppConfig.js";
+import { formatRelativeTime } from "../utility/dataUtils.js";
 
 setModuleLogLevel("ReportRendererUtils", envLogLevel("info", "warn"));
 const log = getLogger("ReportRendererUtils");
@@ -29,6 +30,10 @@ const MIT_AVAILABILITY_DOT_CONTAINER_CLASS = "mit-availability-dot-container";
 const MIT_AVAILABILITY_TOOLTIP_CLASS = "mit-availability-tooltip";
 const MIT_AVAILABILITY_TOOLTIP_GRID_CLASS = "mit-availability-tooltip-grid";
 const MAX_MIT_DOT_ROWS = 3;
+const MITIGATION_ICON_WRAPPER_CLASS = "mitigation-icon-wrapper";
+const MITIGATION_ICON_TOOLTIP_BODY_CLASS = "mitigation-icon-tooltip-body";
+const MITIGATION_ICON_TOOLTIP_TIME_CLASS = "mitigation-icon-tooltip-time";
+const MITIGATION_ICON_TOOLTIP_EMPTY_CLASS = "mitigation-icon-tooltip-empty";
 
 const mitigationIconCache = new Map();
 let mitigationHelperPromise = null;
@@ -41,6 +46,7 @@ function loadMitigationHelperModules() {
     ]).then(([appConfig, jobHelper]) => ({
       loadJobConfig: appConfig.loadJobConfig,
       getMitigationAbilityNames: jobHelper.getMitigationAbilityNames,
+      normalizeAbilityName: jobHelper.normalizeAbilityName,
     }));
   }
   return mitigationHelperPromise;
@@ -146,6 +152,83 @@ function buildExclusiveMapCacheKey(exclusiveMap) {
     .map(([groupId, selection]) => `${groupId}:${selection?.abilityName || ""}`)
     .sort()
     .join(",");
+}
+
+function getAbilityCastTimes(
+  mitigationCastLookup,
+  playerName,
+  abilityName,
+  normalizeFn
+) {
+  if (!mitigationCastLookup || !playerName || !abilityName) {
+    return [];
+  }
+
+  const normalizer =
+    typeof normalizeFn === "function"
+      ? normalizeFn
+      : (value) => String(value || "").trim().toLowerCase();
+  const normalizedAbility = normalizer(abilityName);
+  if (!normalizedAbility) {
+    return [];
+  }
+
+  let playerMap;
+  if (mitigationCastLookup instanceof Map) {
+    playerMap = mitigationCastLookup.get(playerName) || null;
+  } else if (typeof mitigationCastLookup === "object") {
+    playerMap = mitigationCastLookup[playerName] || null;
+  }
+
+  if (!playerMap) {
+    return [];
+  }
+
+  if (playerMap instanceof Map) {
+    const times = playerMap.get(normalizedAbility);
+    return Array.isArray(times) ? times : [];
+  }
+
+  const times = playerMap[normalizedAbility];
+  return Array.isArray(times) ? times : [];
+}
+
+function createMitigationIconTooltip(abilityName, castTimes = []) {
+  if (!abilityName) {
+    return null;
+  }
+
+  const tooltip = document.createElement("div");
+  tooltip.classList.add(MIT_AVAILABILITY_TOOLTIP_CLASS, "mitigation-icon-tooltip");
+
+  const header = document.createElement("div");
+  header.classList.add("mit-availability-tooltip-header");
+  header.textContent = abilityName;
+  tooltip.appendChild(header);
+
+  const body = document.createElement("div");
+  body.classList.add(MITIGATION_ICON_TOOLTIP_BODY_CLASS);
+
+  const filteredTimes = Array.isArray(castTimes)
+    ? castTimes.filter((time) => Number.isFinite(time))
+    : [];
+
+  if (filteredTimes.length === 0) {
+    const emptyState = document.createElement("div");
+    emptyState.classList.add(MITIGATION_ICON_TOOLTIP_EMPTY_CLASS);
+    emptyState.textContent = "No casts recorded";
+    body.appendChild(emptyState);
+  } else {
+    filteredTimes.forEach((time) => {
+      const timeEl = document.createElement("div");
+      timeEl.classList.add(MITIGATION_ICON_TOOLTIP_TIME_CLASS);
+      timeEl.textContent = formatRelativeTime(time, 0);
+      body.appendChild(timeEl);
+    });
+  }
+
+  tooltip.appendChild(body);
+  return tooltip;
 }
 
 /**
@@ -857,8 +940,9 @@ export async function getMitigationAbilityIcons(jobName, options = {}) {
  *       → Fetch that job’s mitigation ability icons using
  *         `getMitigationAbilityIcons()`.
  *       → Deduplicate mitigation abilities by name.
- *       → Render icons (<img>) grouped in rows of 5 per line.
- *   - Each icon includes both `title` and `alt` attributes showing the ability name.
+ *       → Render icons grouped in rows of 5 per line.
+ *   - Each icon includes both `title`/`alt` attributes and a custom tooltip showing
+ *     the list of cast timestamps (if available).
  *   - Each cell uses the job’s role color class (via `getRoleClass()`).
  *   - Icons are rendered in multiple lines if a job has more than 5 mitigation abilities.
  *
@@ -867,11 +951,11 @@ export async function getMitigationAbilityIcons(jobName, options = {}) {
  *     <td></td><td></td><td></td>
  *     <td class="tank-col">
  *       <div class="mitigation-icon-line">
- *         <img src="..." title="Shadow Wall">
- *         <img src="..." title="Dark Mind">
- *         <img src="..." title="The Blackest Night">
- *         <img src="..." title="Dark Missionary">
- *         <img src="..." title="Rampart">
+ *         <div class="mitigation-icon-wrapper">
+ *           <img src="..." title="Shadow Wall">
+ *           <div class="mit-availability-tooltip">...</div>
+ *         </div>
+ *         ...
  *       </div>
  *       <div class="mitigation-icon-line">
  *         <img src="..." title="Reprisal">
@@ -888,15 +972,22 @@ export async function getMitigationAbilityIcons(jobName, options = {}) {
  * @param {Object} report - Report object (used for job lookup)
  * @param {number} offset - Number of non-player columns preceding player headers (e.g., 2 for condensed, 3 for detailed)
  * @param {Object|null} fightTable - Fight table supplying fightId + mutually exclusive selections.
+ * @param {Map<string, Map<string, number[]>>|Object|null} mitigationCastLookup - Player → ability → cast timestamps lookup.
  * @returns {HTMLTableRowElement} - Fully constructed mitigation icon row
  */
 export async function buildMitigationIconRow(
   sortedActors,
   report,
   offset = 2,
-  fightTable = null
+  fightTable = null,
+  mitigationCastLookup = null
 ) {
   const { getRoleClass } = await import("../config/AppConfig.js");
+  const helperModules = await loadMitigationHelperModules();
+  const normalizeAbilityFn =
+    typeof helperModules?.normalizeAbilityName === "function"
+      ? helperModules.normalizeAbilityName
+      : (value) => String(value || "").trim().toLowerCase();
 
   const row = document.createElement("tr");
   row.classList.add("mitigation-row");
@@ -947,12 +1038,29 @@ export async function buildMitigationIconRow(
         lineDiv.classList.add("mitigation-icon-line");
 
         uniqueIcons.slice(i, i + 5).forEach((icon) => {
+          const iconWrapper = document.createElement("div");
+          iconWrapper.classList.add(MITIGATION_ICON_WRAPPER_CLASS);
+          iconWrapper.setAttribute("tabindex", "0");
+
           const img = document.createElement("img");
           img.src = icon.icon_url;
-          img.title = icon.name; // hover tooltip
+          img.title = icon.name; // hover tooltip for native fallback
           img.alt = icon.name;
           img.classList.add("mitigation-icon");
-          lineDiv.appendChild(img);
+          iconWrapper.appendChild(img);
+
+          const castTimes = getAbilityCastTimes(
+            mitigationCastLookup,
+            actor.name,
+            icon.name,
+            normalizeAbilityFn
+          );
+          const tooltip = createMitigationIconTooltip(icon.name, castTimes);
+          if (tooltip) {
+            iconWrapper.appendChild(tooltip);
+          }
+
+          lineDiv.appendChild(iconWrapper);
         });
 
         td.appendChild(lineDiv);

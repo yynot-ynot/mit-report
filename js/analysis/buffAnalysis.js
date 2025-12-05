@@ -539,21 +539,65 @@ export function getPotentiallyBotchedBuffs(
  *
  * A row qualifies when:
  *   1) The “Show Botched Mitigations” filter is enabled, and
- *   2) intendedMitPct > mitigationPct (actual).
+ *   2) intendedMitPct is greater than the recalculated mitigation percent.
+ *
+ * The recalculation derives the mitigation percent directly from the supplied
+ * aggregates so we can subtract out block contributions:
+ *
+ *   nonBlockMitigated = unmitigated - amount - absorbed - blocked
+ *   nonBlockMitigationPct = max(0, round((nonBlockMitigated / unmitigated) * 100))
+ *
+ * Blocks are removed because our intended mitigation calculator does not
+ * model block contributions. Subtracting them keeps the comparison apples
+ * to apples with the buff-derived expectation.
+ *
+ * Falling back to `data.mitigationPct` only happens when the necessary fields
+ * are missing.
  *
  * @param {Object} data - Source of mitigation numbers.
- * @param {number} data.mitigationPct - Actual mitigation percent.
+ * @param {number} data.unmitigatedAmount - Aggregate unmitigated damage.
+ * @param {number} data.amount - Aggregate raw damage taken.
+ * @param {number} [data.absorbed=0] - Damage absorbed by shields.
+ * @param {number} [data.blocked=0] - Damage prevented via block.
+ * @param {number} [data.mitigationPct] - Precomputed mitigation percent (fallback).
  * @param {number} data.intendedMitPct - Intended mitigation percent.
  * @param {Object} filterState - Global filter state (expects showBotchedMitigations).
  * @returns {boolean} true if botched styling should be shown.
  */
 export function shouldStrikeBotchedMitigation(data = {}, filterState) {
   if (!filterState?.showBotchedMitigations) return false;
-  const { mitigationPct, intendedMitPct } = data;
-  if (typeof mitigationPct !== "number" || typeof intendedMitPct !== "number") {
+  const { intendedMitPct } = data;
+  if (typeof intendedMitPct !== "number") return false;
+
+  const unmitigated =
+    typeof data.unmitigatedAmount === "number" ? data.unmitigatedAmount : null;
+  const actual =
+    typeof data.amount === "number" ? data.amount : null;
+  const absorbed =
+    typeof data.absorbed === "number" ? data.absorbed : 0;
+  const blocked =
+    typeof data.blocked === "number" ? data.blocked : 0;
+
+  let nonBlockMitigationPct =
+    typeof data.mitigationPct === "number" ? data.mitigationPct : null;
+
+  if (
+    nonBlockMitigationPct === null &&
+    Number.isFinite(unmitigated) &&
+    Number.isFinite(actual)
+  ) {
+    const nonBlockMitigated = unmitigated - actual - absorbed - blocked;
+    nonBlockMitigationPct =
+      unmitigated > 0
+        ? Math.max(0, Math.round((nonBlockMitigated / unmitigated) * 100))
+        : 0;
+  }
+
+  if (typeof nonBlockMitigationPct !== "number") {
     return false;
   }
-  return intendedMitPct > mitigationPct;
+
+  return intendedMitPct > nonBlockMitigationPct;
 }
 
 /**

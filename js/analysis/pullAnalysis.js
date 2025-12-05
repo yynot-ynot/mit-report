@@ -112,6 +112,7 @@
  *        unmitigatedAmount: 81793,
  *        amount: 59627,
  *        absorbed: 0,
+ *        blocked: 12435,
  *        mitigationPct: 27,
  *        intendedMitPct: 31,
  *        availableMitigations: ["Rampart", "Shadowskin"], // example snapshot of ready mitigations
@@ -160,11 +161,12 @@
  *       unmitigatedAmount: number,
  *       amount: number,
  *       absorbed: number,
- *       mitigationPct: number,
- *       intendedMitPct: number,
- *       dead: boolean,
- *       wasTargeted: boolean,
- *       botchedBuffs: string[]
+ *       blocked: number,
+*       mitigationPct: number,
+*       intendedMitPct: number,
+*       dead: boolean,
+*       wasTargeted: boolean,
+*       botchedBuffs: string[]
  *     }>,
  *     availableMitigationsByPlayer: Record<string, string[]>,
  *     botchedBuffsByPlayer: Record<string, string[]>,
@@ -284,6 +286,7 @@ function buildCondensedGroup(group) {
     player.unmitigatedAmount += row.unmitigatedAmount ?? 0;
     player.amount += row.amount ?? 0;
     player.absorbed += row.absorbed ?? 0;
+    player.blocked += row.blocked ?? 0;
     if (typeof row.mitigationPct === "number") {
       player.mitigationPctValues.push(row.mitigationPct);
     }
@@ -340,6 +343,7 @@ function buildCondensedGroup(group) {
       unmitigatedAmount: p.unmitigatedAmount,
       amount: p.amount,
       absorbed: p.absorbed,
+      blocked: p.blocked,
       mitigationPct:
         p.mitigationPctValues.length > 0
           ? Math.round(
@@ -389,6 +393,7 @@ function buildCondensedGroup(group) {
  *   unmitigatedAmount: number,
  *   amount: number,
  *   absorbed: number,
+ *   blocked: number,
  *   mitigationPctValues: number[],
  *   intendedMitPctValues: number[],
  *   availableMitigations: Set<string>,
@@ -403,6 +408,7 @@ function createEmptyPlayerAggregate() {
     unmitigatedAmount: 0,
     amount: 0,
     absorbed: 0,
+    blocked: 0,
     mitigationPctValues: [],
     intendedMitPctValues: [],
     availableMitigations: new Set(),

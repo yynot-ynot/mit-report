@@ -214,6 +214,7 @@ export function parseBuffEvents(events, fight, actorById, abilityById) {
  *   - amount: actual damage taken
  *   - unmitigatedAmount: raw unmitigated damage
  *   - mitigated: raw absorbed/mitigated value
+ *   - blocked: mitigated via block (if reported by FFLogs)
  *   - mitigationPct: percentage mitigated (0–100)
  *   - buffs: array of buff names active on the target during this event
  *   - potentiallyBotchedBuffs: buffs missing from the paired
@@ -284,6 +285,7 @@ export function parseFightDamageTaken(events, fight, actorById, abilityById) {
 
       const actualDamageTaken = ev.amount ?? 0;
       const absorbed = ev.absorbed ?? 0;
+      const blocked = ev.blocked ?? 0;
       const unmitigated = ev.unmitigatedAmount ?? actualDamageTaken;
       const mitigated = unmitigated - actualDamageTaken - absorbed;
       const mitigationUnknown =
@@ -339,6 +341,7 @@ export function parseFightDamageTaken(events, fight, actorById, abilityById) {
         ability: ability ? ability.name : "Unknown Damage",
         amount: actualDamageTaken,
         absorbed,
+        blocked,
         unmitigatedAmount: unmitigated,
         mitigated,
         mitigationPct, // actual % from data
@@ -736,6 +739,7 @@ function applyDeathsToAttacks(
  *         // --- Damage & mitigation ---
  *         amount: number,            // actual damage taken (post-mitigation)
  *         absorbed: number,          // absorbed value (e.g. shields)
+ *         blocked: number,           // damage prevented specifically by blocks
  *         unmitigatedAmount: number, // estimated damage before mitigation
  *         mitigated: number,         // total damage prevented (unmitigated - amount)
  *         mitigationPct: number,     // actual % mitigated from combat data (derived from damage)
@@ -839,6 +843,7 @@ export function buildFightTable(
       ability: ev.ability,
       amount: ev.amount,
       absorbed: ev.absorbed,
+      blocked: ev.blocked,
       unmitigatedAmount: ev.unmitigatedAmount,
       mitigated: ev.mitigated,
       mitigationPct: ev.mitigationPct,

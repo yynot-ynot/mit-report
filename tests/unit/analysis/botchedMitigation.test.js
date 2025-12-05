@@ -122,31 +122,46 @@ test("ignores non-string damage buff entries", () => {
  *   Evaluate combinations of toggle on/off and higher/lower intendedMitPct
  *   to confirm the helper returns true only for the qualifying case.
  */
-test("shouldStrikeBotchedMitigation respects toggle and mitigation delta", () => {
+/**
+ * Objective:
+ *   Validate the helper’s toggle guard and its recalculated mitigation math.
+ *
+ * Approach:
+ *   Provide aggregate damage numbers so the helper recomputes mitigation without blocks.
+ *   Flip the filter on/off and vary intended percentages to exercise each branch.
+ */
+test("shouldStrikeBotchedMitigation respects toggle and recalculated mitigation", () => {
   const filterOn = { showBotchedMitigations: true };
   const filterOff = { showBotchedMitigations: false };
 
+  const base = {
+    unmitigatedAmount: 100,
+    amount: 80, // 20% mitigated (no blocks/absorbs)
+    absorbed: 0,
+    blocked: 0,
+  };
+
   assert.equal(
     shouldStrikeBotchedMitigation(
-      { mitigationPct: 20, intendedMitPct: 30 },
+      { ...base, intendedMitPct: 35 },
       filterOn
     ),
     true,
-    "toggle on + intended > actual should strike"
+    "toggle on + intended > recalculated pct should strike"
   );
 
   assert.equal(
     shouldStrikeBotchedMitigation(
-      { mitigationPct: 40, intendedMitPct: 30 },
+      { ...base, intendedMitPct: 10 },
       filterOn
     ),
     false,
-    "toggle on + intended <= actual should not strike"
+    "toggle on + intended <= recalculated pct should not strike"
   );
 
   assert.equal(
     shouldStrikeBotchedMitigation(
-      { mitigationPct: 20, intendedMitPct: 30 },
+      { ...base, intendedMitPct: 35 },
       filterOff
     ),
     false,
@@ -160,5 +175,59 @@ test("shouldStrikeBotchedMitigation respects toggle and mitigation delta", () =>
     ),
     false,
     "missing numbers should return false"
+  );
+});
+
+/**
+ * Objective:
+ *   Confirm we do not flag botched mitigation when intended mitigation is less than or
+ *   equal to the recomputed non-block mitigation percent.
+ *
+ * Approach:
+ *   Feed the helper aggregate numbers that yield a higher non-block mitigation percent
+ *   than the intended percent and assert the helper returns false.
+ */
+test("shouldStrikeBotchedMitigation returns false when intended <= non-block mitigation pct", () => {
+  const filterOn = { showBotchedMitigations: true };
+  const data = {
+    unmitigatedAmount: 100,
+    amount: 40,
+    absorbed: 0,
+    blocked: 10,
+    intendedMitPct: 40,
+  };
+
+  // Recalculated pct = (100 - 40 - 0 - 10) / 100 = 50%, so intended <= actual.
+  assert.equal(
+    shouldStrikeBotchedMitigation(data, filterOn),
+    false,
+    "should not strike when intended percent is not greater than recalculated percent"
+  );
+});
+
+/**
+ * Objective:
+ *   Prove that subtracting the block contribution changes the outcome for qualifying rows.
+ *
+ * Approach:
+ *   Craft data where the pre-existing (block-inclusive) mitigation percent would be high
+ *   enough to avoid flagging, but the non-block calculation drops below intendedMitPct.
+ */
+test("removing block contribution allows strike that would otherwise fail", () => {
+  const filterOn = { showBotchedMitigations: true };
+  const data = {
+    unmitigatedAmount: 100,
+    amount: 40,
+    absorbed: 0,
+    blocked: 30,
+    intendedMitPct: 50,
+  };
+
+  // Without subtracting `blocked`, mitigation pct would be 60 and the helper would return false.
+  // With the new non-block calculation, mitigation pct drops to 30, so intended > actual and we strike.
+  assert.equal(
+    shouldStrikeBotchedMitigation(data, filterOn),
+    true,
+    "subtracting block contributions ensures the comparison stays aligned with intended mitigation"
   );
 });

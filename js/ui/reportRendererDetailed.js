@@ -190,11 +190,21 @@ export function renderDetailedTable(fightState, report, section) {
     tdTime.textContent = formatRelativeTime(event.timestamp, 0);
     row.appendChild(tdTime);
 
-    // Ability column with damage type icons
+    // Ability column with damage type icons + attacker (source) label
     const tdAbility = document.createElement("td");
+    tdAbility.classList.add("ability-cell");
     const beforeIcon = getDamageTypeIconHTML(event.damageType);
     const afterIcon = getDamageTypeIconHTML(event.damageType);
-    tdAbility.innerHTML = `${beforeIcon}${event.ability || ""}${afterIcon}`;
+    const abilityName = event.ability || "";
+    const sourceLabel = event.source
+      ? `<div class="attack-source">${event.source}</div>`
+      : "";
+    tdAbility.innerHTML = `
+      <div class="ability-name">
+        ${beforeIcon}${abilityName}${afterIcon}
+      </div>
+      ${sourceLabel}
+    `;
     row.appendChild(tdAbility);
 
     // Damage column

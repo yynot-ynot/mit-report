@@ -10,7 +10,7 @@ import {
 import { AUTO_ATTACK_NAMES } from "../config/AppConfig.js";
 import { CastCooldownTracker } from "./castAnalysis.js";
 
-setModuleLogLevel("CustomCooldownHandlers", envLogLevel("debug", "warn"));
+setModuleLogLevel("CustomCooldownHandlers", envLogLevel("warn", "warn"));
 const log = getLogger("CustomCooldownHandlers");
 const SAFE_MAX_END = Number.MAX_SAFE_INTEGER;
 
@@ -97,8 +97,7 @@ const NORMALIZED_AUTO_ATTACK_NAMES = new Set(
 );
 
 const DEBUG_PAL_OATH =
-  (typeof process !== "undefined" &&
-    process?.env?.DEBUG_PAL_OATH === "true") ||
+  (typeof process !== "undefined" && process?.env?.DEBUG_PAL_OATH === "true") ||
   (typeof globalThis !== "undefined" && globalThis?.DEBUG_PAL_OATH === true);
 
 /**
@@ -185,7 +184,6 @@ export class PaladinOathGaugeContext {
     return next;
   }
 }
-
 
 /**
  * Append a resource lock window (start → SAFE_MAX_END) to a tracker. Duplicate
@@ -372,9 +370,7 @@ export function ensurePaladinOathLock({
 }) {
   if (!playerName || !trackerMap || !Number.isFinite(startTime)) return;
 
-  const threshold = Number.isFinite(PALADIN_OATH_COST)
-    ? PALADIN_OATH_COST
-    : 50;
+  const threshold = Number.isFinite(PALADIN_OATH_COST) ? PALADIN_OATH_COST : 50;
 
   // Step 1: Resolve the best available gauge reading (live context → gaugeOverride → fallback cache).
   const contextGauge =
@@ -765,9 +761,7 @@ export function handlePaladinAutoAttack({
   }
 
   const contextGauge =
-    typeof context?.getGauge === "function"
-      ? context.getGauge(player)
-      : null;
+    typeof context?.getGauge === "function" ? context.getGauge(player) : null;
   const fallbackGauge = getFallbackGauge(player);
   let gaugeBefore = Number.isFinite(contextGauge)
     ? contextGauge

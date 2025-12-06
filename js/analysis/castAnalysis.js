@@ -482,8 +482,7 @@ export function buildCooldownTrackers(
   }
 
   const oathContext =
-    hasPaladin &&
-    typeof CooldownHandlers.PaladinOathGaugeContext === "function"
+    hasPaladin && typeof CooldownHandlers.PaladinOathGaugeContext === "function"
       ? new CooldownHandlers.PaladinOathGaugeContext()
       : null;
   const fightStartTimeMs = fight?.startTime ?? 0;
@@ -522,10 +521,7 @@ export function buildCooldownTrackers(
     if (!Number.isFinite(uptoRelTs)) return;
 
     // Walk forward through deaths that happened before this cast
-    while (
-      deathPtr < deaths.length &&
-      deaths[deathPtr].relative < uptoRelTs
-    ) {
+    while (deathPtr < deaths.length && deaths[deathPtr].relative < uptoRelTs) {
       const death = deaths[deathPtr++];
       const deadName = death?.actor;
       if (!deadName) continue;
@@ -702,7 +698,7 @@ export function buildCooldownTrackers(
         0;
       const relTime = formatRelativeTime(eventTimestamp, fightStartTimeMs);
 
-      log.info(`[CastAnalysis] Dispatching cooldown dependency handlers`, {
+      log.debug(`[CastAnalysis] Dispatching cooldown dependency handlers`, {
         player: cast.source,
         trigger: cast.ability,
         time: relTime, // Human-readable fight-relative timestamp
@@ -898,22 +894,19 @@ export function populateMitigationAvailability(
   }
 
   // Step 2: Build cooldown trackers for mitigation abilities
-  const {
-    trackers = [],
-    exclusiveAbilityMap = new Map(),
-  } = buildCooldownTrackers(
-    parsedCasts,
-    [],
-    parsedDeaths,
-    fight,
-    actorById,
-    null,
-    friendlyActors
-  );
+  const { trackers = [], exclusiveAbilityMap = new Map() } =
+    buildCooldownTrackers(
+      parsedCasts,
+      [],
+      parsedDeaths,
+      fight,
+      actorById,
+      null,
+      friendlyActors
+    );
   fightTable.availableMitigationTrackers = trackers;
-  fightTable.mutuallyExclusiveMitigationMap = Object.fromEntries(
-    exclusiveAbilityMap
-  );
+  fightTable.mutuallyExclusiveMitigationMap =
+    Object.fromEntries(exclusiveAbilityMap);
 
   friendlyActors.forEach((actor) => {
     const abilities = getMitigationAbilityNames(actor.subType, {

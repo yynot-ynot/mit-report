@@ -43,6 +43,11 @@
     white-space: nowrap;
 }
 
+/* Add breathing room so Timestamp / Attack / Damage cells match player column spacing */
+.time-table tbody tr:not(.child-event-row) td:nth-child(-n + 3) {
+    padding-top: 1.25rem;
+}
+
 .time-table td span {
     display: block;
     /* spacing between entries */
@@ -182,6 +187,19 @@
 }
 
 .time-table td.ability-cell {
+    white-space: nowrap;
+}
+
+.time-table td .ability-name {
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+.time-table td .attack-source {
+    margin-top: 0.1rem;
+    font-size: 0.75rem;
+    color: #6b7280;
+    font-weight: 500;
     white-space: nowrap;
 }
 

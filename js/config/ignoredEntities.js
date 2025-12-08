@@ -48,4 +48,9 @@ export const MUTUALLY_EXCLUSIVE_MITIGATIONS = [
     groupId: "gunbreaker_nebula_variants",
     abilities: ["Nebula", "Great Nebula"],
   },
+  {
+    job: "Samurai",
+    groupId: "samurai_thirdeye_variants",
+    abilities: ["Third Eye", "Tengentsu"],
+  },
 ];

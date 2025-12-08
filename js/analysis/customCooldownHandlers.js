@@ -9,6 +9,7 @@ import {
 } from "../utility/jobConfigHelper.js";
 import { AUTO_ATTACK_NAMES } from "../config/AppConfig.js";
 import { CastCooldownTracker } from "./castAnalysis.js";
+import { formatRelativeTime } from "../utility/dataUtils.js";
 
 setModuleLogLevel("CustomCooldownHandlers", envLogLevel("warn", "warn"));
 const log = getLogger("CustomCooldownHandlers");
@@ -95,6 +96,84 @@ try {
 const NORMALIZED_AUTO_ATTACK_NAMES = new Set(
   Array.from(AUTO_ATTACK_NAMES || []).map((name) => normalizeAbilityName(name))
 );
+
+/**
+ * Retrieve (or initialize) the per-tracker state used for charged cooldowns.
+ *
+ * Each charged ability needs to remember how many charges remain, how much
+ * progress has been made toward the next recharge (`remainderMs`), and the
+ * last timestamp when accounting took place. Attaching that object directly to
+ * the `CastCooldownTracker` keeps the cache scoped to the current fight/player.
+ *
+ * @param {CastCooldownTracker|null} tracker - Tracker backing the charged ability.
+ * @param {number} maxCharges - Declared maximum number of charges.
+ * @returns {{maxCharges:number, charges:number, remainderMs:number, lastTimestamp:number|null}|null}
+ */
+function getChargedCooldownState(tracker, maxCharges) {
+  if (!(tracker instanceof CastCooldownTracker)) return null;
+  const normalizedCharges = Number.isFinite(maxCharges)
+    ? Math.max(1, Math.floor(maxCharges))
+    : 1;
+  let state = tracker.__chargedCooldownState;
+  if (!state || state.maxCharges !== normalizedCharges) {
+    state = {
+      maxCharges: normalizedCharges,
+      charges: normalizedCharges,
+      remainderMs: 0,
+      lastTimestamp: null,
+    };
+    tracker.__chargedCooldownState = state;
+  }
+  return state;
+}
+
+/**
+ * Apply elapsed time toward charge regeneration before spending a new charge.
+ *
+ * @param {Object} state - Object returned from `getChargedCooldownState`.
+ * @param {number} timestamp - Current cast timestamp (ms, relative to fight start).
+ * @param {number} baseCooldown - Ability cooldown length (ms).
+ */
+function settleChargedCooldownState(state, timestamp, baseCooldown) {
+  if (!state || !Number.isFinite(timestamp) || !Number.isFinite(baseCooldown)) {
+    return;
+  }
+
+  const lastTs = Number.isFinite(state.lastTimestamp)
+    ? state.lastTimestamp
+    : timestamp;
+  let elapsed = timestamp - lastTs;
+  if (!Number.isFinite(elapsed) || elapsed <= 0) {
+    state.lastTimestamp = timestamp;
+    if (state.charges >= state.maxCharges) {
+      state.remainderMs = 0;
+    }
+    return;
+  }
+
+  if (state.charges >= state.maxCharges) {
+    state.remainderMs = 0;
+    state.lastTimestamp = timestamp;
+    return;
+  }
+
+  const carried = state.remainderMs || 0;
+  const total = Math.max(0, elapsed + carried);
+  if (total < baseCooldown) {
+    state.remainderMs = total;
+    state.lastTimestamp = timestamp;
+    return;
+  }
+
+  const gained = Math.floor(total / baseCooldown);
+  state.charges = Math.min(state.maxCharges, state.charges + gained);
+  if (state.charges === state.maxCharges) {
+    state.remainderMs = 0;
+  } else {
+    state.remainderMs = total % baseCooldown;
+  }
+  state.lastTimestamp = timestamp;
+}
 
 const DEBUG_PAL_OATH =
   (typeof process !== "undefined" && process?.env?.DEBUG_PAL_OATH === "true") ||
@@ -465,10 +544,27 @@ export function handlePaladinDeathLock({
 /**
  * handleAstroCardDependency()
  * --------------------------------------------------------------
- * Models the Astrologian card flow:
- *   - Casting The Bole should keep it on cooldown until the next draw.
- *   - The next Umbral Draw cast immediately frees The Bole for use again.
- * Any other trigger falls back to the default cooldown generator.
+ * Models the Astrologian card flow for deck abilities such as The Bole and
+ * The Spire. Card vs. draw behavior is driven entirely by the dependency map:
+ *   - If the `depConfig.trigger` also appears in `depConfig.affects`, this
+ *     handler treats the cast as a **card** being played.
+ *   - Otherwise, the trigger is considered a **draw** action that releases the
+ *     cards listed in `depConfig.affects`.
+ *
+ * Behavior:
+ *   1. When a *card* action (e.g., The Bole) is cast, the handler records an
+ *      indefinite cooldown window (`start → SAFE_MAX_END`). This mirrors in-game
+ *      behaviour where the card cannot be redrawn until the next appropriate
+ *      draw action is used.
+ *   2. When the complementary draw (Umbral or Astral) fires, the handler walks
+ *      all affected card trackers in `depConfig.affects` and collapses their
+ *      most recent placeholder window to end at the draw timestamp, restoring
+ *      availability for downstream consumers.
+ *
+ * The dependency map controls which trigger maps to which card(s), so extending
+ * coverage to additional arcanum only requires new entries in the map.
+ * Any trigger that is not part of this relationship falls back to the default
+ * cooldown generator.
  */
 export function handleAstroCardDependency({
   depConfig,
@@ -485,16 +581,35 @@ export function handleAstroCardDependency({
   const trigger = normalizedAbility || normalizeAbilityName(cast.ability);
   if (!player || !trigger || !Number.isFinite(start)) return;
 
-  const boleAbility = normalizeAbilityName("The Bole");
-  const umbralAbility = normalizeAbilityName("Umbral Draw");
+  // 🧠 Data-driven inputs: the dependency map dictates which card ability names
+  // this trigger influences via `depConfig.affects`. If the trigger itself is
+  // inside that list the handler treats it as the card cast; otherwise it is the
+  // paired draw action that should resolve those cards.
   const affectedAbilities = (depConfig.affects || [])
     .map(normalizeAbilityName)
     .filter(Boolean);
+  if (affectedAbilities.length === 0) {
+    if (typeof defaultAddCooldown === "function") {
+      defaultAddCooldown();
+    }
+    return;
+  }
 
-  if (trigger === boleAbility) {
+  // Card detection: trigger ∈ affects → card cast, trigger ∉ affects → draw.
+  const isCardCast = affectedAbilities.includes(trigger);
+  const resolveLabel = (ability) => {
+    const original = (depConfig.affects || []).find(
+      (name) => normalizeAbilityName(name) === ability
+    );
+    return original || ability;
+  };
+
+  if (isCardCast) {
     if (!triggerTracker) {
       log.debug(
-        `[CustomCDHandlers] [AstroDependency] Missing tracker for The Bole (${player}); cannot record cooldown.`
+        `[CustomCDHandlers] [AstroDependency] Missing tracker for ${resolveLabel(
+          trigger
+        )} (${player}); cannot record cooldown.`
       );
       return;
     }
@@ -503,37 +618,29 @@ export function handleAstroCardDependency({
     return;
   }
 
-  if (trigger === umbralAbility) {
-    affectedAbilities
-      .filter((abilityName) => abilityName === boleAbility)
-      .forEach((abilityName) => {
-        const key = buildTrackerKey(player, abilityName);
-        if (!key) return;
-        const tracker = trackerMap.get(key);
-        if (!tracker) return;
+  affectedAbilities.forEach((abilityName) => {
+    const key = buildTrackerKey(player, abilityName);
+    if (!key) return;
+    const tracker = trackerMap.get(key);
+    if (!tracker) return;
 
-        const windows = tracker.getCooldownWindows();
-        if (!Array.isArray(windows) || windows.length === 0) return;
+    const windows = tracker.getCooldownWindows();
+    if (!Array.isArray(windows) || windows.length === 0) return;
 
-        const lastWindow = windows[windows.length - 1];
-        if (lastWindow.end !== SAFE_MAX_END) return;
+    const lastWindow = windows[windows.length - 1];
+    if (lastWindow.end !== SAFE_MAX_END) return;
 
-        const resolvedEnd =
-          start > lastWindow.start ? start : lastWindow.start + 1;
-        if (resolvedEnd <= lastWindow.start) return;
+    const resolvedEnd = start > lastWindow.start ? start : lastWindow.start + 1;
+    if (resolvedEnd <= lastWindow.start) return;
 
-        const updatedWindows = [
-          ...windows.slice(0, -1),
-          { ...lastWindow, end: resolvedEnd },
-        ];
-        tracker.setCooldownWindows(updatedWindows);
-      });
-    return;
-  }
+    const updatedWindows = [
+      ...windows.slice(0, -1),
+      { ...lastWindow, end: resolvedEnd },
+    ];
+    tracker.setCooldownWindows(updatedWindows);
+  });
 
-  if (typeof defaultAddCooldown === "function") {
-    defaultAddCooldown();
-  }
+  return;
 }
 
 /**
@@ -604,6 +711,151 @@ export function handleMutualCardCooldown({
       { ...lastWindow, end: resolvedEnd },
     ];
     tracker.setCooldownWindows(updatedWindows);
+  });
+}
+
+/**
+ * handleChargedCooldown()
+ * --------------------------------------------------------------
+ * Manages mitigation abilities that regenerate via a limited set of shared
+ * charges (e.g., Oblation, Divine Benison, Radiant Aegis). The handler keeps
+ * per-player accounting data so it can determine how many charges remain and
+ * how much time has accrued toward the next recharge.
+ *
+ * Behavior:
+ *   1. `depConfig.maxCharges` declares the hard cap for that ability.
+ *   2. Each cast runs a settlement pass that:
+ *        - Computes the elapsed time since the last accounting event.
+ *        - Adds any carried remainder from the previous pass.
+ *        - Awards `floor(total / cooldown)` charges (up to the cap) and stores
+ *          the leftover remainder, resetting it to 0 whenever the cap is
+ *          reached because no recharge is running at that point.
+ *   3. After settlement the handler spends one charge. If that spend leaves the
+ *      player with zero charges, it records a cooldown window whose end is the
+ *      earliest timestamp a charge will regenerate
+ *      (`cooldown - accumulatedProgress`).
+ *   4. When at least one charge remains, no cooldown window is recorded so the
+ *      ability stays immediately castable.
+ *
+ * State is stored on the corresponding `CastCooldownTracker` instance so each
+ * fight/player pair keeps isolated accounting (no cross-fight cache bleed).
+ */
+export function handleChargedCooldown({
+  depConfig,
+  cast,
+  trackerMap,
+  actorById,
+  fight,
+  start,
+  triggerTracker,
+  cooldownInfo,
+  defaultAddCooldown,
+  normalizedAbility,
+}) {
+  const player = cast?.source;
+  if (!player || !Number.isFinite(start)) {
+    if (typeof defaultAddCooldown === "function") defaultAddCooldown();
+    return;
+  }
+
+  const abilityName =
+    normalizedAbility || normalizeAbilityName(cast?.ability || "");
+  if (!abilityName) {
+    if (typeof defaultAddCooldown === "function") defaultAddCooldown();
+    return;
+  }
+
+  const maxCharges = Number.isFinite(depConfig?.maxCharges)
+    ? Math.max(1, Math.floor(depConfig.maxCharges))
+    : null;
+  if (!Number.isFinite(maxCharges) || maxCharges <= 1) {
+    if (typeof defaultAddCooldown === "function") defaultAddCooldown();
+    return;
+  }
+
+  if (!(triggerTracker instanceof CastCooldownTracker)) {
+    log.debug(
+      `[CustomCDHandlers] [Charged] Missing tracker for ${cast.ability} (${player}); falling back to default cooldown.`
+    );
+    if (typeof defaultAddCooldown === "function") defaultAddCooldown();
+    return;
+  }
+
+  const baseCooldown =
+    cooldownInfo?.cooldownMs ?? triggerTracker.getBaseCooldownMs();
+  if (!Number.isFinite(baseCooldown) || baseCooldown <= 0) {
+    log.warn(
+      `[CustomCDHandlers] [Charged] Missing cooldown data for ${cast.ability} (${player}); using default handler.`
+    );
+    if (typeof defaultAddCooldown === "function") defaultAddCooldown();
+    return;
+  }
+
+  const jobName =
+    typeof triggerTracker.getJobName === "function"
+      ? triggerTracker.getJobName()
+      : null;
+  const fightStartTime =
+    typeof fight?.startTime === "number" ? fight.startTime : 0;
+  const absoluteTs = start + fightStartTime;
+  const readableTime = formatRelativeTime(absoluteTs, fightStartTime);
+  const beforeWindows = triggerTracker.getCooldownWindows();
+  const latestBeforeWindow =
+    Array.isArray(beforeWindows) && beforeWindows.length > 0
+      ? beforeWindows[beforeWindows.length - 1]
+      : null;
+
+  const state = getChargedCooldownState(triggerTracker, maxCharges);
+  if (state) {
+    log.debug(`[CustomCDHandlers] [Charged] BEFORE accounting`, {
+      player,
+      job: jobName,
+      ability: cast.ability,
+      timeMs: start,
+      time: readableTime,
+      charges: state.charges,
+      remainderMs: state.remainderMs || 0,
+      latestWindow: latestBeforeWindow,
+    });
+  }
+
+  settleChargedCooldownState(state, start, baseCooldown);
+
+  const chargesBeforeCast = state.charges;
+  const remainderBeforeCast = state.remainderMs || 0;
+
+  if (chargesBeforeCast <= 0) {
+    log.warn(
+      `[CustomCDHandlers] [Charged] ${player} cast ${cast.ability} with no charges available; treating as immediate spend.`
+    );
+  }
+
+  state.charges = Math.max(0, state.charges - 1);
+  const chargesAfterCast = state.charges;
+
+  if (chargesAfterCast === 0) {
+    const timeUntilNextCharge =
+      remainderBeforeCast > 0 && remainderBeforeCast < baseCooldown
+        ? baseCooldown - remainderBeforeCast
+        : baseCooldown;
+    const windowEnd = start + timeUntilNextCharge;
+    triggerTracker.addCooldown(start, windowEnd);
+  }
+
+  const afterWindows = triggerTracker.getCooldownWindows();
+  const latestAfterWindow =
+    Array.isArray(afterWindows) && afterWindows.length > 0
+      ? afterWindows[afterWindows.length - 1]
+      : null;
+  log.debug(`[CustomCDHandlers] [Charged] AFTER accounting`, {
+    player,
+    job: jobName,
+    ability: cast.ability,
+    timeMs: start,
+    time: readableTime,
+    charges: state.charges,
+    remainderMs: state.remainderMs || 0,
+    latestWindow: latestAfterWindow,
   });
 }
 

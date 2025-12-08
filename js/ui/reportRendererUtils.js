@@ -167,7 +167,10 @@ function getAbilityCastTimes(
   const normalizer =
     typeof normalizeFn === "function"
       ? normalizeFn
-      : (value) => String(value || "").trim().toLowerCase();
+      : (value) =>
+          String(value || "")
+            .trim()
+            .toLowerCase();
   const normalizedAbility = normalizer(abilityName);
   if (!normalizedAbility) {
     return [];
@@ -199,7 +202,10 @@ function createMitigationIconTooltip(abilityName, castTimes = []) {
   }
 
   const tooltip = document.createElement("div");
-  tooltip.classList.add(MIT_AVAILABILITY_TOOLTIP_CLASS, "mitigation-icon-tooltip");
+  tooltip.classList.add(
+    MIT_AVAILABILITY_TOOLTIP_CLASS,
+    "mitigation-icon-tooltip"
+  );
 
   const header = document.createElement("div");
   header.classList.add("mit-availability-tooltip-header");
@@ -987,7 +993,10 @@ export async function buildMitigationIconRow(
   const normalizeAbilityFn =
     typeof helperModules?.normalizeAbilityName === "function"
       ? helperModules.normalizeAbilityName
-      : (value) => String(value || "").trim().toLowerCase();
+      : (value) =>
+          String(value || "")
+            .trim()
+            .toLowerCase();
 
   const row = document.createElement("tr");
   row.classList.add("mitigation-row");
@@ -1225,7 +1234,7 @@ export async function renderAvailableMitigationIcons(
     tooltip.classList.add(MIT_AVAILABILITY_TOOLTIP_CLASS);
     const tooltipHeader = document.createElement("div");
     tooltipHeader.classList.add("mit-availability-tooltip-header");
-    tooltipHeader.textContent = "Available DR";
+    tooltipHeader.textContent = "Available Mit";
     tooltip.appendChild(tooltipHeader);
 
     const tooltipGrid = document.createElement("div");

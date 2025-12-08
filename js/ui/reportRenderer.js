@@ -12,10 +12,7 @@ import {
   renderCondensedTable,
   filterAndStyleCondensedTable,
 } from "./reportRendererCondensed.js";
-import {
-  resolvePhaseName,
-  formatPhaseTag,
-} from "./reportRendererUtils.js";
+import { resolvePhaseName, formatPhaseTag } from "./reportRendererUtils.js";
 
 setModuleLogLevel("ReportRenderer", envLogLevel("info", "warn"));
 const log = getLogger("ReportRenderer");
@@ -561,8 +558,8 @@ function renderFightHeader(fightState, report, reRenderCallback) {
     //   },
     // },
     {
-      labelOn: "Hide Available DRs",
-      labelOff: "Show Available DRs",
+      labelOn: "Hide Available Mits",
+      labelOff: "Show Available Mits",
       state: filterState.showAvailableMitigations,
       onToggle: (newState) => {
         filterState.showAvailableMitigations = newState;

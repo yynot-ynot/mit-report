@@ -28,8 +28,20 @@ const RAW_COOLDOWN_DEPENDENCY_MAP = [
   },
   {
     job: "Astrologian",
+    trigger: "The Spire",
+    affects: ["The Spire"],
+    handler: "handleAstroCardDependency",
+  },
+  {
+    job: "Astrologian",
     trigger: "Umbral Draw",
     affects: ["The Bole"],
+    handler: "handleAstroCardDependency",
+  },
+  {
+    job: "Astrologian",
+    trigger: "Astral Draw",
+    affects: ["The Spire"],
     handler: "handleAstroCardDependency",
   },
   {
@@ -43,6 +55,27 @@ const RAW_COOLDOWN_DEPENDENCY_MAP = [
     trigger: "Astral Draw",
     affects: ["Umbral Draw"],
     handler: "handleMutualCardCooldown",
+  },
+  {
+    job: "Dark Knight",
+    trigger: "Oblation",
+    affects: [],
+    handler: "handleChargedCooldown",
+    maxCharges: 2,
+  },
+  {
+    job: "White Mage",
+    trigger: "Divine Benison",
+    affects: [],
+    handler: "handleChargedCooldown",
+    maxCharges: 2,
+  },
+  {
+    job: "Summoner",
+    trigger: "Radiant Aegis",
+    affects: [],
+    handler: "handleChargedCooldown",
+    maxCharges: 2,
   },
   {
     job: "Paladin",

@@ -20,6 +20,16 @@ const mitigationData = {
         "source_job": "Blackmage",
         "granted_by": null,
         "parent_ability": "Addle"
+      },
+      {
+        "name": "Manaward",
+        "type": "shield",
+        "target": "self",
+        "amount": 0,
+        "condition": null,
+        "source_job": "Blackmage",
+        "granted_by": "Manaward",
+        "parent_ability": "Manaward"
       }
     ],
     "Summoner": [
@@ -42,6 +52,16 @@ const mitigationData = {
         "source_job": "Summoner",
         "granted_by": null,
         "parent_ability": "Addle"
+      },
+      {
+        "name": "Radiant Aegis",
+        "type": "shield",
+        "target": "self",
+        "amount": 0,
+        "condition": null,
+        "source_job": "Summoner",
+        "granted_by": "Radiant Aegis",
+        "parent_ability": "Radiant Aegis"
       }
     ],
     "Scholar": [
@@ -94,6 +114,26 @@ const mitigationData = {
         "source_job": "Scholar",
         "granted_by": null,
         "parent_ability": "Seraphic Illumination"
+      },
+      {
+        "name": "Consolation",
+        "type": "shield",
+        "target": "self",
+        "amount": 0,
+        "condition": null,
+        "source_job": "Scholar",
+        "granted_by": "Consolation",
+        "parent_ability": "Consolation"
+      },
+      {
+        "name": "Protraction",
+        "type": "special",
+        "target": "self",
+        "amount": 0,
+        "condition": null,
+        "source_job": "Scholar",
+        "granted_by": "Protraction",
+        "parent_ability": "Protraction"
       }
     ],
     "DarkKnight": [
@@ -186,6 +226,16 @@ const mitigationData = {
         "source_job": "DarkKnight",
         "granted_by": null,
         "parent_ability": "Reprisal"
+      },
+      {
+        "name": "The Blackest Night",
+        "type": "shield",
+        "target": "self",
+        "amount": 0,
+        "condition": null,
+        "source_job": "DarkKnight",
+        "granted_by": "The Blackest Night",
+        "parent_ability": "The Blackest Night"
       }
     ],
     "Gunbreaker": [
@@ -486,6 +536,26 @@ const mitigationData = {
         "source_job": "Paladin",
         "granted_by": null,
         "parent_ability": "Reprisal"
+      },
+      {
+        "name": "Divine Veil",
+        "type": "shield",
+        "target": "self",
+        "amount": 0,
+        "condition": null,
+        "source_job": "Paladin",
+        "granted_by": "Divine Veil",
+        "parent_ability": "Divine Veil"
+      },
+      {
+        "name": "Bulwark",
+        "type": "special",
+        "target": "self",
+        "amount": 0,
+        "condition": null,
+        "source_job": "Paladin",
+        "granted_by": "Bulwark",
+        "parent_ability": "Bulwark"
       }
     ],
     "Machinist": [
@@ -530,6 +600,26 @@ const mitigationData = {
         "source_job": "Whitemage",
         "granted_by": null,
         "parent_ability": "Aquaveil"
+      },
+      {
+        "name": "Divine Benison",
+        "type": "shield",
+        "target": "self",
+        "amount": 0,
+        "condition": null,
+        "source_job": "Whitemage",
+        "granted_by": "Divine Benison",
+        "parent_ability": "Divine Benison"
+      },
+      {
+        "name": "Divine Caress",
+        "type": "shield",
+        "target": "self",
+        "amount": 0,
+        "condition": null,
+        "source_job": "Whitemage",
+        "granted_by": "Divine Caress",
+        "parent_ability": "Divine Caress"
       }
     ],
     "Astrologian": [
@@ -572,6 +662,36 @@ const mitigationData = {
         "source_job": "Astrologian",
         "granted_by": null,
         "parent_ability": "The Bole"
+      },
+      {
+        "name": "Celestial Intersection",
+        "type": "shield",
+        "target": "self",
+        "amount": 0,
+        "condition": null,
+        "source_job": "Astrologian",
+        "granted_by": "Celestial Intersection",
+        "parent_ability": "Celestial Intersection"
+      },
+      {
+        "name": "Neutral Sect",
+        "type": "shield",
+        "target": "self",
+        "amount": 0,
+        "condition": null,
+        "source_job": "Astrologian",
+        "granted_by": "Neutral Sect",
+        "parent_ability": "Neutral Sect"
+      },
+      {
+        "name": "The Spire",
+        "type": "shield",
+        "target": "self",
+        "amount": 0,
+        "condition": null,
+        "source_job": "Astrologian",
+        "granted_by": "The Spire",
+        "parent_ability": "The Spire"
       }
     ],
     "Warrior": [
@@ -664,6 +784,26 @@ const mitigationData = {
         "source_job": "Warrior",
         "granted_by": null,
         "parent_ability": "Reprisal"
+      },
+      {
+        "name": "Shake It Off",
+        "type": "shield",
+        "target": "self",
+        "amount": 0,
+        "condition": null,
+        "source_job": "Warrior",
+        "granted_by": "Shake It Off",
+        "parent_ability": "Shake It Off"
+      },
+      {
+        "name": "Thrill of Battle",
+        "type": "special",
+        "target": "self",
+        "amount": 0,
+        "condition": null,
+        "source_job": "Warrior",
+        "granted_by": "Thrill of Battle",
+        "parent_ability": "Thrill of Battle"
       }
     ],
     "Pictomancer": [
@@ -686,6 +826,26 @@ const mitigationData = {
         "source_job": "Pictomancer",
         "granted_by": null,
         "parent_ability": "Addle"
+      },
+      {
+        "name": "Tempera Coat",
+        "type": "shield",
+        "target": "self",
+        "amount": 0,
+        "condition": null,
+        "source_job": "Pictomancer",
+        "granted_by": "Tempera Coat",
+        "parent_ability": "Tempera Coat"
+      },
+      {
+        "name": "Tempera Grassa",
+        "type": "shield",
+        "target": "self",
+        "amount": 0,
+        "condition": null,
+        "source_job": "Pictomancer",
+        "granted_by": "Tempera Grassa",
+        "parent_ability": "Tempera Grassa"
       }
     ],
     "Monk": [
@@ -730,6 +890,16 @@ const mitigationData = {
         "source_job": "Dancer",
         "granted_by": null,
         "parent_ability": "Shield Samba"
+      },
+      {
+        "name": "Improvisation",
+        "type": "special",
+        "target": "self",
+        "amount": 0,
+        "condition": null,
+        "source_job": "Dancer",
+        "granted_by": "Improvisation",
+        "parent_ability": "Improvisation"
       }
     ],
     "Reaper": [
@@ -752,6 +922,16 @@ const mitigationData = {
         "source_job": "Reaper",
         "granted_by": null,
         "parent_ability": "Feint"
+      },
+      {
+        "name": "Arcane Crest",
+        "type": "shield",
+        "target": "self",
+        "amount": 0,
+        "condition": null,
+        "source_job": "Reaper",
+        "granted_by": "Arcane Crest",
+        "parent_ability": "Arcane Crest"
       }
     ],
     "RedMage": [
@@ -828,6 +1008,16 @@ const mitigationData = {
         "source_job": "Ninja",
         "granted_by": null,
         "parent_ability": "Feint"
+      },
+      {
+        "name": "Shade Shift",
+        "type": "shield",
+        "target": "self",
+        "amount": 0,
+        "condition": null,
+        "source_job": "Ninja",
+        "granted_by": "Shade Shift",
+        "parent_ability": "Shade Shift"
       }
     ],
     "Sage": [
@@ -860,6 +1050,26 @@ const mitigationData = {
         "source_job": "Sage",
         "granted_by": null,
         "parent_ability": "Holos"
+      },
+      {
+        "name": "Haima",
+        "type": "shield",
+        "target": "self",
+        "amount": 0,
+        "condition": null,
+        "source_job": "Sage",
+        "granted_by": "Haima",
+        "parent_ability": "Haima"
+      },
+      {
+        "name": "Panhaima",
+        "type": "shield",
+        "target": "self",
+        "amount": 0,
+        "condition": null,
+        "source_job": "Sage",
+        "granted_by": "Panhaima",
+        "parent_ability": "Panhaima"
       }
     ]
   },

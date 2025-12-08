@@ -38,21 +38,116 @@ const MAX_OATH = 100;
  */
 const STARTING_OATH = MAX_OATH;
 
-const FALLBACK_OATH_GAUGE = new Map();
+/**
+ * Unique symbol used to attach the per-fight fallback Oath gauge cache to any
+ * object that already scopes state to a single report (e.g., tracker maps or
+ * individual CastCooldownTrackers). Each host gets its own Map keyed by player
+ * name so gauge readings never bleed across fights.
+ *
+ * Use cases:
+ *   - Unit tests that exercise handlers in isolation with no shared
+ *     PaladinOathGaugeContext.
+ *   - Early or partial parsing passes where handlers run before the fight-level
+ *     context is initialized but still need deterministic Oath accounting.
+ *   - Auto-attack replays that operate on cached tracker maps only and must
+ *     remember the last observed gauge between events.
+ */
+const FALLBACK_GAUGE_SYMBOL = Symbol("PaladinFallbackGauge");
 
-function setFallbackGauge(player, value) {
-  if (!player) return;
-  if (!Number.isFinite(value)) {
-    FALLBACK_OATH_GAUGE.delete(player);
-    return;
+/**
+ * Locate (and optionally create) the fallback gauge Map on the provided host.
+ * Hosts include CastCooldownTrackers, tracker maps, or the PaladinOathGaugeContext.
+ *
+ * @param {Object} source - Potential host for the fallback cache.
+ * @param {boolean} create - When true, instantiates the cache if absent.
+ * @returns {Map<string, number>|null}
+ */
+function resolveFallbackStore(source, create = false) {
+  if (!source) return null;
+  let store = source[FALLBACK_GAUGE_SYMBOL];
+  if (!store && create) {
+    store = new Map();
+    Object.defineProperty(source, FALLBACK_GAUGE_SYMBOL, {
+      value: store,
+      enumerable: false,
+      configurable: false,
+      writable: false,
+    });
   }
-  FALLBACK_OATH_GAUGE.set(player, clampGauge(value));
+  return store || null;
 }
 
-function getFallbackGauge(player) {
-  if (!player) return null;
-  const value = FALLBACK_OATH_GAUGE.get(player);
+/**
+ * Persist a normalized gauge reading for a player on the host cache.
+ *
+ * @param {Object} source - Host returned by `selectFallbackSource`.
+ * @param {string} player - FFLogs player name.
+ * @param {number} value - Gauge after clamping; falsy removes entry.
+ */
+function setFallbackGauge(source, player, value) {
+  if (!player || !source) return;
+  if (!Number.isFinite(value)) {
+    const store = resolveFallbackStore(source, false);
+    store?.delete(player);
+    return;
+  }
+  const store = resolveFallbackStore(source, true);
+  store.set(player, clampGauge(value));
+}
+
+/**
+ * Fetch a cached gauge reading for a player from the host cache.
+ *
+ * @param {Object} source - Host returned by `selectFallbackSource`.
+ * @param {string} player - FFLogs player name.
+ * @returns {number|null}
+ */
+function getFallbackGauge(source, player) {
+  if (!player || !source) return null;
+  const store = resolveFallbackStore(source, false);
+  if (!store) return null;
+  const value = store.get(player);
   return Number.isFinite(value) ? value : null;
+}
+
+/**
+ * Inspect the tracker map for the player's CastCooldownTracker so we can hang
+ * the fallback cache directly off the tracker (best per-fight isolation).
+ *
+ * @param {Map<string, CastCooldownTracker>} trackerMap
+ * @param {string} playerName
+ * @returns {CastCooldownTracker|null}
+ */
+function findTrackerFallbackHost(trackerMap, playerName) {
+  if (!(trackerMap instanceof Map) || !playerName) return null;
+  for (const tracker of trackerMap.values()) {
+    if (
+      tracker instanceof CastCooldownTracker &&
+      typeof tracker.getSourcePlayer === "function" &&
+      tracker.getSourcePlayer() === playerName
+    ) {
+      return tracker;
+    }
+  }
+  return null;
+}
+
+/**
+ * Decide which object should host the fallback cache for a player. Preference:
+ *   1) Their CastCooldownTracker (per-player/fight scope).
+ *   2) The tracker map (fight scope shared by all abilities).
+ *   3) The PaladinOathGaugeContext (last resort in tests).
+ *
+ * @param {PaladinOathGaugeContext|null} oathContext
+ * @param {Map<string, CastCooldownTracker>} trackerMap
+ * @param {string} playerName
+ * @returns {Object|null}
+ */
+function selectFallbackSource(oathContext, trackerMap, playerName) {
+  const trackerHost = findTrackerFallbackHost(trackerMap, playerName);
+  if (trackerHost) return trackerHost;
+  if (trackerMap instanceof Map) return trackerMap;
+  return oathContext || null;
 }
 
 // Fetch and validate Paladin mitigation abilities dynamically
@@ -243,7 +338,7 @@ export class PaladinOathGaugeContext {
     if (!state) return this._startingGauge;
     const next = clampGauge(state.gauge - amount);
     state.gauge = next;
-    setFallbackGauge(player, next);
+    setFallbackGauge(this, player, next);
     return next;
   }
 
@@ -259,7 +354,7 @@ export class PaladinOathGaugeContext {
     if (!state) return this._startingGauge;
     const next = clampGauge(state.gauge + amount);
     state.gauge = next;
-    setFallbackGauge(player, next);
+    setFallbackGauge(this, player, next);
     return next;
   }
 }
@@ -385,10 +480,17 @@ export function lockPaladinOathAbilities({
 
   if (abilitiesToLock.size === 0) return;
 
-  if (Number.isFinite(gaugeOverride)) {
-    setFallbackGauge(playerName, gaugeOverride);
-  } else if (!FALLBACK_OATH_GAUGE.has(playerName)) {
-    setFallbackGauge(playerName, 0);
+  const fallbackSource = selectFallbackSource(
+    oathContextRef,
+    trackerMap,
+    playerName
+  );
+  if (fallbackSource) {
+    if (Number.isFinite(gaugeOverride)) {
+      setFallbackGauge(fallbackSource, playerName, gaugeOverride);
+    } else if (getFallbackGauge(fallbackSource, playerName) == null) {
+      setFallbackGauge(fallbackSource, playerName, 0);
+    }
   }
 
   abilitiesToLock.forEach((oathAbility) => {
@@ -457,7 +559,12 @@ export function ensurePaladinOathLock({
       ? oathContext.getGauge(playerName)
       : null;
 
-  const fallbackGauge = getFallbackGauge(playerName);
+  const fallbackSource = selectFallbackSource(
+    oathContext,
+    trackerMap,
+    playerName
+  );
+  const fallbackGauge = getFallbackGauge(fallbackSource, playerName);
   let gauge = Number.isFinite(gaugeOverride)
     ? gaugeOverride
     : Number.isFinite(contextGauge)
@@ -466,10 +573,13 @@ export function ensurePaladinOathLock({
 
   if (!Number.isFinite(gauge)) return;
 
-  setFallbackGauge(
-    playerName,
-    Number.isFinite(contextGauge) ? contextGauge : gauge
-  );
+  if (fallbackSource) {
+    setFallbackGauge(
+      fallbackSource,
+      playerName,
+      Number.isFinite(contextGauge) ? contextGauge : gauge
+    );
+  }
 
   // Step 2: If the Paladin still has enough gauge there is nothing to do.
   if (gauge >= threshold) {
@@ -518,7 +628,7 @@ export function handlePaladinDeathLock({
   const state = oathContext._ensurePlayer(playerName);
   if (state) {
     state.gauge = 0;
-    setFallbackGauge(playerName, 0);
+    setFallbackGauge(oathContext, playerName, 0);
   }
 
   // Step 2: Convert the death timestamp into the same relative scale used by casts.
@@ -924,6 +1034,7 @@ export function handlePaladinOathAbility({
     triggerTracker.addCooldown(start, start + baseCooldown);
   }
 
+  const fallbackSource = selectFallbackSource(oathContext, trackerMap, player);
   const gaugeBefore = oathContext?.getGauge(player) ?? STARTING_OATH;
   // 🔍 Log the current OG before consuming
   log.debug(
@@ -933,7 +1044,9 @@ export function handlePaladinOathAbility({
     typeof oathContext?.consumeGauge === "function"
       ? oathContext.consumeGauge(player, OATH_COST)
       : gaugeBefore - OATH_COST;
-  setFallbackGauge(player, gaugeAfter);
+  if (fallbackSource) {
+    setFallbackGauge(fallbackSource, player, gaugeAfter);
+  }
 
   if (gaugeBefore < OATH_COST) {
     log.warn(
@@ -1014,7 +1127,8 @@ export function handlePaladinAutoAttack({
 
   const contextGauge =
     typeof context?.getGauge === "function" ? context.getGauge(player) : null;
-  const fallbackGauge = getFallbackGauge(player);
+  const fallbackSource = selectFallbackSource(context, trackerMap, player);
+  const fallbackGauge = getFallbackGauge(fallbackSource, player);
   let gaugeBefore = Number.isFinite(contextGauge)
     ? contextGauge
     : fallbackGauge ?? STARTING_OATH;
@@ -1034,7 +1148,9 @@ export function handlePaladinAutoAttack({
     !usedFallback && typeof context?.gainGauge === "function"
       ? context.gainGauge(player, OATH_GAIN)
       : gaugeBefore + OATH_GAIN;
-  setFallbackGauge(player, gaugeAfter);
+  if (fallbackSource) {
+    setFallbackGauge(fallbackSource, player, gaugeAfter);
+  }
 
   log.debug(
     `[CustomCDHandlers] [PaladinOath] Auto attack for ${player}; gauge ${gaugeBefore} -> ${gaugeAfter}`

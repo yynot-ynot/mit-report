@@ -78,6 +78,17 @@ const RAW_COOLDOWN_DEPENDENCY_MAP = [
     maxCharges: 2,
   },
   {
+    job: "Pictomancer",
+    trigger: "Tempera Coat",
+    affects: ["Tempera Grassa"],
+    handler: "handleLinkedAbilityCooldown",
+    // TODO(Tempera Coat/Grassa):
+    //   Tempera barriers refund cooldown when fully absorbed. Once we can fetch
+    //   ally HEALING events (`type === "Healing"`) and spot shield fade lines
+    //   such as "<player>'s Tempera Grassa fades ... (Shield Strength: ####)",
+    //   adjust both Tempera cooldowns based on the observed Shield Strength.
+  },
+  {
     job: "Paladin",
     trigger: "Intervention",
     affects: ["Intervention"],

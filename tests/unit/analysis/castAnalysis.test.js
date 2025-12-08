@@ -726,3 +726,88 @@ test("getMitigationAbilityNames reuses cached mutually exclusive selections by f
 
   clearExclusiveMitigationSelections(fight.id);
 });
+
+/**
+ * 🖌️ Test: Tempera Coat cooldown propagates to Tempera Grassa only.
+ *
+ * Casting Tempera Coat should immediately mark Tempera Grassa as unavailable for
+ * the full recast duration (since Grassa requires Coat to be ready). The inverse
+ * is not true: casting Tempera Grassa alone should not generate a Tempera Coat
+ * tracker, ensuring the link remains one-directional.
+ */
+test("Tempera Coat shares its cooldown with Tempera Grassa", () => {
+  const player = {
+    id: 303,
+    name: "Palette Muse",
+    subType: "Pictomancer",
+    type: "Player",
+  };
+  const actorById = new Map([[player.id, player]]);
+  const fight = { startTime: 0 };
+
+  const coatFirstCasts = [
+    { source: player.name, ability: "Tempera Coat", relative: 4000 },
+  ];
+
+  const { trackers } = buildCooldownTrackers(
+    coatFirstCasts,
+    [],
+    [],
+    fight,
+    actorById,
+    null,
+    [player]
+  );
+
+  const coatTracker = trackers.find(
+    (t) => t.getAbilityName().toLowerCase() === "tempera coat"
+  );
+  const grassaTracker = trackers.find(
+    (t) => t.getAbilityName().toLowerCase() === "tempera grassa"
+  );
+
+  assert.ok(coatTracker, "Tempera Coat tracker should exist after the cast");
+  assert.ok(
+    grassaTracker,
+    "Tempera Coat should create a tracker for Tempera Grassa"
+  );
+
+  const coatWindow = coatTracker.getCooldownWindows()[0];
+  const grassaWindow = grassaTracker.getCooldownWindows()[0];
+
+  assert.ok(coatWindow, "Tempera Coat should record a cooldown window");
+  assert.ok(grassaWindow, "Tempera Grassa should inherit a cooldown window");
+  assert.equal(
+    coatWindow.start,
+    grassaWindow.start,
+    "Linked cooldown windows should start at the Tempera Coat cast"
+  );
+  assert.equal(
+    coatWindow.end,
+    grassaWindow.end,
+    "Tempera Grassa should remain unavailable for the same duration as Tempera Coat"
+  );
+
+  const grassaOnlyCasts = [
+    { source: player.name, ability: "Tempera Grassa", relative: 12000 },
+  ];
+  const { trackers: grassaOnlyTrackers } = buildCooldownTrackers(
+    grassaOnlyCasts,
+    [],
+    [],
+    fight,
+    actorById,
+    null,
+    [player]
+  );
+
+  const coatFromGrassaOnly = grassaOnlyTrackers.find(
+    (t) => t.getAbilityName().toLowerCase() === "tempera coat"
+  );
+
+  assert.equal(
+    coatFromGrassaOnly,
+    undefined,
+    "Casting Tempera Grassa alone should not create or modify a Tempera Coat tracker"
+  );
+});

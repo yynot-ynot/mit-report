@@ -825,6 +825,136 @@ export function handleMutualCardCooldown({
 }
 
 /**
+ * handleLinkedAbilityCooldown()
+ * --------------------------------------------------------------
+ * Mirrors the trigger’s cooldown window onto each ability listed in
+ * `depConfig.affects`. This is intended for asymmetric relationships where a
+ * secondary action (e.g., Tempera Grassa) is only available while its parent
+ * ability (Tempera Coat) is off cooldown. Only the trigger propagates its
+ * cooldown; affected abilities do not influence the trigger unless they define
+ * their own dependency entry.
+ */
+export function handleLinkedAbilityCooldown({
+  depConfig,
+  cast,
+  trackerMap,
+  start,
+  triggerTracker,
+  cooldownInfo,
+  defaultAddCooldown,
+  normalizedAbility,
+  normalizedJob,
+}) {
+  const player = cast?.source;
+  if (!player || !Number.isFinite(start)) {
+    if (typeof defaultAddCooldown === "function") defaultAddCooldown();
+    return;
+  }
+
+  if (!trackerMap || typeof trackerMap.get !== "function") {
+    if (typeof defaultAddCooldown === "function") defaultAddCooldown();
+    return;
+  }
+
+  const triggerAbility =
+    normalizedAbility || normalizeAbilityName(cast?.ability || "");
+  if (!triggerAbility) {
+    if (typeof defaultAddCooldown === "function") defaultAddCooldown();
+    return;
+  }
+
+  const affectedAbilities = (depConfig?.affects || [])
+    .map((name) => normalizeAbilityName(name))
+    .filter(
+      (ability) => ability && ability.length > 0 && ability !== triggerAbility
+    );
+  if (affectedAbilities.length === 0) {
+    if (typeof defaultAddCooldown === "function") defaultAddCooldown();
+    return;
+  }
+
+  const baseCooldown =
+    cooldownInfo?.cooldownMs ??
+    (typeof triggerTracker?.getBaseCooldownMs === "function"
+      ? triggerTracker.getBaseCooldownMs()
+      : null);
+  if (!Number.isFinite(baseCooldown) || baseCooldown <= 0) {
+    if (typeof defaultAddCooldown === "function") defaultAddCooldown();
+    return;
+  }
+
+  if (typeof defaultAddCooldown === "function") {
+    defaultAddCooldown();
+  } else if (triggerTracker instanceof CastCooldownTracker) {
+    triggerTracker.addCooldown(start, start + baseCooldown);
+  }
+
+  const resolveAbilityLabel = (ability) => {
+    if (!Array.isArray(depConfig?.affects)) return ability;
+    const match = depConfig.affects.find(
+      (name) => normalizeAbilityName(name) === ability
+    );
+    return match || ability;
+  };
+
+  const jobLabel =
+    (typeof triggerTracker?.getJobName === "function" &&
+      triggerTracker.getJobName()) ||
+    (typeof cast?.jobName === "string" && cast.jobName) ||
+    (typeof cast?.subType === "string" && cast.subType) ||
+    (normalizedJob && normalizedJob.length > 0
+      ? normalizedJob
+      : "Unknown Job");
+
+  affectedAbilities.forEach((abilityName) => {
+    const trackerKey = buildTrackerKey(player, abilityName);
+    if (!trackerKey) return;
+
+    let targetTracker = trackerMap.get(trackerKey);
+    if (!targetTracker) {
+      const resolvedName = resolveAbilityLabel(abilityName);
+      try {
+        targetTracker = new CastCooldownTracker(
+          resolvedName,
+          player,
+          jobLabel,
+          baseCooldown
+        );
+        trackerMap.set(trackerKey, targetTracker);
+      } catch (err) {
+        log.debug(
+          `[CustomCDHandlers] [LinkedCooldown] Unable to create tracker for ${resolvedName} (${player})`,
+          err
+        );
+        return;
+      }
+    } else if (
+      typeof targetTracker.getBaseCooldownMs === "function" &&
+      (!Number.isFinite(targetTracker.getBaseCooldownMs()) ||
+        targetTracker.getBaseCooldownMs() <= 0)
+    ) {
+      try {
+        targetTracker.setBaseCooldownMs(baseCooldown);
+      } catch (err) {
+        log.debug(
+          `[CustomCDHandlers] [LinkedCooldown] Unable to set base cooldown for ${targetTracker.getAbilityName()} (${player})`,
+          err
+        );
+      }
+    }
+
+    try {
+      targetTracker.addCooldown(start, start + baseCooldown);
+    } catch (err) {
+      log.debug(
+        `[CustomCDHandlers] [LinkedCooldown] Failed to add cooldown window for ${targetTracker.getAbilityName()} (${player})`,
+        err
+      );
+    }
+  });
+}
+
+/**
  * handleChargedCooldown()
  * --------------------------------------------------------------
  * Manages mitigation abilities that regenerate via a limited set of shared

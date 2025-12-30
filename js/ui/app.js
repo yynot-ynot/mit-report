@@ -49,8 +49,9 @@ document.addEventListener("DOMContentLoaded", async () => {
   const urlInput = document.getElementById("reportUrl");
   const reportUrlState = new ReportUrlState(window);
   const initialCodeFromQuery = reportUrlState.getReportCodeFromQuery();
+  const initialFightIdFromQuery = reportUrlState.getFightIdFromQuery();
   const initialUrlFromQuery = initialCodeFromQuery
-    ? ReportUrlState.buildReportUrl(initialCodeFromQuery)
+    ? ReportUrlState.buildReportUrl(initialCodeFromQuery, initialFightIdFromQuery)
     : null;
   if (initialUrlFromQuery) {
     urlInput.value = initialUrlFromQuery;
@@ -88,16 +89,27 @@ document.addEventListener("DOMContentLoaded", async () => {
    */
   async function analyze(url, { skipQuerySync = false } = {}) {
     const reportCode = ReportUrlState.extractReportCode(url);
-    if (!reportCode) {
+    const requestedFightId = ReportUrlState.extractFightId(url);
+    const sanitizedUrl = ReportUrlState.buildReportUrl(
+      reportCode ?? "",
+      requestedFightId
+    );
+    if (!reportCode || !sanitizedUrl) {
       outputEl.textContent = "Invalid report URL.";
       log.error("Invalid report URL", url);
       return;
     }
 
-    const sanitizedUrl = ReportUrlState.buildReportUrl(reportCode);
+    // Normalize the textbox so pasted FFLogs URLs drop extra params after Analyze.
+    urlInput.value = sanitizedUrl;
 
     if (!skipQuerySync) {
       reportUrlState.setQueryParam(reportCode);
+      if (requestedFightId != null) {
+        reportUrlState.setFightParam(requestedFightId);
+      } else {
+        reportUrlState.clearFightParam();
+      }
     }
 
     // Ensure user is logged in before fetching
@@ -458,7 +470,19 @@ document.addEventListener("DOMContentLoaded", async () => {
       stopLoadingMessage("");
 
       // Render fights list in UI; fight tables built lazily on user click
-      renderReport(outputEl, report, loadFightTable);
+      renderReport(outputEl, report, loadFightTable, {
+        initialFightId:
+          typeof requestedFightId === "number" ? requestedFightId : null,
+        onFightSelected: (fightId) => {
+          if (typeof fightId === "number") {
+            reportUrlState.setFightParam(fightId);
+            lastAutoAnalyzedUrl = ReportUrlState.buildReportUrl(
+              reportCode,
+              fightId
+            );
+          }
+        },
+      });
     } catch (err) {
       log.error("Error analyzing report", err);
       stopLoadingMessage("Failed to analyze report.");
@@ -473,15 +497,21 @@ document.addEventListener("DOMContentLoaded", async () => {
     async (token, url) => {
       accessToken = token;
       const initialCode = initialCodeFromQuery;
+      const initialFightId = initialFightIdFromQuery;
       const callbackCode = ReportUrlState.extractReportCode(url);
+      const callbackFightId = ReportUrlState.extractFightId(url);
       const skipQuerySync =
-        initialCode && callbackCode && callbackCode === initialCode;
+        initialCode &&
+        callbackCode &&
+        callbackCode === initialCode &&
+        ((initialFightId == null && callbackFightId == null) ||
+          initialFightId === callbackFightId);
       if (skipQuerySync) {
         initialParamAutoAnalyzed = true;
       }
       const urlToAnalyze = callbackCode
-        ? ReportUrlState.buildReportUrl(callbackCode)
-        : url;
+        ? ReportUrlState.buildReportUrl(callbackCode, callbackFightId)
+        : ReportUrlState.normalizeReportUrl(url) ?? url;
       await analyze(urlToAnalyze, { skipQuerySync });
     }
   );
@@ -513,8 +543,14 @@ document.addEventListener("DOMContentLoaded", async () => {
   // the history with the sanitized value so shareable URLs stay up-to-date.
   urlInput.addEventListener("change", () => {
     const code = ReportUrlState.extractReportCode(urlInput.value);
+    const fightId = ReportUrlState.extractFightId(urlInput.value);
     if (code) {
       reportUrlState.setQueryParam(code);
+    }
+    if (fightId != null) {
+      reportUrlState.setFightParam(fightId);
+    } else {
+      reportUrlState.clearFightParam();
     }
   });
 
@@ -522,13 +558,14 @@ document.addEventListener("DOMContentLoaded", async () => {
   // auto-analyzing if it differs from the last processed value.
   window.addEventListener("popstate", async () => {
     const nextCode = reportUrlState.getReportCodeFromQuery();
+    const nextFightId = reportUrlState.getFightIdFromQuery();
     if (!nextCode) {
       urlInput.value = "";
       lastAutoAnalyzedUrl = null;
       return;
     }
 
-    const nextUrl = ReportUrlState.buildReportUrl(nextCode);
+    const nextUrl = ReportUrlState.buildReportUrl(nextCode, nextFightId);
     if (nextUrl === lastAutoAnalyzedUrl) {
       urlInput.value = nextUrl;
       return;

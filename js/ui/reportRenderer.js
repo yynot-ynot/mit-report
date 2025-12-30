@@ -67,8 +67,14 @@ function getLastPhaseTooltip(fight, phaseNamesByEncounter) {
  * @param {HTMLElement} outputEl - The container element to render into
  * @param {Object} report - Parsed report object with fights, actors, etc.
  * @param {Function} loadFightTable - Async loader for fightTable data
+ * @param {{initialFightId?: number|null, onFightSelected?: (fightId: number) => void}} [options]
  */
-export function renderReport(outputEl, report, loadFightTable) {
+export function renderReport(
+  outputEl,
+  report,
+  loadFightTable,
+  { initialFightId = null, onFightSelected = () => {} } = {}
+) {
   outputEl.innerHTML = `<div class="report-category">${report.title}</div>`;
 
   const fightsByBoss = new Map();
@@ -78,6 +84,12 @@ export function renderReport(outputEl, report, loadFightTable) {
     }
     fightsByBoss.get(f.encounterID).push(f);
   });
+
+  const initialFight = Number.isInteger(initialFightId)
+    ? report.fights.find((f) => f.id === initialFightId)
+    : null;
+  const initialEncounterId = initialFight ? initialFight.encounterID : null;
+  let hasAutoSelectedFight = false;
 
   const reportWrapper = document.createElement("div");
   reportWrapper.classList.add("report-wrapper");
@@ -182,6 +194,8 @@ export function renderReport(outputEl, report, loadFightTable) {
 
     log.debug(`Rendering ${pulls.length} pulls for encounter ${encounterId}`);
 
+    let targetBox = null;
+
     pulls.forEach((f, idx) => {
       const box = document.createElement("div");
       box.classList.add("pull-box");
@@ -205,7 +219,7 @@ export function renderReport(outputEl, report, loadFightTable) {
         box.appendChild(percent);
       }
 
-      box.addEventListener("click", async () => {
+      const selectFight = async () => {
         document
           .querySelectorAll(".pull-box")
           .forEach((b) => b.classList.remove("active"));
@@ -221,10 +235,26 @@ export function renderReport(outputEl, report, loadFightTable) {
         fightState.fightTable.bossPullNumber = f.bossPullNumber;
 
         renderFight(fightState);
-      });
+        if (typeof onFightSelected === "function") {
+          onFightSelected(f.id);
+        }
+        hasAutoSelectedFight = true;
+      };
+
+      box.addEventListener("click", selectFight);
+
+      if (!hasAutoSelectedFight && initialFightId === f.id) {
+        targetBox = box;
+      }
 
       pullGrid.appendChild(box);
     });
+
+    if (targetBox) {
+      targetBox.classList.add("active");
+      targetBox.click();
+      return;
+    }
 
     if (pulls.length > 0) {
       pullGrid.lastChild.classList.add("active");
@@ -250,10 +280,20 @@ export function renderReport(outputEl, report, loadFightTable) {
     bossTabs.appendChild(tab);
   });
 
-  const firstTab = bossTabs.querySelector(".boss-tab");
-  if (firstTab) {
-    firstTab.classList.add("active");
-    renderPullGrid(firstTab.dataset.encounterId);
+  const targetTab = initialEncounterId
+    ? bossTabs.querySelector(
+        `.boss-tab[data-encounter-id="${initialEncounterId}"]`
+      )
+    : null;
+  if (targetTab) {
+    targetTab.classList.add("active");
+    renderPullGrid(initialEncounterId);
+  } else {
+    const firstTab = bossTabs.querySelector(".boss-tab");
+    if (firstTab) {
+      firstTab.classList.add("active");
+      renderPullGrid(firstTab.dataset.encounterId);
+    }
   }
 }
 

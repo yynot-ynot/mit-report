@@ -31,6 +31,7 @@ import { renderReport } from "./reportRenderer.js";
 import { initializeAuth, ensureLogin } from "./authManager.js";
 import { FightState } from "./fightState.js";
 import { Profiler } from "../utility/dataUtils.js";
+import { ReportUrlState } from "./reportUrlState.js";
 
 setModuleLogLevel("App", envLogLevel("debug", "info"));
 const log = getLogger("App");
@@ -46,6 +47,17 @@ document.addEventListener("DOMContentLoaded", async () => {
   const analyzeBtn = document.getElementById("analyzeBtn");
   const outputEl = document.getElementById("output");
   const urlInput = document.getElementById("reportUrl");
+  const reportUrlState = new ReportUrlState(window);
+  const initialCodeFromQuery = reportUrlState.getReportCodeFromQuery();
+  const initialUrlFromQuery = initialCodeFromQuery
+    ? ReportUrlState.buildReportUrl(initialCodeFromQuery)
+    : null;
+  if (initialUrlFromQuery) {
+    urlInput.value = initialUrlFromQuery;
+  }
+
+  let lastAutoAnalyzedUrl = null;
+  let initialParamAutoAnalyzed = false;
 
   // Show "Analyzing..." animation while processing report
   function startLoadingMessage() {
@@ -66,18 +78,32 @@ document.addEventListener("DOMContentLoaded", async () => {
   }
 
   // Main analysis pipeline
-  async function analyze(url) {
-    // Extract FFLogs report code from URL
-    const match = url.match(/reports\/([a-zA-Z0-9]+)/);
-    if (!match) {
+  /**
+   * Runs the analyzer pipeline for the provided FFLogs URL. Callers can opt out
+   * of synchronizing the query parameter when the value already originated from
+   * the URL (e.g., popstate) to avoid redundant history writes.
+   *
+   * @param {string} url - User-provided FFLogs report URL.
+   * @param {{ skipQuerySync?: boolean }} [options]
+   */
+  async function analyze(url, { skipQuerySync = false } = {}) {
+    const reportCode = ReportUrlState.extractReportCode(url);
+    if (!reportCode) {
       outputEl.textContent = "Invalid report URL.";
       log.error("Invalid report URL", url);
       return;
     }
-    const reportCode = match[1];
+
+    const sanitizedUrl = ReportUrlState.buildReportUrl(reportCode);
+
+    if (!skipQuerySync) {
+      reportUrlState.setQueryParam(reportCode);
+    }
 
     // Ensure user is logged in before fetching
-    if (!(await ensureLogin(accessToken, url))) return;
+    if (!(await ensureLogin(accessToken, sanitizedUrl))) return;
+
+    lastAutoAnalyzedUrl = sanitizedUrl;
 
     startLoadingMessage();
 
@@ -446,7 +472,17 @@ document.addEventListener("DOMContentLoaded", async () => {
     urlInput,
     async (token, url) => {
       accessToken = token;
-      await analyze(url);
+      const initialCode = initialCodeFromQuery;
+      const callbackCode = ReportUrlState.extractReportCode(url);
+      const skipQuerySync =
+        initialCode && callbackCode && callbackCode === initialCode;
+      if (skipQuerySync) {
+        initialParamAutoAnalyzed = true;
+      }
+      const urlToAnalyze = callbackCode
+        ? ReportUrlState.buildReportUrl(callbackCode)
+        : url;
+      await analyze(urlToAnalyze, { skipQuerySync });
     }
   );
 
@@ -463,4 +499,48 @@ document.addEventListener("DOMContentLoaded", async () => {
       await analyze(url);
     }
   });
+
+  // Clearing the textbox should also clear the query parameter to satisfy
+  // Test Case #5 from the planning doc.
+  urlInput.addEventListener("input", () => {
+    if (!urlInput.value.trim()) {
+      reportUrlState.clearQueryParam();
+      lastAutoAnalyzedUrl = null;
+    }
+  });
+
+  // When the user blurs the input after edits (without clicking Analyze), sync
+  // the history with the sanitized value so shareable URLs stay up-to-date.
+  urlInput.addEventListener("change", () => {
+    const code = ReportUrlState.extractReportCode(urlInput.value);
+    if (code) {
+      reportUrlState.setQueryParam(code);
+    }
+  });
+
+  // Respond to browser history navigation by re-reading the query param and
+  // auto-analyzing if it differs from the last processed value.
+  window.addEventListener("popstate", async () => {
+    const nextCode = reportUrlState.getReportCodeFromQuery();
+    if (!nextCode) {
+      urlInput.value = "";
+      lastAutoAnalyzedUrl = null;
+      return;
+    }
+
+    const nextUrl = ReportUrlState.buildReportUrl(nextCode);
+    if (nextUrl === lastAutoAnalyzedUrl) {
+      urlInput.value = nextUrl;
+      return;
+    }
+
+    urlInput.value = nextUrl;
+    await analyze(nextUrl, { skipQuerySync: true });
+  });
+
+  // Kick off auto-analysis when the user landed with ?report=... unless the
+  // OAuth callback already did so via initializeAuth's onLogin handler.
+  if (initialUrlFromQuery && !initialParamAutoAnalyzed) {
+    await analyze(initialUrlFromQuery, { skipQuerySync: true });
+  }
 });

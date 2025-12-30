@@ -32,36 +32,106 @@ const mitigationData = {
         "parent_ability": "Manaward"
       }
     ],
-    "Summoner": [
+    "Darkknight": [
       {
-        "name": "Addle",
-        "type": "debuff",
+        "name": "Shadow Wall",
+        "type": "reduction",
         "target": "self",
-        "amount": 5,
-        "condition": "physical damage",
-        "source_job": "Summoner",
+        "amount": 30,
+        "condition": null,
+        "source_job": "Darkknight",
         "granted_by": null,
-        "parent_ability": "Addle"
+        "parent_ability": "Shadow Wall"
       },
       {
-        "name": "Addle",
-        "type": "debuff",
+        "name": "Dark Mind",
+        "type": "reduction",
         "target": "self",
         "amount": 10,
-        "condition": "magical damage",
-        "source_job": "Summoner",
+        "condition": "physical damage",
+        "source_job": "Darkknight",
         "granted_by": null,
-        "parent_ability": "Addle"
+        "parent_ability": "Dark Mind"
       },
       {
-        "name": "Radiant Aegis",
+        "name": "Dark Mind",
+        "type": "reduction",
+        "target": "self",
+        "amount": 20,
+        "condition": "magical damage",
+        "source_job": "Darkknight",
+        "granted_by": null,
+        "parent_ability": "Dark Mind"
+      },
+      {
+        "name": "Dark Missionary",
+        "type": "reduction",
+        "target": "party",
+        "amount": 5,
+        "condition": "physical damage",
+        "source_job": "Darkknight",
+        "granted_by": null,
+        "parent_ability": "Dark Missionary"
+      },
+      {
+        "name": "Dark Missionary",
+        "type": "reduction",
+        "target": "party",
+        "amount": 10,
+        "condition": "magical damage",
+        "source_job": "Darkknight",
+        "granted_by": null,
+        "parent_ability": "Dark Missionary"
+      },
+      {
+        "name": "Oblation",
+        "type": "reduction",
+        "target": "ally",
+        "amount": 10,
+        "condition": null,
+        "source_job": "Darkknight",
+        "granted_by": null,
+        "parent_ability": "Oblation"
+      },
+      {
+        "name": "Shadowed Vigil",
+        "type": "reduction",
+        "target": "self",
+        "amount": 40,
+        "condition": null,
+        "source_job": "Darkknight",
+        "granted_by": null,
+        "parent_ability": "Shadowed Vigil"
+      },
+      {
+        "name": "Rampart",
+        "type": "reduction",
+        "target": "self",
+        "amount": 20,
+        "condition": null,
+        "source_job": "Darkknight",
+        "granted_by": null,
+        "parent_ability": "Rampart"
+      },
+      {
+        "name": "Reprisal",
+        "type": "debuff",
+        "target": "enemy",
+        "amount": 10,
+        "condition": null,
+        "source_job": "Darkknight",
+        "granted_by": null,
+        "parent_ability": "Reprisal"
+      },
+      {
+        "name": "The Blackest Night",
         "type": "shield",
         "target": "self",
         "amount": 0,
         "condition": null,
-        "source_job": "Summoner",
-        "granted_by": "Radiant Aegis",
-        "parent_ability": "Radiant Aegis"
+        "source_job": "Darkknight",
+        "granted_by": "The Blackest Night",
+        "parent_ability": "The Blackest Night"
       }
     ],
     "Scholar": [
@@ -134,108 +204,6 @@ const mitigationData = {
         "source_job": "Scholar",
         "granted_by": "Protraction",
         "parent_ability": "Protraction"
-      }
-    ],
-    "DarkKnight": [
-      {
-        "name": "Shadow Wall",
-        "type": "reduction",
-        "target": "self",
-        "amount": 30,
-        "condition": null,
-        "source_job": "DarkKnight",
-        "granted_by": null,
-        "parent_ability": "Shadow Wall"
-      },
-      {
-        "name": "Dark Mind",
-        "type": "reduction",
-        "target": "self",
-        "amount": 10,
-        "condition": "physical damage",
-        "source_job": "DarkKnight",
-        "granted_by": null,
-        "parent_ability": "Dark Mind"
-      },
-      {
-        "name": "Dark Mind",
-        "type": "reduction",
-        "target": "self",
-        "amount": 20,
-        "condition": "magical damage",
-        "source_job": "DarkKnight",
-        "granted_by": null,
-        "parent_ability": "Dark Mind"
-      },
-      {
-        "name": "Dark Missionary",
-        "type": "reduction",
-        "target": "party",
-        "amount": 5,
-        "condition": "physical damage",
-        "source_job": "DarkKnight",
-        "granted_by": null,
-        "parent_ability": "Dark Missionary"
-      },
-      {
-        "name": "Dark Missionary",
-        "type": "reduction",
-        "target": "party",
-        "amount": 10,
-        "condition": "magical damage",
-        "source_job": "DarkKnight",
-        "granted_by": null,
-        "parent_ability": "Dark Missionary"
-      },
-      {
-        "name": "Oblation",
-        "type": "reduction",
-        "target": "ally",
-        "amount": 10,
-        "condition": null,
-        "source_job": "DarkKnight",
-        "granted_by": null,
-        "parent_ability": "Oblation"
-      },
-      {
-        "name": "Shadowed Vigil",
-        "type": "reduction",
-        "target": "self",
-        "amount": 40,
-        "condition": null,
-        "source_job": "DarkKnight",
-        "granted_by": null,
-        "parent_ability": "Shadowed Vigil"
-      },
-      {
-        "name": "Rampart",
-        "type": "reduction",
-        "target": "self",
-        "amount": 20,
-        "condition": null,
-        "source_job": "DarkKnight",
-        "granted_by": null,
-        "parent_ability": "Rampart"
-      },
-      {
-        "name": "Reprisal",
-        "type": "debuff",
-        "target": "enemy",
-        "amount": 10,
-        "condition": null,
-        "source_job": "DarkKnight",
-        "granted_by": null,
-        "parent_ability": "Reprisal"
-      },
-      {
-        "name": "The Blackest Night",
-        "type": "shield",
-        "target": "self",
-        "amount": 0,
-        "condition": null,
-        "source_job": "DarkKnight",
-        "granted_by": "The Blackest Night",
-        "parent_ability": "The Blackest Night"
       }
     ],
     "Gunbreaker": [
@@ -340,90 +308,138 @@ const mitigationData = {
         "parent_ability": "Reprisal"
       }
     ],
-    "Bard": [
+    "Summoner": [
       {
-        "name": "Troubadour",
+        "name": "Addle",
+        "type": "debuff",
+        "target": "self",
+        "amount": 5,
+        "condition": "physical damage",
+        "source_job": "Summoner",
+        "granted_by": null,
+        "parent_ability": "Addle"
+      },
+      {
+        "name": "Addle",
+        "type": "debuff",
+        "target": "self",
+        "amount": 10,
+        "condition": "magical damage",
+        "source_job": "Summoner",
+        "granted_by": null,
+        "parent_ability": "Addle"
+      },
+      {
+        "name": "Radiant Aegis",
+        "type": "shield",
+        "target": "self",
+        "amount": 0,
+        "condition": null,
+        "source_job": "Summoner",
+        "granted_by": "Radiant Aegis",
+        "parent_ability": "Radiant Aegis"
+      }
+    ],
+    "DarkKnight": [
+      {
+        "name": "Shadow Wall",
+        "type": "reduction",
+        "target": "self",
+        "amount": 30,
+        "condition": null,
+        "source_job": "DarkKnight",
+        "granted_by": null,
+        "parent_ability": "Shadow Wall"
+      },
+      {
+        "name": "Dark Mind",
+        "type": "reduction",
+        "target": "self",
+        "amount": 10,
+        "condition": "physical damage",
+        "source_job": "DarkKnight",
+        "granted_by": null,
+        "parent_ability": "Dark Mind"
+      },
+      {
+        "name": "Dark Mind",
+        "type": "reduction",
+        "target": "self",
+        "amount": 20,
+        "condition": "magical damage",
+        "source_job": "DarkKnight",
+        "granted_by": null,
+        "parent_ability": "Dark Mind"
+      },
+      {
+        "name": "Dark Missionary",
         "type": "reduction",
         "target": "party",
-        "amount": 15,
-        "condition": null,
-        "source_job": "Bard",
-        "granted_by": null,
-        "parent_ability": "Troubadour"
-      }
-    ],
-    "Samurai": [
-      {
-        "name": "Third Eye",
-        "type": "reduction",
-        "target": "self",
-        "amount": 10,
-        "condition": null,
-        "source_job": "Samurai",
-        "granted_by": null,
-        "parent_ability": "Third Eye"
-      },
-      {
-        "name": "Tengentsu",
-        "type": "reduction",
-        "target": "self",
-        "amount": 10,
-        "condition": null,
-        "source_job": "Samurai",
-        "granted_by": null,
-        "parent_ability": "Tengentsu"
-      },
-      {
-        "name": "Tengentsu's Foresight",
-        "type": "reduction",
-        "target": "self",
-        "amount": 10,
-        "condition": null,
-        "source_job": "Samurai",
-        "granted_by": "Tengentsu",
-        "parent_ability": "Tengentsu"
-      },
-      {
-        "name": "Feint",
-        "type": "debuff",
-        "target": "self",
-        "amount": 10,
-        "condition": "physical damage",
-        "source_job": "Samurai",
-        "granted_by": null,
-        "parent_ability": "Feint"
-      },
-      {
-        "name": "Feint",
-        "type": "debuff",
-        "target": "self",
         "amount": 5,
-        "condition": "magical damage",
-        "source_job": "Samurai",
-        "granted_by": null,
-        "parent_ability": "Feint"
-      }
-    ],
-    "Viper": [
-      {
-        "name": "Feint",
-        "type": "debuff",
-        "target": "self",
-        "amount": 10,
         "condition": "physical damage",
-        "source_job": "Viper",
+        "source_job": "DarkKnight",
         "granted_by": null,
-        "parent_ability": "Feint"
+        "parent_ability": "Dark Missionary"
       },
       {
-        "name": "Feint",
-        "type": "debuff",
-        "target": "self",
-        "amount": 5,
+        "name": "Dark Missionary",
+        "type": "reduction",
+        "target": "party",
+        "amount": 10,
         "condition": "magical damage",
-        "source_job": "Viper",
+        "source_job": "DarkKnight",
         "granted_by": null,
-        "parent_ability": "Feint"
+        "parent_ability": "Dark Missionary"
+      },
+      {
+        "name": "Oblation",
+        "type": "reduction",
+        "target": "ally",
+        "amount": 10,
+        "condition": null,
+        "source_job": "DarkKnight",
+        "granted_by": null,
+        "parent_ability": "Oblation"
+      },
+      {
+        "name": "Shadowed Vigil",
+        "type": "reduction",
+        "target": "self",
+        "amount": 40,
+        "condition": null,
+        "source_job": "DarkKnight",
+        "granted_by": null,
+        "parent_ability": "Shadowed Vigil"
+      },
+      {
+        "name": "Rampart",
+        "type": "reduction",
+        "target": "self",
+        "amount": 20,
+        "condition": null,
+        "source_job": "DarkKnight",
+        "granted_by": null,
+        "parent_ability": "Rampart"
+      },
+      {
+        "name": "Reprisal",
+        "type": "debuff",
+        "target": "enemy",
+        "amount": 10,
+        "condition": null,
+        "source_job": "DarkKnight",
+        "granted_by": null,
+        "parent_ability": "Reprisal"
+      },
+      {
+        "name": "The Blackest Night",
+        "type": "shield",
+        "target": "self",
+        "amount": 0,
+        "condition": null,
+        "source_job": "DarkKnight",
+        "granted_by": "The Blackest Night",
+        "parent_ability": "The Blackest Night"
       }
     ],
     "Paladin": [
@@ -580,6 +596,114 @@ const mitigationData = {
         "parent_ability": "Dismantle"
       }
     ],
+    "Bard": [
+      {
+        "name": "Troubadour",
+        "type": "reduction",
+        "target": "party",
+        "amount": 15,
+        "condition": null,
+        "source_job": "Bard",
+        "granted_by": null,
+        "parent_ability": "Troubadour"
+      }
+    ],
+    "Samurai": [
+      {
+        "name": "Third Eye",
+        "type": "reduction",
+        "target": "self",
+        "amount": 10,
+        "condition": null,
+        "source_job": "Samurai",
+        "granted_by": null,
+        "parent_ability": "Third Eye"
+      },
+      {
+        "name": "Tengentsu",
+        "type": "reduction",
+        "target": "self",
+        "amount": 10,
+        "condition": null,
+        "source_job": "Samurai",
+        "granted_by": null,
+        "parent_ability": "Tengentsu"
+      },
+      {
+        "name": "Tengentsu's Foresight",
+        "type": "reduction",
+        "target": "self",
+        "amount": 10,
+        "condition": null,
+        "source_job": "Samurai",
+        "granted_by": "Tengentsu",
+        "parent_ability": "Tengentsu"
+      },
+      {
+        "name": "Feint",
+        "type": "debuff",
+        "target": "self",
+        "amount": 10,
+        "condition": "physical damage",
+        "source_job": "Samurai",
+        "granted_by": null,
+        "parent_ability": "Feint"
+      },
+      {
+        "name": "Feint",
+        "type": "debuff",
+        "target": "self",
+        "amount": 5,
+        "condition": "magical damage",
+        "source_job": "Samurai",
+        "granted_by": null,
+        "parent_ability": "Feint"
+      }
+    ],
+    "Viper": [
+      {
+        "name": "Feint",
+        "type": "debuff",
+        "target": "self",
+        "amount": 10,
+        "condition": "physical damage",
+        "source_job": "Viper",
+        "granted_by": null,
+        "parent_ability": "Feint"
+      },
+      {
+        "name": "Feint",
+        "type": "debuff",
+        "target": "self",
+        "amount": 5,
+        "condition": "magical damage",
+        "source_job": "Viper",
+        "granted_by": null,
+        "parent_ability": "Feint"
+      }
+    ],
+    "Dancer": [
+      {
+        "name": "Shield Samba",
+        "type": "reduction",
+        "target": "party",
+        "amount": 15,
+        "condition": null,
+        "source_job": "Dancer",
+        "granted_by": null,
+        "parent_ability": "Shield Samba"
+      },
+      {
+        "name": "Improvisation",
+        "type": "special",
+        "target": "self",
+        "amount": 0,
+        "condition": null,
+        "source_job": "Dancer",
+        "granted_by": "Improvisation",
+        "parent_ability": "Improvisation"
+      }
+    ],
     "Whitemage": [
       {
         "name": "Temperance",
@@ -602,6 +726,16 @@ const mitigationData = {
         "parent_ability": "Aquaveil"
       },
       {
+        "name": "Plenary Indulgence",
+        "type": "reduction",
+        "target": "self",
+        "amount": 10,
+        "condition": null,
+        "source_job": "Whitemage",
+        "granted_by": null,
+        "parent_ability": "Plenary Indulgence"
+      },
+      {
         "name": "Divine Benison",
         "type": "shield",
         "target": "self",
@@ -620,6 +754,102 @@ const mitigationData = {
         "source_job": "Whitemage",
         "granted_by": "Divine Caress",
         "parent_ability": "Divine Caress"
+      }
+    ],
+    "Monk": [
+      {
+        "name": "Riddle of Earth",
+        "type": "reduction",
+        "target": "self",
+        "amount": 20,
+        "condition": null,
+        "source_job": "Monk",
+        "granted_by": null,
+        "parent_ability": "Riddle of Earth"
+      },
+      {
+        "name": "Feint",
+        "type": "debuff",
+        "target": "self",
+        "amount": 10,
+        "condition": "physical damage",
+        "source_job": "Monk",
+        "granted_by": null,
+        "parent_ability": "Feint"
+      },
+      {
+        "name": "Feint",
+        "type": "debuff",
+        "target": "self",
+        "amount": 5,
+        "condition": "magical damage",
+        "source_job": "Monk",
+        "granted_by": null,
+        "parent_ability": "Feint"
+      }
+    ],
+    "Redmage": [
+      {
+        "name": "Magick Barrier",
+        "type": "reduction",
+        "target": "party",
+        "amount": 10,
+        "condition": "magical damage",
+        "source_job": "Redmage",
+        "granted_by": null,
+        "parent_ability": "Magick Barrier"
+      },
+      {
+        "name": "Addle",
+        "type": "debuff",
+        "target": "self",
+        "amount": 5,
+        "condition": "physical damage",
+        "source_job": "Redmage",
+        "granted_by": null,
+        "parent_ability": "Addle"
+      },
+      {
+        "name": "Addle",
+        "type": "debuff",
+        "target": "self",
+        "amount": 10,
+        "condition": "magical damage",
+        "source_job": "Redmage",
+        "granted_by": null,
+        "parent_ability": "Addle"
+      }
+    ],
+    "Reaper": [
+      {
+        "name": "Feint",
+        "type": "debuff",
+        "target": "self",
+        "amount": 10,
+        "condition": "physical damage",
+        "source_job": "Reaper",
+        "granted_by": null,
+        "parent_ability": "Feint"
+      },
+      {
+        "name": "Feint",
+        "type": "debuff",
+        "target": "self",
+        "amount": 5,
+        "condition": "magical damage",
+        "source_job": "Reaper",
+        "granted_by": null,
+        "parent_ability": "Feint"
+      },
+      {
+        "name": "Arcane Crest",
+        "type": "shield",
+        "target": "self",
+        "amount": 0,
+        "condition": null,
+        "source_job": "Reaper",
+        "granted_by": "Arcane Crest",
+        "parent_ability": "Arcane Crest"
       }
     ],
     "Astrologian": [
@@ -848,92 +1078,6 @@ const mitigationData = {
         "parent_ability": "Tempera Grassa"
       }
     ],
-    "Monk": [
-      {
-        "name": "Riddle of Earth",
-        "type": "reduction",
-        "target": "self",
-        "amount": 20,
-        "condition": null,
-        "source_job": "Monk",
-        "granted_by": null,
-        "parent_ability": "Riddle of Earth"
-      },
-      {
-        "name": "Feint",
-        "type": "debuff",
-        "target": "self",
-        "amount": 10,
-        "condition": "physical damage",
-        "source_job": "Monk",
-        "granted_by": null,
-        "parent_ability": "Feint"
-      },
-      {
-        "name": "Feint",
-        "type": "debuff",
-        "target": "self",
-        "amount": 5,
-        "condition": "magical damage",
-        "source_job": "Monk",
-        "granted_by": null,
-        "parent_ability": "Feint"
-      }
-    ],
-    "Dancer": [
-      {
-        "name": "Shield Samba",
-        "type": "reduction",
-        "target": "party",
-        "amount": 15,
-        "condition": null,
-        "source_job": "Dancer",
-        "granted_by": null,
-        "parent_ability": "Shield Samba"
-      },
-      {
-        "name": "Improvisation",
-        "type": "special",
-        "target": "self",
-        "amount": 0,
-        "condition": null,
-        "source_job": "Dancer",
-        "granted_by": "Improvisation",
-        "parent_ability": "Improvisation"
-      }
-    ],
-    "Reaper": [
-      {
-        "name": "Feint",
-        "type": "debuff",
-        "target": "self",
-        "amount": 10,
-        "condition": "physical damage",
-        "source_job": "Reaper",
-        "granted_by": null,
-        "parent_ability": "Feint"
-      },
-      {
-        "name": "Feint",
-        "type": "debuff",
-        "target": "self",
-        "amount": 5,
-        "condition": "magical damage",
-        "source_job": "Reaper",
-        "granted_by": null,
-        "parent_ability": "Feint"
-      },
-      {
-        "name": "Arcane Crest",
-        "type": "shield",
-        "target": "self",
-        "amount": 0,
-        "condition": null,
-        "source_job": "Reaper",
-        "granted_by": "Arcane Crest",
-        "parent_ability": "Arcane Crest"
-      }
-    ],
     "RedMage": [
       {
         "name": "Magick Barrier",
@@ -988,38 +1132,6 @@ const mitigationData = {
         "parent_ability": "Feint"
       }
     ],
-    "Ninja": [
-      {
-        "name": "Feint",
-        "type": "debuff",
-        "target": "self",
-        "amount": 10,
-        "condition": "physical damage",
-        "source_job": "Ninja",
-        "granted_by": null,
-        "parent_ability": "Feint"
-      },
-      {
-        "name": "Feint",
-        "type": "debuff",
-        "target": "self",
-        "amount": 5,
-        "condition": "magical damage",
-        "source_job": "Ninja",
-        "granted_by": null,
-        "parent_ability": "Feint"
-      },
-      {
-        "name": "Shade Shift",
-        "type": "shield",
-        "target": "self",
-        "amount": 0,
-        "condition": null,
-        "source_job": "Ninja",
-        "granted_by": "Shade Shift",
-        "parent_ability": "Shade Shift"
-      }
-    ],
     "Sage": [
       {
         "name": "Kerachole",
@@ -1070,6 +1182,38 @@ const mitigationData = {
         "source_job": "Sage",
         "granted_by": "Panhaima",
         "parent_ability": "Panhaima"
+      }
+    ],
+    "Ninja": [
+      {
+        "name": "Feint",
+        "type": "debuff",
+        "target": "self",
+        "amount": 10,
+        "condition": "physical damage",
+        "source_job": "Ninja",
+        "granted_by": null,
+        "parent_ability": "Feint"
+      },
+      {
+        "name": "Feint",
+        "type": "debuff",
+        "target": "self",
+        "amount": 5,
+        "condition": "magical damage",
+        "source_job": "Ninja",
+        "granted_by": null,
+        "parent_ability": "Feint"
+      },
+      {
+        "name": "Shade Shift",
+        "type": "shield",
+        "target": "self",
+        "amount": 0,
+        "condition": null,
+        "source_job": "Ninja",
+        "granted_by": "Shade Shift",
+        "parent_ability": "Shade Shift"
       }
     ]
   },

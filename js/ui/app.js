@@ -49,10 +49,19 @@ document.addEventListener("DOMContentLoaded", async () => {
   const urlInput = document.getElementById("reportUrl");
   const reportUrlState = new ReportUrlState(window);
   const initialCodeFromQuery = reportUrlState.getReportCodeFromQuery();
-  const initialFightIdFromQuery = reportUrlState.getFightIdFromQuery();
+  const initialFightSelectionFromQuery =
+    reportUrlState.getFightSelectionFromQuery();
   const initialUrlFromQuery = initialCodeFromQuery
-    ? ReportUrlState.buildReportUrl(initialCodeFromQuery, initialFightIdFromQuery)
+    ? ReportUrlState.buildReportUrl(
+        initialCodeFromQuery,
+        initialFightSelectionFromQuery.fightId,
+        initialFightSelectionFromQuery.useLatest
+      )
     : null;
+  const initialFightIdFromQuery = initialFightSelectionFromQuery.fightId;
+  const initialWantsLatestFromQuery =
+    initialFightSelectionFromQuery.useLatest ||
+    !initialFightSelectionFromQuery.hasValue;
   if (initialUrlFromQuery) {
     urlInput.value = initialUrlFromQuery;
   }
@@ -87,12 +96,23 @@ document.addEventListener("DOMContentLoaded", async () => {
    * @param {string} url - User-provided FFLogs report URL.
    * @param {{ skipQuerySync?: boolean }} [options]
    */
+  /**
+   * Runs the full analysis pipeline given a user-supplied FFLogs URL. The input
+   * is normalized (report code + fight selector) before the OAuth/login checks
+   * occur so the textbox and query parameters always reflect a canonical form.
+   *
+   * @param {string} url
+   * @param {{ skipQuerySync?: boolean }} [options]
+   */
   async function analyze(url, { skipQuerySync = false } = {}) {
     const reportCode = ReportUrlState.extractReportCode(url);
-    const requestedFightId = ReportUrlState.extractFightId(url);
+    const fightSelection = ReportUrlState.parseFightSelection(url);
+    const shouldUseLatest =
+      fightSelection.useLatest || !fightSelection.hasValue;
     const sanitizedUrl = ReportUrlState.buildReportUrl(
       reportCode ?? "",
-      requestedFightId
+      fightSelection.fightId,
+      shouldUseLatest
     );
     if (!reportCode || !sanitizedUrl) {
       outputEl.textContent = "Invalid report URL.";
@@ -105,8 +125,10 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     if (!skipQuerySync) {
       reportUrlState.setQueryParam(reportCode);
-      if (requestedFightId != null) {
-        reportUrlState.setFightParam(requestedFightId);
+      if (shouldUseLatest) {
+        reportUrlState.setFightParam(null, { forceLatest: true });
+      } else if (fightSelection.fightId != null) {
+        reportUrlState.setFightParam(fightSelection.fightId);
       } else {
         reportUrlState.clearFightParam();
       }
@@ -472,8 +494,12 @@ document.addEventListener("DOMContentLoaded", async () => {
       // Render fights list in UI; fight tables built lazily on user click
       renderReport(outputEl, report, loadFightTable, {
         initialFightId:
-          typeof requestedFightId === "number" ? requestedFightId : null,
-        onFightSelected: (fightId) => {
+          shouldUseLatest && fightSelection.fightId == null
+            ? null
+            : fightSelection.fightId,
+        useLatestFight: shouldUseLatest,
+        onFightSelected: (fightId, { isLatestSelection = false } = {}) => {
+          if (isLatestSelection) return;
           if (typeof fightId === "number") {
             reportUrlState.setFightParam(fightId);
             lastAutoAnalyzedUrl = ReportUrlState.buildReportUrl(
@@ -499,18 +525,29 @@ document.addEventListener("DOMContentLoaded", async () => {
       const initialCode = initialCodeFromQuery;
       const initialFightId = initialFightIdFromQuery;
       const callbackCode = ReportUrlState.extractReportCode(url);
-      const callbackFightId = ReportUrlState.extractFightId(url);
+      const callbackSelection = ReportUrlState.parseFightSelection(url);
+      const callbackWantsLatest =
+        callbackSelection.useLatest || !callbackSelection.hasValue;
+      const fightsMatch =
+        (initialWantsLatestFromQuery && callbackWantsLatest) ||
+        (!initialWantsLatestFromQuery &&
+          !callbackWantsLatest &&
+          initialFightId != null &&
+          callbackSelection.fightId === initialFightId);
       const skipQuerySync =
         initialCode &&
         callbackCode &&
         callbackCode === initialCode &&
-        ((initialFightId == null && callbackFightId == null) ||
-          initialFightId === callbackFightId);
+        fightsMatch;
       if (skipQuerySync) {
         initialParamAutoAnalyzed = true;
       }
       const urlToAnalyze = callbackCode
-        ? ReportUrlState.buildReportUrl(callbackCode, callbackFightId)
+        ? ReportUrlState.buildReportUrl(
+            callbackCode,
+            callbackSelection.fightId,
+            callbackWantsLatest
+          )
         : ReportUrlState.normalizeReportUrl(url) ?? url;
       await analyze(urlToAnalyze, { skipQuerySync });
     }
@@ -543,12 +580,14 @@ document.addEventListener("DOMContentLoaded", async () => {
   // the history with the sanitized value so shareable URLs stay up-to-date.
   urlInput.addEventListener("change", () => {
     const code = ReportUrlState.extractReportCode(urlInput.value);
-    const fightId = ReportUrlState.extractFightId(urlInput.value);
+    const fightSelection = ReportUrlState.parseFightSelection(urlInput.value);
     if (code) {
       reportUrlState.setQueryParam(code);
     }
-    if (fightId != null) {
-      reportUrlState.setFightParam(fightId);
+    if (fightSelection.useLatest || !fightSelection.hasValue) {
+      reportUrlState.setFightParam(null, { forceLatest: true });
+    } else if (fightSelection.fightId != null) {
+      reportUrlState.setFightParam(fightSelection.fightId);
     } else {
       reportUrlState.clearFightParam();
     }
@@ -558,14 +597,20 @@ document.addEventListener("DOMContentLoaded", async () => {
   // auto-analyzing if it differs from the last processed value.
   window.addEventListener("popstate", async () => {
     const nextCode = reportUrlState.getReportCodeFromQuery();
-    const nextFightId = reportUrlState.getFightIdFromQuery();
+    const nextSelection = reportUrlState.getFightSelectionFromQuery();
     if (!nextCode) {
       urlInput.value = "";
       lastAutoAnalyzedUrl = null;
       return;
     }
 
-    const nextUrl = ReportUrlState.buildReportUrl(nextCode, nextFightId);
+    const nextWantsLatest =
+      nextSelection.useLatest || !nextSelection.hasValue;
+    const nextUrl = ReportUrlState.buildReportUrl(
+      nextCode,
+      nextSelection.fightId,
+      nextWantsLatest
+    );
     if (nextUrl === lastAutoAnalyzedUrl) {
       urlInput.value = nextUrl;
       return;

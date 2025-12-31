@@ -39,8 +39,8 @@ test("extractReportCode handles raw codes and URLs", () => {
   assert.equal(ReportUrlState.extractReportCode("https://example.com/foo"), null);
 });
 
-// Builds the canonical URL (with optional fight) so the textbox always displays
-// a full FFLogs link even though only the id(s) are stored in the query string.
+// Builds the canonical URL (with optional fight selector) so the textbox always
+// displays a full FFLogs link even though only IDs/keywords are stored.
 test("buildReportUrl reconstructs the canonical FFLogs link", () => {
   assert.equal(
     ReportUrlState.buildReportUrl("ynGLwYTV3cAW7mZ8"),
@@ -50,25 +50,42 @@ test("buildReportUrl reconstructs the canonical FFLogs link", () => {
     ReportUrlState.buildReportUrl("ynGLwYTV3cAW7mZ8", 6),
     "https://www.fflogs.com/reports/ynGLwYTV3cAW7mZ8?fight=6"
   );
+  assert.equal(
+    ReportUrlState.buildReportUrl("ynGLwYTV3cAW7mZ8", null, true),
+    "https://www.fflogs.com/reports/ynGLwYTV3cAW7mZ8?fight=latest"
+  );
 });
 
-// Validates fight id extraction for both raw digits and URLs like those copied
-// from FFLogs.
-test("extractFightId handles plain digits and query params", () => {
-  assert.equal(ReportUrlState.extractFightId("7"), 7);
-  assert.equal(
-    ReportUrlState.extractFightId(
+// Parses fight selectors (numeric, latest keyword, invalid strings, and missing).
+test("parseFightSelection handles numeric, latest, invalid, and missing fights", () => {
+  assert.deepEqual(ReportUrlState.parseFightSelection("7"), {
+    fightId: 7,
+    useLatest: false,
+    hasValue: true,
+  });
+  assert.deepEqual(
+    ReportUrlState.parseFightSelection(
       "https://www.fflogs.com/reports/gC7tXWMwvNqpyD2f?fight=6&type=damage"
     ),
-    6
+    { fightId: 6, useLatest: false, hasValue: true }
   );
-  assert.equal(
-    ReportUrlState.extractFightId(
-      "https://www.fflogs.com/reports/gC7tXWMwvNqpyD2f?fight=7&type=damage-done&source=7&view=events"
+  assert.deepEqual(
+    ReportUrlState.parseFightSelection(
+      "https://www.fflogs.com/reports/gC7tXWMwvNqpyD2f?fight=latest&type=damage"
     ),
-    7
+    { fightId: null, useLatest: true, hasValue: true }
   );
-  assert.equal(ReportUrlState.extractFightId(""), null);
+  assert.deepEqual(
+    ReportUrlState.parseFightSelection(
+      "https://www.fflogs.com/reports/id?fight=current&type=damage"
+    ),
+    { fightId: null, useLatest: true, hasValue: true }
+  );
+  assert.deepEqual(ReportUrlState.parseFightSelection(""), {
+    fightId: null,
+    useLatest: false,
+    hasValue: false,
+  });
 });
 
 // Full URLs copied from FFLogs should normalize down to the canonical report +
@@ -82,7 +99,11 @@ test("normalizeReportUrl strips non-essential FFLogs params", () => {
   );
   assert.equal(
     ReportUrlState.normalizeReportUrl("https://www.fflogs.com/reports/abc123"),
-    "https://www.fflogs.com/reports/abc123"
+    "https://www.fflogs.com/reports/abc123?fight=latest"
+  );
+  assert.equal(
+    ReportUrlState.normalizeReportUrl("https://www.fflogs.com/reports/final?fight=FINAL"),
+    "https://www.fflogs.com/reports/final?fight=latest"
   );
 });
 
@@ -134,6 +155,20 @@ test("setFightParam serializes numeric fight id with replaceState", () => {
   assert.equal(
     windowMock.location.href,
     "https://example.com/index.html?report=abc123&fight=6"
+  );
+});
+
+// Storing the "latest" sentinel should write fight=latest and keep it sticky.
+test("setFightParam stores the 'latest' keyword", () => {
+  const { windowMock } = createFakeWindow(
+    "https://example.com/index.html?report=abc123"
+  );
+  const state = new ReportUrlState(windowMock);
+
+  state.setFightParam(null, { forceLatest: true });
+  assert.equal(
+    windowMock.location.href,
+    "https://example.com/index.html?report=abc123&fight=latest"
   );
 });
 
@@ -201,4 +236,31 @@ test("getFightIdFromQuery exposes the stored fight id", () => {
   const state = new ReportUrlState(windowMock);
 
   assert.equal(state.getFightIdFromQuery(), 12);
+});
+
+// Latest selections should be surfaced via getFightSelectionFromQuery.
+test("getFightSelectionFromQuery reports 'latest' selections", () => {
+  const { windowMock } = createFakeWindow(
+    "https://example.com/index.html?report=ynGLwYTV3cAW7mZ8&fight=latest"
+  );
+  const state = new ReportUrlState(windowMock);
+
+  assert.deepEqual(state.getFightSelectionFromQuery(), {
+    fightId: null,
+    useLatest: true,
+    hasValue: true,
+  });
+});
+
+test("getFightSelectionFromQuery notes when fight parameter is missing", () => {
+  const { windowMock } = createFakeWindow(
+    "https://example.com/index.html?report=ynGLwYTV3cAW7mZ8"
+  );
+  const state = new ReportUrlState(windowMock);
+
+  assert.deepEqual(state.getFightSelectionFromQuery(), {
+    fightId: null,
+    useLatest: false,
+    hasValue: false,
+  });
 });

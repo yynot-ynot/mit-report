@@ -69,11 +69,21 @@ function getLastPhaseTooltip(fight, phaseNamesByEncounter) {
  * @param {Function} loadFightTable - Async loader for fightTable data
  * @param {{initialFightId?: number|null, onFightSelected?: (fightId: number) => void}} [options]
  */
+/**
+ * Renders the full report layout (tabs + pull grid + fight view). When
+ * `useLatestFight` is true, the newest pull is auto-selected and the callback
+ * receives a `isLatestSelection` flag so the URL can remain in `fight=latest`
+ * mode instead of being overwritten with a numeric ID.
+ */
 export function renderReport(
   outputEl,
   report,
   loadFightTable,
-  { initialFightId = null, onFightSelected = () => {} } = {}
+  {
+    initialFightId = null,
+    useLatestFight = false,
+    onFightSelected = () => {},
+  } = {}
 ) {
   outputEl.innerHTML = `<div class="report-category">${report.title}</div>`;
 
@@ -85,11 +95,14 @@ export function renderReport(
     fightsByBoss.get(f.encounterID).push(f);
   });
 
-  const initialFight = Number.isInteger(initialFightId)
-    ? report.fights.find((f) => f.id === initialFightId)
-    : null;
+  const initialFight =
+    !useLatestFight && Number.isInteger(initialFightId)
+      ? report.fights.find((f) => f.id === initialFightId)
+      : null;
   const initialEncounterId = initialFight ? initialFight.encounterID : null;
-  let hasAutoSelectedFight = false;
+  // When useLatestFight is true we suppress the first selection notification so
+  // the caller can keep `fight=latest` instead of converting to a numeric id.
+  let suppressNextSelectionNotification = useLatestFight;
 
   const reportWrapper = document.createElement("div");
   reportWrapper.classList.add("report-wrapper");
@@ -236,14 +249,19 @@ export function renderReport(
 
         renderFight(fightState);
         if (typeof onFightSelected === "function") {
-          onFightSelected(f.id);
+          onFightSelected(f.id, {
+            isLatestSelection: suppressNextSelectionNotification,
+          });
         }
-        hasAutoSelectedFight = true;
+        suppressNextSelectionNotification = false;
       };
 
-      box.addEventListener("click", selectFight);
+      box.addEventListener("click", () => {
+        suppressNextSelectionNotification = false;
+        selectFight();
+      });
 
-      if (!hasAutoSelectedFight && initialFightId === f.id) {
+      if (!useLatestFight && initialFightId === f.id) {
         targetBox = box;
       }
 
@@ -251,14 +269,19 @@ export function renderReport(
     });
 
     if (targetBox) {
+      suppressNextSelectionNotification = false;
       targetBox.classList.add("active");
       targetBox.click();
       return;
     }
 
     if (pulls.length > 0) {
-      pullGrid.lastChild.classList.add("active");
-      pullGrid.lastChild.click();
+      const autoBox = pullGrid.lastChild;
+      if (useLatestFight) {
+        suppressNextSelectionNotification = true;
+      }
+      autoBox.classList.add("active");
+      autoBox.click();
     }
   }
 

@@ -757,6 +757,7 @@ function applyDeathsToAttacks(
  *         // --- Other fight context ---
  *         deaths: [string],          // list of all players dead at this timestamp
  *         availableMitigationsByPlayer: Record<string, string[]>, // per-player mitigation availability snapshot
+ *         resourceStateByPlayer: Record<string, { oathGauge?: number }>, // per-player tracked resource snapshot
  *       }
  *     }
  *   }
@@ -854,6 +855,7 @@ export function buildFightTable(
       vulns: {}, // active vulnerabilities (per-target, no sources)
       deaths: [], // all players dead at this timestamp
       availableMitigationsByPlayer: {}, // per-player mitigation availability snapshot
+      resourceStateByPlayer: {}, // per-player tracked resource snapshot
     });
 
     const newRow = table.rows[table.rows.length - 1];

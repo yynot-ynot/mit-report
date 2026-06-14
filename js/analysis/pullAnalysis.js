@@ -50,6 +50,9 @@
  *       availableMitigationsByPlayer: {        // per-set union of mitigation availability
  *         [playerName: string]: string[]
  *       },
+ *       resourceStateByPlayer: {               // resource snapshot at the set timestamp
+ *         [playerName: string]: { oathGauge?: number }
+ *       },
  *
  *       // --- Child events (subset of FightTable.rows entries) ---
  *       children: [
@@ -169,6 +172,7 @@
 *       botchedBuffs: string[]
  *     }>,
  *     availableMitigationsByPlayer: Record<string, string[]>,
+ *     resourceStateByPlayer: Record<string, { oathGauge?: number }>,
  *     botchedBuffsByPlayer: Record<string, string[]>,
  *     children: Array<Object>
  *   }>
@@ -251,6 +255,7 @@ function buildCondensedGroup(group) {
   const { ability, firstTimestamp, rows } = group;
   const players = {};
   const mitigationUnion = new Map(); // playerName → union of available mitigations across children
+  const resourceStateByPlayer = {};
 
   for (const row of rows) {
     const playerName = row.actor || "Unknown";
@@ -280,6 +285,28 @@ function buildCondensedGroup(group) {
       rowAvailableMit.forEach((ability) =>
         player.availableMitigations.add(ability)
       );
+    }
+
+    // Persist the resource snapshot from the earliest row timestamp in the set.
+    // Each FightTable row already stores a full per-player snapshot for that
+    // timestamp, so the condensed set reuses the first available copy matching
+    // `firstTimestamp` instead of trying to recompute resource state.
+    if (
+      row.timestamp === firstTimestamp &&
+      row.resourceStateByPlayer &&
+      typeof row.resourceStateByPlayer === "object"
+    ) {
+      for (const [name, resourceState] of Object.entries(
+        row.resourceStateByPlayer
+      )) {
+        if (
+          resourceState &&
+          typeof resourceState === "object" &&
+          !resourceStateByPlayer[name]
+        ) {
+          resourceStateByPlayer[name] = { ...resourceState };
+        }
+      }
     }
 
     // --- Aggregate numerical stats ---
@@ -381,6 +408,7 @@ function buildCondensedGroup(group) {
     children: rows,
     damageType: rows[0]?.damageType ?? null,
     availableMitigationsByPlayer,
+    resourceStateByPlayer,
     botchedBuffsByPlayer,
   };
 }

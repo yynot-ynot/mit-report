@@ -607,6 +607,12 @@ tr.mitigation-row td {
     border: 1px solid rgba(0, 0, 0, 0.15);
 }
 
+.mitigation-dot-resource-placeholder {
+    background-color: #6b7280;
+    opacity: 0.85;
+    border-color: rgba(255, 255, 255, 0.18);
+}
+
 .mit-availability-tooltip {
     position: absolute;
     top: 100%;
@@ -638,6 +644,13 @@ tr.mitigation-row td {
     text-transform: uppercase;
     margin-bottom: 0.5rem;
     color: #93c5fd;
+}
+
+.mit-availability-tooltip-resource {
+    font-size: 0.8rem;
+    line-height: 1.35;
+    color: #e5e7eb;
+    margin-bottom: 0.5rem;
 }
 
 .mit-availability-tooltip-grid {

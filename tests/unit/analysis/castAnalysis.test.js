@@ -93,6 +93,69 @@ test("populateMitigationAvailability subtracts cooldowns regardless of ability c
 });
 
 /**
+ * Scenario:
+ *   FightTable rows should persist row-level Paladin Oath snapshots under
+ *   `resourceStateByPlayer`, and when a damage row shares the exact timestamp
+ *   with an Oath-changing event, the stored value should be the pre-event
+ *   amount.
+ *
+ * Explanation:
+ *   This test uses a single Holy Sheltron cast at `t=1000`. Paladin Oath starts
+ *   at 100 and the cast spends 50. We expect:
+ *     1. The row at `t=1000` to keep the pre-cast value (`100`).
+ *     2. The next row at `t=1001` to reflect the post-cast value (`50`).
+ *   This verifies both the row snapshot contract and the same-timestamp
+ *   semantics agreed for the Available Mit overlay.
+ */
+test("populateMitigationAvailability stores pre-event row Oath snapshots", () => {
+  const playerId = 1;
+  const playerName = "F'meow Littlefoot";
+  const actorById = new Map([
+    [
+      playerId,
+      {
+        id: playerId,
+        type: "Player",
+        name: playerName,
+        subType: "Paladin",
+      },
+    ],
+  ]);
+
+  const fightTable = {
+    friendlyPlayerIds: [playerId],
+    rows: [{ timestamp: 1000 }, { timestamp: 1001 }],
+  };
+
+  const parsedCasts = [
+    {
+      source: playerName,
+      ability: "Holy Sheltron",
+      relative: 1000,
+    },
+  ];
+
+  populateMitigationAvailability(
+    fightTable,
+    parsedCasts,
+    [],
+    actorById,
+    { startTime: 0 }
+  );
+
+  assert.deepEqual(
+    fightTable.rows[0].resourceStateByPlayer[playerName],
+    { oathGauge: 100 },
+    "row timestamp matching the cast should preserve the pre-event Oath value"
+  );
+  assert.deepEqual(
+    fightTable.rows[1].resourceStateByPlayer[playerName],
+    { oathGauge: 50 },
+    "subsequent rows should observe the post-spend Oath value"
+  );
+});
+
+/**
  * ✅ Test: buildMitigationCastLookup aggregates and sanitizes mitigation casts
  * ---------------------------------------------------------------------------
  * What it verifies:

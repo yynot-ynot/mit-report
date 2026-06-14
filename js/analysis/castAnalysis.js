@@ -406,9 +406,15 @@ function resolveAbilityCooldown(jobName, abilityName) {
  * @param {Map<number, Object>|null} actorById - Actor lookup map (used to resolve jobs).
  * @param {Map<string, Object>|null} rowMap - Timestamp/actor row lookup (reserved for future use).
  * @param {Array<Object>|Map<string,Object>} [friendlyActors=[]] - Optional roster data used to prioritize actor/job resolution.
+ * @param {number[]} [resourceSnapshotTimestamps=[]] - Optional FightTable row
+ *   timestamps where resource state should be snapshotted. When a row
+ *   timestamp matches an Oath-changing event, the snapshot captures the
+ *   pre-event value so the renderer never implies same-instant resources were
+ *   already usable for that damage packet.
  * @returns {{
  *   trackers: Array<CastCooldownTracker>,
- *   exclusiveAbilityMap: Map<string, {abilityName: string, normalizedAbility: string}>
+ *   exclusiveAbilityMap: Map<string, {abilityName: string, normalizedAbility: string}>,
+ *   resourceStateIndex: Map<number, Map<string, {oathGauge:number}>>
  * }} trackers + mutually exclusive ability selections for the fight.
  */
 export function buildCooldownTrackers(
@@ -418,7 +424,8 @@ export function buildCooldownTrackers(
   fight = null,
   actorById = null,
   rowMap = null,
-  friendlyActors = []
+  friendlyActors = [],
+  resourceSnapshotTimestamps = []
 ) {
   // Step 0: Normalize inputs so that “death-only” scenarios still run through
   // the Paladin death sweep logic.
@@ -430,24 +437,31 @@ export function buildCooldownTrackers(
     if (fight?.id != null) {
       registerExclusiveMitigationSelections(fight.id, emptyMap);
     }
-    return { trackers: [], exclusiveAbilityMap: emptyMap };
+    return {
+      trackers: [],
+      exclusiveAbilityMap: emptyMap,
+      resourceStateIndex: new Map(),
+    };
   }
 
   const actorByName = buildActorNameMap(actorById);
   const friendlyActorMap = new Map();
   let hasPaladin = false;
+  const paladinPlayers = new Set();
+  const registerPaladinPlayer = (actor, fallbackName = "") => {
+    const actorName = actor?.name || fallbackName;
+    if (!actorName) return;
+    const normalizedJob = actor?.subType ? normalizeJobName(actor.subType) : "";
+    if (normalizedJob === "paladin") {
+      paladinPlayers.add(actorName);
+      hasPaladin = true;
+    }
+  };
   if (Array.isArray(friendlyActors)) {
     friendlyActors.forEach((actor) => {
       if (actor && actor.name) {
         friendlyActorMap.set(actor.name, actor);
-        if (!hasPaladin) {
-          const normalizedJob = actor?.subType
-            ? normalizeJobName(actor.subType)
-            : "";
-          if (normalizedJob === "paladin") {
-            hasPaladin = true;
-          }
-        }
+        registerPaladinPlayer(actor);
       }
     });
   } else if (friendlyActors instanceof Map) {
@@ -458,26 +472,13 @@ export function buildCooldownTrackers(
       if (!actorName) return;
       const record = { ...resolvedActor, name: actorName };
       friendlyActorMap.set(actorName, record);
-      if (!hasPaladin) {
-        const normalizedJob = record?.subType
-          ? normalizeJobName(record.subType)
-          : "";
-        if (normalizedJob === "paladin") {
-          hasPaladin = true;
-        }
-      }
+      registerPaladinPlayer(record, actorName);
     });
   }
 
-  if (!hasPaladin && actorByName instanceof Map) {
+  if (actorByName instanceof Map) {
     actorByName.forEach((actor) => {
-      if (hasPaladin) return;
-      const normalizedJob = actor?.subType
-        ? normalizeJobName(actor.subType)
-        : "";
-      if (normalizedJob === "paladin") {
-        hasPaladin = true;
-      }
+      registerPaladinPlayer(actor);
     });
   }
 
@@ -488,12 +489,94 @@ export function buildCooldownTrackers(
   const fightStartTimeMs = fight?.startTime ?? 0;
   const exclusiveSelections = new Map();
   const exclusiveConflictGroups = new Set();
+  const resourceStateIndex = new Map();
+  const snapshotTimestamps = Array.from(
+    new Set(
+      (Array.isArray(resourceSnapshotTimestamps)
+        ? resourceSnapshotTimestamps
+        : []
+      ).filter((ts) => Number.isFinite(ts))
+    )
+  ).sort((a, b) => a - b);
 
   // Step 1: Build friendly roster + baseline mitigation ability lists.
   const trackerMap = new Map();
 
   // 🧭 Pointer into the sorted deaths array so we process each death once, in order
   let deathPtr = 0;
+  let snapshotPtr = 0;
+
+  /**
+   * Capture one row-level resource snapshot.
+   *
+   * Only supported tracked resources are persisted. For the Paladin Oath first
+   * pass, that means every Paladin gets a `{ oathGauge }` object on requested
+   * row timestamps, even before their first Oath-changing event, because the
+   * live context defaults a fresh pull to 100 Oath.
+   *
+   * @param {number} timestamp - Fight-relative row timestamp being snapshotted.
+   */
+  function snapshotCurrentResourcesAt(timestamp) {
+    if (!Number.isFinite(timestamp)) return;
+
+    const playerState = new Map();
+    if (oathContext && typeof oathContext.getGauge === "function") {
+      paladinPlayers.forEach((playerName) => {
+        const oathGauge = oathContext.getGauge(playerName);
+        if (!Number.isFinite(oathGauge)) return;
+        playerState.set(playerName, { oathGauge });
+      });
+    }
+
+    resourceStateIndex.set(timestamp, playerState);
+  }
+
+  /**
+   * Flush snapshots whose row timestamps are <= `uptoRelTs`.
+   *
+   * The caller invokes this before processing events at the same timestamp so
+   * same-instant damage rows keep the pre-event Oath value.
+   *
+   * @param {number} uptoRelTs
+   */
+  function flushResourceSnapshotsUpToInclusive(uptoRelTs) {
+    while (
+      snapshotPtr < snapshotTimestamps.length &&
+      snapshotTimestamps[snapshotPtr] <= uptoRelTs
+    ) {
+      snapshotCurrentResourcesAt(snapshotTimestamps[snapshotPtr]);
+      snapshotPtr += 1;
+    }
+  }
+
+  /**
+   * Apply one parsed death entry to the shared Oath context/tracker map.
+   *
+   * @param {Object} death - Parsed death event.
+   */
+  function processPaladinDeathEvent(death) {
+    const deadName = death?.actor;
+    if (!deadName) return;
+
+    const actor = friendlyActorMap.get(deadName) || actorByName.get(deadName);
+    const jobName = actor?.subType;
+    const normalizedJob = jobName ? normalizeJobName(jobName) : "";
+
+    if (
+      normalizedJob === "paladin" &&
+      typeof CooldownHandlers.handlePaladinDeathLock === "function"
+    ) {
+      CooldownHandlers.handlePaladinDeathLock({
+        playerName: deadName,
+        normalizedJob,
+        deathRelativeTime: death?.relative ?? null,
+        deathRawTimestamp: death?.rawTimestamp ?? null,
+        fightStartTime: fight?.startTime ?? 0,
+        oathContext,
+        trackerMap,
+      });
+    }
+  }
 
   /**
    * handlePaladinDeathsUpTo()
@@ -522,29 +605,7 @@ export function buildCooldownTrackers(
 
     // Walk forward through deaths that happened before this cast
     while (deathPtr < deaths.length && deaths[deathPtr].relative < uptoRelTs) {
-      const death = deaths[deathPtr++];
-      const deadName = death?.actor;
-      if (!deadName) continue;
-
-      // 🔍 Resolve job using the same method used elsewhere in this file
-      const actor = friendlyActorMap.get(deadName) || actorByName.get(deadName);
-      const jobName = actor?.subType;
-      const normalizedJob = jobName ? normalizeJobName(jobName) : "";
-
-      if (
-        normalizedJob === "paladin" &&
-        typeof CooldownHandlers.handlePaladinDeathLock === "function"
-      ) {
-        CooldownHandlers.handlePaladinDeathLock({
-          playerName: deadName,
-          normalizedJob,
-          deathRelativeTime: death?.relative ?? null,
-          deathRawTimestamp: death?.rawTimestamp ?? null,
-          fightStartTime: fight?.startTime ?? 0,
-          oathContext,
-          trackerMap,
-        });
-      }
+      processPaladinDeathEvent(deaths[deathPtr++]);
     }
   }
 
@@ -599,6 +660,7 @@ export function buildCooldownTrackers(
 
   // Step 2: Sweep the combined timeline and dispatch per-cast handlers.
   casts.forEach((cast) => {
+    flushResourceSnapshotsUpToInclusive(cast?.relative);
     // Process any deaths that occurred before this cast; if the death actor is a Paladin, reset OG.
     handlePaladinDeathsUpTo(cast?.relative);
     if (!cast || !cast.ability || !cast.source) return;
@@ -765,8 +827,26 @@ export function buildCooldownTrackers(
     }
   });
 
-  // Step 3: Flush any remaining deaths that occurred after the final cast.
-  handlePaladinDeathsUpTo(Number.MAX_SAFE_INTEGER);
+  // Step 3: Finish the snapshot/death sweep for timestamps after the final
+  // cast, still honoring the pre-event snapshot rule when a row and death share
+  // the same timestamp.
+  while (snapshotPtr < snapshotTimestamps.length || deathPtr < deaths.length) {
+    const nextSnapshot =
+      snapshotPtr < snapshotTimestamps.length
+        ? snapshotTimestamps[snapshotPtr]
+        : Number.POSITIVE_INFINITY;
+    const nextDeath =
+      deathPtr < deaths.length && Number.isFinite(deaths[deathPtr]?.relative)
+        ? deaths[deathPtr].relative
+        : Number.POSITIVE_INFINITY;
+
+    if (nextSnapshot <= nextDeath) {
+      snapshotCurrentResourcesAt(nextSnapshot);
+      snapshotPtr += 1;
+    } else {
+      processPaladinDeathEvent(deaths[deathPtr++]);
+    }
+  }
 
   const trackers = Array.from(trackerMap.values());
 
@@ -802,6 +882,7 @@ export function buildCooldownTrackers(
   return {
     trackers,
     exclusiveAbilityMap: exclusiveSelections,
+    resourceStateIndex,
   };
 }
 
@@ -815,6 +896,8 @@ export function buildCooldownTrackers(
  *      the cooldown windows alongside the fight’s damage timestamps.
  *   4. For every FightTable row, subtract any on-cooldown abilities from each player’s
  *      baseline list and store the results under `row.availableMitigationsByPlayer[name]`.
+ *   5. Persist row-level resource state under `row.resourceStateByPlayer[name]`
+ *      so renderers can show exact resource values next to the availability overlay.
  *
  * Notes:
  *   - Rows belonging to actors without mitigation entries simply receive an empty array.
@@ -893,17 +976,27 @@ export function populateMitigationAvailability(
     });
   }
 
-  // Step 2: Build cooldown trackers for mitigation abilities
-  const { trackers = [], exclusiveAbilityMap = new Map() } =
-    buildCooldownTrackers(
-      parsedCasts,
-      [],
-      parsedDeaths,
-      fight,
-      actorById,
-      null,
-      friendlyActors
-    );
+  const uniqueTimestamps = Array.from(
+    new Set(fightTable.rows.map((row) => row.timestamp))
+  ).sort((a, b) => a - b);
+
+  // Step 2: Build cooldown trackers and resource snapshots using the same
+  // cast/death sweep so row-level availability and row-level resources stay in
+  // lockstep.
+  const {
+    trackers = [],
+    exclusiveAbilityMap = new Map(),
+    resourceStateIndex = new Map(),
+  } = buildCooldownTrackers(
+    parsedCasts,
+    [],
+    parsedDeaths,
+    fight,
+    actorById,
+    null,
+    friendlyActors,
+    uniqueTimestamps
+  );
   fightTable.availableMitigationTrackers = trackers;
   fightTable.mutuallyExclusiveMitigationMap =
     Object.fromEntries(exclusiveAbilityMap);
@@ -922,9 +1015,6 @@ export function populateMitigationAvailability(
   const allPlayerNames = Array.from(baselineAbilitiesByPlayer.keys());
 
   // Step 3: Build cooldown index keyed by timestamp → player → Set(abilities)
-  const uniqueTimestamps = Array.from(
-    new Set(fightTable.rows.map((row) => row.timestamp))
-  ).sort((a, b) => a - b);
 
   const trackerAnomalies = [];
 
@@ -957,6 +1047,16 @@ export function populateMitigationAvailability(
   fightTable.rows.forEach((row) => {
     const cooldownsForTimestamp = cooldownIndex.get(row.timestamp) || new Map();
     row.availableMitigationsByPlayer = {};
+    row.resourceStateByPlayer = {};
+
+    const resourceStateForTimestamp =
+      resourceStateIndex.get(row.timestamp) || new Map();
+    if (resourceStateForTimestamp instanceof Map) {
+      resourceStateForTimestamp.forEach((resourceState, playerName) => {
+        if (!resourceState || typeof resourceState !== "object") return;
+        row.resourceStateByPlayer[playerName] = { ...resourceState };
+      });
+    }
 
     allPlayerNames.forEach((playerName) => {
       const baseline = baselineAbilitiesByPlayer.get(playerName) || [];

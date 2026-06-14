@@ -1083,13 +1083,76 @@ export async function buildMitigationIconRow(
 }
 
 /**
+ * Translate a player's row-level tracked resource state into visible labels for
+ * the Available Mit overlay.
+ *
+ * The analysis layer persists resource values under
+ * `row.resourceStateByPlayer[playerName]`, using only keys valid for that
+ * player's job. This helper centralizes the UI wording so renderers stay
+ * consistent and tests can validate the formatting without constructing DOM.
+ *
+ * @param {Object|null} resourceState - Row-level per-player resource state.
+ * @returns {string[]} Ordered visible labels for the overlay.
+ */
+export function buildAvailableMitigationResourceLabels(resourceState = null) {
+  const labels = [];
+  if (!resourceState || typeof resourceState !== "object") {
+    return labels;
+  }
+
+  if (Number.isFinite(resourceState.oathGauge)) {
+    labels.push(`Oath Gauge: ${resourceState.oathGauge} / 100`);
+  }
+
+  return labels;
+}
+
+/**
+ * Build the high-level overlay state used by `renderAvailableMitigationIcons()`.
+ *
+ * Keeping this logic in a pure helper makes the renderer easier to test without
+ * a browser DOM. In particular, the placeholder-dot behavior is a UI policy:
+ * when resource labels exist but there are no available mitigation dots, we
+ * still expose a hover target so users can inspect the resource tooltip.
+ *
+ * @param {string[]} availableMitigations - Sanitized mitigation names.
+ * @param {Object|null} resourceState - Row-level per-player resource state.
+ * @returns {{
+ *   resourceLabels: string[],
+ *   shouldRenderLayer: boolean,
+ *   shouldRenderPlaceholderDot: boolean
+ * }}
+ */
+export function buildAvailableMitigationOverlayState(
+  availableMitigations = [],
+  resourceState = null
+) {
+  const sanitizedMitigations = Array.isArray(availableMitigations)
+    ? availableMitigations.filter((value) => typeof value === "string" && value)
+    : [];
+  const resourceLabels = buildAvailableMitigationResourceLabels(resourceState);
+
+  return {
+    resourceLabels,
+    shouldRenderLayer:
+      sanitizedMitigations.length > 0 || resourceLabels.length > 0,
+    shouldRenderPlaceholderDot:
+      sanitizedMitigations.length === 0 && resourceLabels.length > 0,
+  };
+}
+
+/**
  * renderAvailableMitigationIcons()
  * --------------------------------------------------------------
  * 🔧 Purpose:
  *   Augment a player cell with a compact “availability” indicator that shows
- *   which mitigation abilities are currently off cooldown. The indicator uses a
- *   grid of colored dots (top→down, right→left) to keep table rows compact while
- *   providing a hover/focus tooltip that lists the full icon + ability name pairs.
+ *   which mitigation abilities are currently off cooldown plus any tracked
+ *   resource values relevant to the same row. The indicator uses a grid of
+ *   colored dots (top→down, right→left) to keep table rows compact while
+ *   providing a hover/focus tooltip that lists the Oath/resource summary first
+ *   and then the full icon + ability name pairs.
+ *   When only resource values exist, a muted placeholder dot is rendered so
+ *   users still have a visible hover/focus target for the tooltip.
  *
  * 🧠 Behavior:
  *   - Preserves existing cell content (buff summaries, text) by wrapping it in
@@ -1114,6 +1177,8 @@ export async function buildMitigationIconRow(
  * @param {Object} [options]
  * @param {number|string|null} [options.fightId=null] - Fight identifier for caching selection data.
  * @param {Map|Object|null} [options.exclusiveAbilityMap=null] - Fight-scoped mutually exclusive selections.
+ * @param {Object|null} [options.resourceState=null] - Row-level tracked
+ *   resource data for the player, e.g. `{ oathGauge: 45 }`.
  * @returns {Promise<void>} Resolves once the icon layer has been updated.
  */
 export async function renderAvailableMitigationIcons(
@@ -1144,10 +1209,16 @@ export async function renderAvailableMitigationIcons(
       sanitizedNames.push(trimmed);
     }
   }
+  const overlayState = buildAvailableMitigationOverlayState(
+    sanitizedNames,
+    options.resourceState
+  );
+  const { resourceLabels, shouldRenderLayer, shouldRenderPlaceholderDot } =
+    overlayState;
 
   // Always ensure every cell has a consistent wrapper structure,
-  // even if there are no available mitigations.
-  if (!jobName || sanitizedNames.length === 0) {
+  // even if there are no available mitigations or tracked resources.
+  if (!shouldRenderLayer) {
     cell.textContent = ""; // clear to rebuild cleanly
 
     const wrapper = document.createElement("div");
@@ -1170,15 +1241,18 @@ export async function renderAvailableMitigationIcons(
   cell.dataset.mitLayerToken = renderToken;
 
   try {
-    // Cached resolver fetches the icon set for the job only once.
-    const icons = await getMitigationAbilityIcons(jobName, options);
-    if (cell.dataset.mitLayerToken !== renderToken) {
-      return;
-    }
+    let iconMap = new Map();
+    if (sanitizedNames.length > 0 && jobName) {
+      // Cached resolver fetches the icon set for the job only once.
+      const icons = await getMitigationAbilityIcons(jobName, options);
+      if (cell.dataset.mitLayerToken !== renderToken) {
+        return;
+      }
 
-    const iconMap = new Map(
-      icons.map(({ name, icon_url }) => [name.toLowerCase(), icon_url])
-    );
+      iconMap = new Map(
+        icons.map(({ name, icon_url }) => [name.toLowerCase(), icon_url])
+      );
+    }
 
     cell.textContent = "";
     const wrapper = document.createElement("div");
@@ -1228,6 +1302,21 @@ export async function renderAvailableMitigationIcons(
       dotLayer.appendChild(columnDiv);
     });
 
+    if (shouldRenderPlaceholderDot) {
+      const placeholderColumn = document.createElement("div");
+      placeholderColumn.classList.add("mit-availability-column");
+
+      const placeholderDot = document.createElement("span");
+      placeholderDot.classList.add(
+        "mitigation-dot",
+        "mitigation-dot-resource-placeholder"
+      );
+      placeholderDot.title = "Tracked resource details";
+      placeholderColumn.appendChild(placeholderDot);
+
+      dotLayer.appendChild(placeholderColumn);
+    }
+
     dotContainer.appendChild(dotLayer);
 
     const tooltip = document.createElement("div");
@@ -1237,41 +1326,54 @@ export async function renderAvailableMitigationIcons(
     tooltipHeader.textContent = "Available Mit";
     tooltip.appendChild(tooltipHeader);
 
-    const tooltipGrid = document.createElement("div");
-    tooltipGrid.classList.add(MIT_AVAILABILITY_TOOLTIP_GRID_CLASS);
-
-    sanitizedNames.forEach((ability) => {
-      const item = document.createElement("div");
-      item.classList.add("mit-availability-tooltip-item");
-
-      const key = ability.toLowerCase();
-      const iconUrl = iconMap.get(key);
-
-      if (iconUrl) {
-        const img = document.createElement("img");
-        img.src = iconUrl;
-        img.alt = ability;
-        img.title = ability;
-        img.classList.add("mit-availability-tooltip-icon");
-        item.appendChild(img);
-      } else {
-        const fallback = document.createElement("span");
-        fallback.classList.add("mit-availability-tooltip-icon", "placeholder");
-        item.appendChild(fallback);
-        log.warn(
-          `[renderAvailableMitigationIcons] Missing icon for ability "${ability}" (${jobName})`
-        );
-      }
-
-      const label = document.createElement("span");
-      label.textContent = ability;
-      label.classList.add("mit-availability-tooltip-label");
-      item.appendChild(label);
-
-      tooltipGrid.appendChild(item);
+    resourceLabels.forEach((labelText) => {
+      const resourceLine = document.createElement("div");
+      resourceLine.classList.add("mit-availability-tooltip-resource");
+      resourceLine.textContent = labelText;
+      tooltip.appendChild(resourceLine);
     });
 
-    tooltip.appendChild(tooltipGrid);
+    if (sanitizedNames.length > 0) {
+      const tooltipGrid = document.createElement("div");
+      tooltipGrid.classList.add(MIT_AVAILABILITY_TOOLTIP_GRID_CLASS);
+
+      sanitizedNames.forEach((ability) => {
+        const item = document.createElement("div");
+        item.classList.add("mit-availability-tooltip-item");
+
+        const key = ability.toLowerCase();
+        const iconUrl = iconMap.get(key);
+
+        if (iconUrl) {
+          const img = document.createElement("img");
+          img.src = iconUrl;
+          img.alt = ability;
+          img.title = ability;
+          img.classList.add("mit-availability-tooltip-icon");
+          item.appendChild(img);
+        } else {
+          const fallback = document.createElement("span");
+          fallback.classList.add(
+            "mit-availability-tooltip-icon",
+            "placeholder"
+          );
+          item.appendChild(fallback);
+          log.warn(
+            `[renderAvailableMitigationIcons] Missing icon for ability "${ability}" (${jobName})`
+          );
+        }
+
+        const label = document.createElement("span");
+        label.textContent = ability;
+        label.classList.add("mit-availability-tooltip-label");
+        item.appendChild(label);
+
+        tooltipGrid.appendChild(item);
+      });
+
+      tooltip.appendChild(tooltipGrid);
+    }
+
     dotContainer.appendChild(tooltip);
     layer.appendChild(dotContainer);
 

@@ -161,6 +161,65 @@ test(
 
 /**
  * Objective:
+ *   Ensure condensed parent sets preserve the row-level resource snapshot taken
+ *   at the set's first timestamp so the Available Mit hover tooltip can render
+ *   Oath Gauge data on the presentation view.
+ *
+ * Approach:
+ *   1. Build a two-row group for the same ability.
+ *   2. Attach `resourceStateByPlayer` only to the earliest row timestamp.
+ *   3. Run `generateCondensedPullTable()` and verify the condensed set copies
+ *      that resource snapshot onto `set.resourceStateByPlayer`.
+ */
+test("generateCondensedPullTable preserves resourceStateByPlayer on condensed sets", () => {
+  const fightTable = {
+    fightId: 77,
+    encounterId: 8888,
+    name: "Paladin Resource Snapshot",
+    rows: [
+      {
+        timestamp: 1000,
+        ability: "Raidwide",
+        actor: "Shield Wall",
+        amount: 9000,
+        unmitigatedAmount: 12000,
+        mitigationPct: 25,
+        intendedMitPct: 30,
+        availableMitigationsByPlayer: {
+          "Shield Wall": ["Holy Sheltron"],
+        },
+        resourceStateByPlayer: {
+          "Shield Wall": { oathGauge: 45 },
+        },
+      },
+      {
+        timestamp: 1500,
+        ability: "Raidwide",
+        actor: "Shield Wall",
+        amount: 8800,
+        unmitigatedAmount: 11800,
+        mitigationPct: 26,
+        intendedMitPct: 31,
+        availableMitigationsByPlayer: {
+          "Shield Wall": ["Intervention"],
+        },
+        resourceStateByPlayer: {
+          "Shield Wall": { oathGauge: 50 },
+        },
+      },
+    ],
+  };
+
+  const result = generateCondensedPullTable(fightTable);
+  assert.equal(result.condensedSets.length, 1, "rows should condense into one set");
+
+  assert.deepEqual(result.condensedSets[0].resourceStateByPlayer, {
+    "Shield Wall": { oathGauge: 45 },
+  });
+});
+
+/**
+ * Objective:
  *   Verify botched buffs are propagated to both per-player aggregates and the
  *   condensed set-level map (`botchedBuffsByPlayer`).
  *

@@ -276,7 +276,10 @@ export function renderDetailedTable(fightState, report, section) {
         renderAvailableMitigationIcons(
           td,
           actor.subType,
-          availableMitNames
+          availableMitNames,
+          {
+            resourceState: event.resourceStateByPlayer?.[actor.name] ?? null,
+          }
         ).catch((err) =>
           log.warn(
             `[DetailedTable] Failed to render mitigation availability for ${actor.name}`,
@@ -487,7 +490,10 @@ export function filterAndStyleDetailedTable(fightState, report) {
           td,
           actor.subType,
           availableMitNames,
-          exclusiveMitOptions
+          {
+            ...exclusiveMitOptions,
+            resourceState: event.resourceStateByPlayer?.[actor.name] ?? null,
+          }
         ).catch((err) =>
           log.warn(
             `[DetailedTable] Failed to repaint mitigation availability for ${actor.name}`,
@@ -500,7 +506,10 @@ export function filterAndStyleDetailedTable(fightState, report) {
           td,
           actor.subType,
           [],
-          exclusiveMitOptions
+          {
+            ...exclusiveMitOptions,
+            resourceState: null,
+          }
         ).catch(() => {});
       }
     });

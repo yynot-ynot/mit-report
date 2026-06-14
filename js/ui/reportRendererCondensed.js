@@ -237,7 +237,10 @@ export function renderCondensedTable(fightState, report, section) {
             td,
             actor.subType,
             availableMitNames,
-            exclusiveMitOptions
+            {
+              ...exclusiveMitOptions,
+              resourceState: set.resourceStateByPlayer?.[actor.name] ?? null,
+            }
           ).catch((err) =>
             log.warn(
               `[CondensedTable] Failed to render mitigation availability for ${actor.name}`,
@@ -481,7 +484,10 @@ export function filterAndStyleCondensedTable(fightState, report) {
           td,
           actor.subType,
           repaintAvailableMit,
-          exclusiveMitOptions
+          {
+            ...exclusiveMitOptions,
+            resourceState: set.resourceStateByPlayer?.[actor.name] ?? null,
+          }
         ).catch((err) =>
           log.warn(
             `[CondensedTable] Failed to repaint mitigation availability for ${actor.name}`,
@@ -493,7 +499,10 @@ export function filterAndStyleCondensedTable(fightState, report) {
           td,
           actor.subType,
           [],
-          exclusiveMitOptions
+          {
+            ...exclusiveMitOptions,
+            resourceState: null,
+          }
         ).catch(() => {});
       }
     });
